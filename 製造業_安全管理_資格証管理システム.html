@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>製造業 安全管理・資格証管理システム｜GrantFlow</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#1a1a18;--ink2:#3a3a36;--ink3:#7a7a72;
+  --bg:#f2f1ec;--surface:#fff;--surface2:#f8f7f2;
+  --border:#e2e1d8;--border2:#c8c7be;
+  --green:#1a7a4a;--green-l:#e8f5ee;--green-m:#b8e0ca;
+  --red:#c0392b;--red-l:#fdecea;--red-m:#f5b7b1;
+  --amber:#c47a00;--amber-l:#fff8e6;--amber-m:#ffd97a;
+  --blue:#1a5fa8;--blue-l:#e8f0fb;--blue-m:#a8c4ef;
+  --orange:#b45309;--orange-l:#fef3c7;--orange-m:#fcd34d;
+  --r:10px;--r2:16px;
+  --shadow:0 2px 8px rgba(0,0,0,.06);
+  --shadow2:0 8px 24px rgba(0,0,0,.10);
+}
+body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;font-size:14px;line-height:1.6;}
+.layout{display:flex;min-height:100vh;}
+.sidebar{width:240px;background:var(--ink);color:#fff;position:fixed;top:0;left:0;bottom:0;display:flex;flex-direction:column;z-index:100;}
+.sidebar-logo{padding:20px 18px;border-bottom:1px solid rgba(255,255,255,.1);}
+.logo-name{font-size:13px;font-weight:700;line-height:1.4;}
+.logo-sub{font-size:10px;color:rgba(255,255,255,.45);margin-top:2px;}
+.logo-badge{display:inline-block;margin-top:6px;font-size:9px;font-weight:700;background:var(--orange);color:#fff;padding:2px 8px;border-radius:4px;font-family:'DM Mono',monospace;}
+.nav-section{padding:12px 0 4px;}
+.nav-label{font-size:9px;font-weight:700;letter-spacing:.1em;color:rgba(255,255,255,.3);padding:0 18px;margin-bottom:4px;text-transform:uppercase;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 18px;font-size:13px;font-weight:500;color:rgba(255,255,255,.6);cursor:pointer;border-left:3px solid transparent;transition:all .15s;}
+.nav-item:hover{color:#fff;background:rgba(255,255,255,.06);}
+.nav-item.active{color:#fff;border-left-color:var(--orange);background:rgba(255,255,255,.08);}
+.nav-icon{font-size:16px;width:20px;text-align:center;}
+.sidebar-footer{margin-top:auto;padding:14px 18px;border-top:1px solid rgba(255,255,255,.1);}
+.user-row{display:flex;align-items:center;gap:8px;}
+.user-av{width:28px;height:28px;border-radius:50%;background:var(--orange);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;}
+.user-name{font-size:11px;font-weight:600;}
+.user-role{font-size:10px;color:rgba(255,255,255,.4);}
+.main{margin-left:240px;flex:1;}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:12px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
+.topbar-title{font-size:16px;font-weight:700;}
+.topbar-right{display:flex;align-items:center;gap:10px;}
+.page{display:none;padding:24px;}
+.page.active{display:block;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:20px;margin-bottom:14px;box-shadow:var(--shadow);}
+.card-title{font-size:14px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.section-title{font-size:18px;font-weight:700;}
+.section-sub{font-size:13px;color:var(--ink3);margin-top:2px;}
+.badge{display:inline-flex;align-items:center;padding:2px 10px;border-radius:6px;font-size:11px;font-weight:700;}
+.badge-ok{background:var(--green-l);color:var(--green);}
+.badge-ng{background:var(--red-l);color:var(--red);}
+.badge-warn{background:var(--amber-l);color:var(--amber);}
+.badge-info{background:var(--blue-l);color:var(--blue);}
+.badge-orange{background:var(--orange-l);color:var(--orange);}
+.badge-gray{background:var(--surface2);color:var(--ink3);border:1px solid var(--border);}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:9px 18px;border:1.5px solid var(--border2);border-radius:var(--r);font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;transition:all .15s;background:var(--surface);color:var(--ink);}
+.btn:hover{background:var(--surface2);}
+.btn-orange{background:var(--orange);border-color:var(--orange);color:#fff;}
+.btn-orange:hover{background:#92400e;}
+.btn-green{background:var(--green);border-color:var(--green);color:#fff;}
+.btn-red{background:var(--red);border-color:var(--red);color:#fff;}
+.btn-blue{background:var(--blue);border-color:var(--blue);color:#fff;}
+.btn-sm{padding:5px 12px;font-size:12px;}
+.btn-full{width:100%;}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;}
+.fg{display:flex;flex-direction:column;gap:4px;margin-bottom:12px;}
+.fg label{font-size:11px;font-weight:700;color:var(--ink3);}
+.fg input,.fg select,.fg textarea{width:100%;padding:9px 12px;border:1.5px solid var(--border2);border-radius:var(--r);font-size:13px;font-family:inherit;color:var(--ink);background:var(--surface);outline:none;transition:border .15s;}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--orange);}
+.fg textarea{resize:vertical;min-height:70px;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:14px 16px;box-shadow:var(--shadow);}
+.stat-label{font-size:11px;color:var(--ink3);margin-bottom:4px;}
+.stat-val{font-size:26px;font-weight:700;line-height:1.1;}
+.stat-sub{font-size:11px;color:var(--ink3);margin-top:2px;}
+.alert{display:flex;gap:10px;padding:12px 14px;border-radius:var(--r);font-size:13px;margin-bottom:8px;border:1px solid;}
+.alert-red{background:var(--red-l);border-color:var(--red-m);color:var(--red);}
+.alert-amber{background:var(--amber-l);border-color:var(--amber-m);color:var(--amber);}
+.alert-green{background:var(--green-l);border-color:var(--green-m);color:var(--green);}
+.alert-blue{background:var(--blue-l);border-color:var(--blue-m);color:var(--blue);}
+.alert-orange{background:var(--orange-l);border-color:var(--orange-m);color:var(--orange);}
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;align-items:center;justify-content:center;padding:16px;}
+.modal-bg.open{display:flex;}
+.modal-box{background:var(--surface);border-radius:var(--r2);padding:24px;width:min(680px,100%);max-height:90vh;overflow-y:auto;box-shadow:var(--shadow2);}
+.modal-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;}
+.modal-title{font-size:16px;font-weight:700;}
+.modal-close{font-size:20px;cursor:pointer;color:var(--ink3);background:none;border:none;}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 20px;border-radius:var(--r);font-size:13px;font-weight:600;opacity:0;transition:opacity .3s;pointer-events:none;z-index:999;white-space:nowrap;}
+.toast.show{opacity:1;}
+/* KY */
+.ky-item{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:10px 14px;margin-bottom:8px;}
+.ky-level{display:inline-block;font-size:10px;padding:2px 8px;border-radius:99px;font-weight:700;margin-bottom:4px;}
+.ky-high{background:var(--red-l);color:var(--red);}
+.ky-mid{background:var(--amber-l);color:var(--amber);}
+.ky-low{background:var(--green-l);color:var(--green);}
+@media(max-width:768px){.sidebar{transform:translateX(-100%);}.main{margin-left:0;}.stat-grid{grid-template-columns:1fr 1fr;}.grid2,.grid3{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<div class="layout">
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-name">製造業<br>安全・資格管理</div>
+    <div class="logo-sub">GrantFlow ⑭</div>
+    <div class="logo-badge">v1.0</div>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">メニュー</div>
+    <div class="nav-item active" onclick="showPage('pg-home')"><span class="nav-icon">🏠</span>ダッシュボード</div>
+    <div class="nav-item" onclick="showPage('pg-staff')"><span class="nav-icon">👤</span>作業員管理</div>
+    <div class="nav-item" onclick="showPage('pg-license')"><span class="nav-icon">🎓</span>資格証管理</div>
+    <div class="nav-item" onclick="showPage('pg-safety')"><span class="nav-icon">⛑️</span>安全教育記録</div>
+    <div class="nav-item" onclick="showPage('pg-ky')"><span class="nav-icon">⚠️</span>KY・ヒヤリハット</div>
+    <div class="nav-item" onclick="showPage('pg-patrol')"><span class="nav-icon">🔍</span>安全パトロール</div>
+  </div>
+  <div class="sidebar-footer">
+    <div class="user-row">
+      <div class="user-av">阪</div>
+      <div><div class="user-name">阪本 光</div><div class="user-role">安全管理者</div></div>
+    </div>
+  </div>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title" id="topbar-title">ダッシュボード</div>
+    <div class="topbar-right">
+      <button class="btn btn-orange btn-sm" onclick="openAddStaff()">＋ 作業員追加</button>
+    </div>
+  </div>
+
+  <!-- HOME -->
+  <div class="page active" id="pg-home">
+    <div class="section-header">
+      <div><div class="section-title">ダッシュボード</div><div class="section-sub" id="home-date"></div></div>
+    </div>
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-label">作業員数</div><div class="stat-val" id="stat-staff" style="color:var(--orange)">0</div><div class="stat-sub">名</div></div>
+      <div class="stat-card"><div class="stat-label">資格期限切れ</div><div class="stat-val" id="stat-expired" style="color:var(--red)">0</div><div class="stat-sub">件</div></div>
+      <div class="stat-card"><div class="stat-label">30日以内期限</div><div class="stat-val" id="stat-soon" style="color:var(--amber)">0</div><div class="stat-sub">件</div></div>
+      <div class="stat-card"><div class="stat-label">今月のKY活動</div><div class="stat-val" id="stat-ky" style="color:var(--blue)">0</div><div class="stat-sub">件</div></div>
+    </div>
+    <div class="card"><div class="card-title">🚨 要対応アラート</div><div id="home-alerts"></div></div>
+    <div class="grid2">
+      <div class="card"><div class="card-title">👤 作業員一覧</div><div id="home-staff"></div></div>
+      <div class="card"><div class="card-title">🎓 期限が近い資格</div><div id="home-licenses"></div></div>
+    </div>
+  </div>
+
+  <!-- STAFF -->
+  <div class="page" id="pg-staff">
+    <div class="section-header">
+      <div><div class="section-title">👤 作業員管理</div><div class="section-sub">外国人作業員の基本情報を管理します</div></div>
+      <button class="btn btn-orange" onclick="openAddStaff()">＋ 作業員追加</button>
+    </div>
+    <div id="staff-list"></div>
+  </div>
+
+  <!-- LICENSE -->
+  <div class="page" id="pg-license">
+    <div class="section-header">
+      <div><div class="section-title">🎓 資格証管理</div><div class="section-sub">資格・免許の有効期限を一元管理します</div></div>
+      <button class="btn btn-orange" onclick="openAddLicense()">＋ 資格を追加</button>
+    </div>
+    <div class="alert alert-orange" style="margin-bottom:14px">
+      <span>⚠️</span><div>フォークリフト・クレーン・危険物取扱など、資格が失効した状態での作業は<strong>労働安全衛生法違反</strong>です。期限管理を徹底してください。</div>
+    </div>
+    <div id="license-list"></div>
+  </div>
+
+  <!-- SAFETY -->
+  <div class="page" id="pg-safety">
+    <div class="section-header">
+      <div><div class="section-title">⛑️ 安全教育記録</div><div class="section-sub">雇入れ時・作業変更時の安全教育を記録します</div></div>
+      <button class="btn btn-orange" onclick="openAddSafety()">＋ 安全教育を記録</button>
+    </div>
+    <div class="alert alert-blue" style="margin-bottom:14px">
+      <span>ℹ️</span><div>雇入れ時・作業変更時の安全衛生教育は<strong>労働安全衛生法第59条</strong>により義務です。記録を保存してください。</div>
+    </div>
+    <div id="safety-list"></div>
+  </div>
+
+  <!-- KY -->
+  <div class="page" id="pg-ky">
+    <div class="section-header">
+      <div><div class="section-title">⚠️ KY・ヒヤリハット記録</div><div class="section-sub">危険予知・ヒヤリハット報告を多言語で管理します</div></div>
+      <button class="btn btn-orange" onclick="openAddKY()">＋ KY・ヒヤリハットを記録</button>
+    </div>
+    <div id="ky-list"></div>
+  </div>
+
+  <!-- PATROL -->
+  <div class="page" id="pg-patrol">
+    <div class="section-header">
+      <div><div class="section-title">🔍 安全パトロール記録</div><div class="section-sub">定期安全パトロールの結果を記録します</div></div>
+      <button class="btn btn-orange" onclick="openAddPatrol()">＋ パトロール記録を追加</button>
+    </div>
+    <div id="patrol-list"></div>
+  </div>
+</div>
+</div>
+
+<!-- MODAL: 作業員追加 -->
+<div class="modal-bg" id="modal-staff">
+  <div class="modal-box">
+    <div class="modal-top">
+      <div class="modal-title">👤 作業員追加</div>
+      <button class="modal-close" onclick="closeModal('modal-staff')">✕</button>
+    </div>
+    <div class="grid2">
+      <div class="fg"><label>氏名★</label><input type="text" id="s-name" placeholder="例：Nguyen Van A"></div>
+      <div class="fg"><label>国籍</label>
+        <select id="s-country"><option>ベトナム</option><option>中国</option><option>フィリピン</option><option>インドネシア</option><option>ミャンマー</option><option>タイ</option><option>ネパール</option><option>その他</option></select>
+      </div>
+      <div class="fg"><label>在留資格</label>
+        <select id="s-visa"><option>特定技能1号</option><option>技能実習1号</option><option>技能実習2号</option><option>技能実習3号</option><option>技術・人文知識・国際業務</option><option>永住者</option><option>その他</option></select>
+      </div>
+      <div class="fg"><label>配属ライン・部署</label><input type="text" id="s-line" placeholder="例：第1製造ライン"></div>
+      <div class="fg"><label>入社日</label><input type="date" id="s-hire"></div>
+      <div class="fg"><label>血液型</label>
+        <select id="s-blood"><option>A型</option><option>B型</option><option>O型</option><option>AB型</option><option>不明</option></select>
+      </div>
+      <div class="fg"><label>緊急連絡先</label><input type="text" id="s-emergency" placeholder="090-xxxx-xxxx"></div>
+      <div class="fg"><label>母国語</label>
+        <select id="s-lang"><option value="vi">ベトナム語</option><option value="zh">中国語</option><option value="id">インドネシア語</option><option value="my">ミャンマー語</option><option value="ja">日本語</option></select>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-orange" onclick="saveStaff()">💾 保存する</button>
+      <button class="btn" onclick="closeModal('modal-staff')">キャンセル</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: 資格追加 -->
+<div class="modal-bg" id="modal-license">
+  <div class="modal-box">
+    <div class="modal-top">
+      <div class="modal-title">🎓 資格証追加</div>
+      <button class="modal-close" onclick="closeModal('modal-license')">✕</button>
+    </div>
+    <div class="grid2">
+      <div class="fg"><label>作業員★</label><select id="l-staff"></select></div>
+      <div class="fg"><label>資格・免許の種類★</label>
+        <select id="l-type">
+          <option>フォークリフト運転技能講習</option>
+          <option>クレーン・デリック運転士</option>
+          <option>玉掛け技能講習</option>
+          <option>危険物取扱者（乙4）</option>
+          <option>危険物取扱者（甲種）</option>
+          <option>有機溶剤作業主任者</option>
+          <option>特定化学物質及び四アルキル鉛等作業主任者</option>
+          <option>酸素欠乏危険作業主任者</option>
+          <option>高所作業車運転技能講習</option>
+          <option>粉じん作業特別教育</option>
+          <option>アーク溶接特別教育</option>
+          <option>低圧電気取扱特別教育</option>
+          <option>その他資格</option>
+        </select>
+      </div>
+      <div class="fg"><label>取得日</label><input type="date" id="l-get"></div>
+      <div class="fg"><label>有効期限</label><input type="date" id="l-exp"></div>
+      <div class="fg"><label>認定機関・登録番号</label><input type="text" id="l-org" placeholder="例：中災防 第12345号"></div>
+      <div class="fg"><label>更新区分</label>
+        <select id="l-renew"><option value="none">更新不要（永続）</option><option value="3">3年ごと更新</option><option value="5">5年ごと更新</option><option value="other">その他</option></select>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-orange" onclick="saveLicense()">💾 保存する</button>
+      <button class="btn" onclick="closeModal('modal-license')">キャンセル</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: 安全教育 -->
+<div class="modal-bg" id="modal-safety">
+  <div class="modal-box">
+    <div class="modal-top">
+      <div class="modal-title">⛑️ 安全教育記録</div>
+      <button class="modal-close" onclick="closeModal('modal-safety')">✕</button>
+    </div>
+    <div class="grid2">
+      <div class="fg"><label>作業員★</label><select id="se-staff"></select></div>
+      <div class="fg"><label>教育種別★</label>
+        <select id="se-type">
+          <option>雇入れ時安全衛生教育</option>
+          <option>作業変更時安全衛生教育</option>
+          <option>特別教育（フォークリフト）</option>
+          <option>特別教育（クレーン）</option>
+          <option>特別教育（電気）</option>
+          <option>危険有害業務従事者教育</option>
+          <option>職長・安全衛生責任者教育</option>
+          <option>定期安全教育</option>
+          <option>その他</option>
+        </select>
+      </div>
+      <div class="fg"><label>実施日★</label><input type="date" id="se-date"></div>
+      <div class="fg"><label>実施時間</label><input type="text" id="se-hours" placeholder="例：6時間"></div>
+      <div class="fg"><label>実施方法</label>
+        <select id="se-method"><option>講義</option><option>OJT</option><option>e-ラーニング</option><option>動画視聴</option><option>多言語テキスト使用</option></select>
+      </div>
+      <div class="fg"><label>担当講師</label><input type="text" id="se-teacher" placeholder="例：安全管理者 阪本"></div>
+    </div>
+    <div style="margin-bottom:12px">
+      <div style="font-size:11px;font-weight:700;color:var(--ink3);margin-bottom:8px">教育内容チェックリスト</div>
+      <div id="safety-checklist"></div>
+    </div>
+    <div class="fg"><label>特記事項・理解度確認</label><textarea id="se-memo" placeholder="受講者の理解度・質問事項・次回フォロー事項など"></textarea></div>
+    <div class="btn-row">
+      <button class="btn btn-orange" onclick="saveSafety()">💾 保存する</button>
+      <button class="btn" onclick="closeModal('modal-safety')">キャンセル</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: KY・ヒヤリハット -->
+<div class="modal-bg" id="modal-ky">
+  <div class="modal-box">
+    <div class="modal-top">
+      <div class="modal-title">⚠️ KY・ヒヤリハット記録</div>
+      <button class="modal-close" onclick="closeModal('modal-ky')">✕</button>
+    </div>
+    <div class="grid2">
+      <div class="fg"><label>報告者</label><select id="ky-staff"></select></div>
+      <div class="fg"><label>発生日★</label><input type="date" id="ky-date"></div>
+      <div class="fg"><label>種別★</label>
+        <select id="ky-type"><option>ヒヤリハット</option><option>KY活動（危険予知）</option><option>軽傷事故</option><option>重傷事故</option><option>設備異常</option></select>
+      </div>
+      <div class="fg"><label>危険度</label>
+        <select id="ky-level"><option value="high">高（重大な危険）</option><option value="mid">中（注意が必要）</option><option value="low">低（軽微）</option></select>
+      </div>
+      <div class="fg"><label>発生場所</label><input type="text" id="ky-place" placeholder="例：第1ライン 組立工程"></div>
+      <div class="fg"><label>作業内容</label><input type="text" id="ky-work" placeholder="例：フォークリフト荷降ろし作業"></div>
+    </div>
+    <div class="fg"><label>状況・内容★</label><textarea id="ky-desc" placeholder="何が起きたか・何が危険だったかを具体的に記録"></textarea></div>
+    <div class="fg"><label>原因</label><textarea id="ky-cause" placeholder="なぜ起きたか・なぜ危険だったか"></textarea></div>
+    <div class="fg"><label>対策・再発防止策</label><textarea id="ky-action" placeholder="今後どうするか・設備改善・作業手順変更など"></textarea></div>
+    <div class="btn-row">
+      <button class="btn btn-orange" onclick="saveKY()">💾 保存する</button>
+      <button class="btn" onclick="closeModal('modal-ky')">キャンセル</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: 安全パトロール -->
+<div class="modal-bg" id="modal-patrol">
+  <div class="modal-box">
+    <div class="modal-top">
+      <div class="modal-title">🔍 安全パトロール記録</div>
+      <button class="modal-close" onclick="closeModal('modal-patrol')">✕</button>
+    </div>
+    <div class="grid2">
+      <div class="fg"><label>実施日★</label><input type="date" id="p-date"></div>
+      <div class="fg"><label>実施者</label><input type="text" id="p-person" placeholder="例：安全管理者 阪本"></div>
+      <div class="fg"><label>パトロール対象エリア</label><input type="text" id="p-area" placeholder="例：第1〜3製造ライン"></div>
+      <div class="fg"><label>総合判定</label>
+        <select id="p-result"><option value="ok">問題なし</option><option value="warn">要改善</option><option value="ng">危険・即対応必要</option></select>
+      </div>
+    </div>
+    <div style="margin-bottom:12px">
+      <div style="font-size:11px;font-weight:700;color:var(--ink3);margin-bottom:8px">チェック項目</div>
+      <div id="patrol-checklist"></div>
+    </div>
+    <div class="fg"><label>指摘事項・改善命令</label><textarea id="p-issues" placeholder="不安全な状態・不安全な行動・改善が必要な点を記録"></textarea></div>
+    <div class="fg"><label>次回パトロール予定日</label><input type="date" id="p-next"></div>
+    <div class="btn-row">
+      <button class="btn btn-orange" onclick="savePatrol()">💾 保存する</button>
+      <button class="btn" onclick="closeModal('modal-patrol')">キャンセル</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SAFETY_ITEMS=[
+  '機械・設備の危険性','原材料・ガス・蒸気・粉じんの危険有害性',
+  '安全装置・有害物抑制装置・保護具の使用方法',
+  '作業手順・作業開始時の点検','整理・整頓・清潔・清掃の保持',
+  '事故時の応急措置・退避方法','通路・避難経路の確認',
+  '作業に関する法令・社内ルール',
+];
+
+const PATROL_ITEMS=[
+  '通路・避難経路の確保','整理整頓・清潔の状態',
+  '保護具（ヘルメット・安全靴・手袋）の着用',
+  '機械・設備の安全装置の作動確認',
+  '危険物・化学物質の適切な保管',
+  '消火器・消火設備の確認','電気設備・コードの安全確認',
+  '高所作業の安全対策','フォークリフト作業エリアの安全確認',
+  '外国人作業員への作業指示の理解確認',
+];
+
+let STATE={staff:[],licenses:[],safeties:[],kys:[],patrols:[],nextId:{staff:1,license:1,safety:1,ky:1,patrol:1}};
+
+function loadState(){const s=localStorage.getItem('grantflow_mfg_v1');if(s)try{STATE=JSON.parse(s);}catch(e){}}
+function saveState(){localStorage.setItem('grantflow_mfg_v1',JSON.stringify(STATE));}
+
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelector(`[onclick="showPage('${id}')"]`).classList.add('active');
+  const titles={'pg-home':'ダッシュボード','pg-staff':'作業員管理','pg-license':'資格証管理','pg-safety':'安全教育記録','pg-ky':'KY・ヒヤリハット','pg-patrol':'安全パトロール'};
+  document.getElementById('topbar-title').textContent=titles[id]||'';
+  if(id==='pg-home') renderHome();
+  if(id==='pg-staff') renderStaffList();
+  if(id==='pg-license') renderLicenseList();
+  if(id==='pg-safety') renderSafetyList();
+  if(id==='pg-ky') renderKYList();
+  if(id==='pg-patrol') renderPatrolList();
+}
+
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+function formatDate(d){if(!d)return'—';const dt=new Date(d);return`${dt.getFullYear()}/${String(dt.getMonth()+1).padStart(2,'0')}/${String(dt.getDate()).padStart(2,'0')}`;}
+function daysUntil(d){if(!d)return null;return Math.ceil((new Date(d)-new Date())/86400000);}
+
+function updateStaffSelects(){
+  const opts=STATE.staff.map(s=>`<option value="${s.id}">${s.name}（${s.line||'—'}）</option>`).join('');
+  ['l-staff','se-staff','ky-staff'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=opts;});
+}
+
+// STAFF
+function openAddStaff(){
+  ['s-name','s-line','s-hire','s-emergency'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('modal-staff').classList.add('open');
+}
+
+function saveStaff(){
+  const name=document.getElementById('s-name').value.trim();
+  if(!name){showToast('氏名を入力してください');return;}
+  STATE.staff.push({
+    id:STATE.nextId.staff++,name,
+    country:document.getElementById('s-country').value,
+    visa:document.getElementById('s-visa').value,
+    line:document.getElementById('s-line').value,
+    hire:document.getElementById('s-hire').value,
+    blood:document.getElementById('s-blood').value,
+    emergency:document.getElementById('s-emergency').value,
+    lang:document.getElementById('s-lang').value,
+  });
+  saveState();closeModal('modal-staff');showToast('✅ 作業員を追加しました');
+  renderStaffList();renderHome();
+}
+
+function renderStaffList(){
+  const el=document.getElementById('staff-list');
+  if(STATE.staff.length===0){el.innerHTML='<div class="card" style="text-align:center;color:var(--ink3);padding:32px">作業員が登録されていません</div>';return;}
+  el.innerHTML=STATE.staff.map(s=>{
+    const licenses=STATE.licenses.filter(l=>l.staffId===s.id);
+    const expired=licenses.filter(l=>l.exp&&daysUntil(l.exp)<0).length;
+    const soon=licenses.filter(l=>l.exp&&daysUntil(l.exp)>=0&&daysUntil(l.exp)<=30).length;
+    const safetyDone=STATE.safeties.some(se=>se.staffId===s.id&&se.type==='雇入れ時安全衛生教育');
+    return `
+    <div class="card" style="padding:16px 20px">
+      <div style="display:flex;align-items:flex-start;gap:14px">
+        <div style="width:44px;height:44px;border-radius:50%;background:var(--orange-l);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">⛑️</div>
+        <div style="flex:1">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px">
+            <span style="font-size:15px;font-weight:700">${s.name}</span>
+            <span class="badge badge-orange">${s.visa}</span>
+            <span class="badge badge-gray">${s.country}</span>
+          </div>
+          <div style="font-size:12px;color:var(--ink3);margin-bottom:8px">
+            ${s.line||'配属未定'} | 入社：${formatDate(s.hire)} | 緊急連絡：${s.emergency||'—'}
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            ${expired>0?`<span class="badge badge-ng">資格期限切れ ${expired}件</span>`:''}
+            ${soon>0?`<span class="badge badge-warn">30日以内 ${soon}件</span>`:''}
+            <span class="badge badge-gray">保有資格 ${licenses.length}件</span>
+            <span class="badge ${safetyDone?'badge-ok':'badge-ng'}">雇入れ教育：${safetyDone?'実施済':'未実施'}</span>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0">
+          <button class="btn btn-sm btn-orange" onclick="openAddLicense();document.getElementById('l-staff').value=${s.id}">🎓 資格追加</button>
+          <button class="btn btn-sm btn-blue" onclick="openAddSafety();document.getElementById('se-staff').value=${s.id}">⛑️ 教育記録</button>
+          <button class="btn btn-sm btn-red" onclick="deleteStaff(${s.id})">🗑️</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function deleteStaff(id){
+  if(!confirm('この作業員を削除しますか？'))return;
+  STATE.staff=STATE.staff.filter(s=>s.id!==id);
+  STATE.licenses=STATE.licenses.filter(l=>l.staffId!==id);
+  STATE.safeties=STATE.safeties.filter(s=>s.staffId!==id);
+  saveState();renderStaffList();renderHome();showToast('削除しました');
+}
+
+// LICENSE
+function openAddLicense(){
+  updateStaffSelects();
+  if(STATE.staff.length===0){showToast('先に作業員を登録してください');return;}
+  ['l-get','l-exp','l-org'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('modal-license').classList.add('open');
+}
+
+function saveLicense(){
+  const staffId=parseInt(document.getElementById('l-staff').value);
+  if(!staffId){showToast('作業員を選択してください');return;}
+  STATE.licenses.push({
+    id:STATE.nextId.license++,staffId,
+    type:document.getElementById('l-type').value,
+    get:document.getElementById('l-get').value,
+    exp:document.getElementById('l-exp').value,
+    org:document.getElementById('l-org').value,
+    renew:document.getElementById('l-renew').value,
+  });
+  saveState();closeModal('modal-license');showToast('✅ 資格を追加しました');
+  renderLicenseList();renderHome();
+}
+
+function renderLicenseList(){
+  const el=document.getElementById('license-list');
+  if(STATE.licenses.length===0){el.innerHTML='<div class="card" style="text-align:center;color:var(--ink3);padding:32px">資格が登録されていません</div>';return;}
+  const sorted=STATE.licenses.sort((a,b)=>{
+    const da=daysUntil(a.exp);const db=daysUntil(b.exp);
+    if(da===null)return 1;if(db===null)return -1;return da-db;
+  });
+  el.innerHTML=sorted.map(l=>{
+    const s=STATE.staff.find(x=>x.id===l.staffId);
+    const days=daysUntil(l.exp);
+    const statusBadge=!l.exp?'<span class="badge badge-ok">永続</span>':
+      days<0?`<span class="badge badge-ng">期限切れ（${Math.abs(days)}日超過）</span>`:
+      days<=30?`<span class="badge badge-warn">残り${days}日</span>`:
+      `<span class="badge badge-ok">残り${days}日</span>`;
+    return `
+    <div class="card" style="padding:14px 18px;border-left:4px solid ${!l.exp?'var(--green)':days<0?'var(--red)':days<=30?'var(--amber)':'var(--green)'}">
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:700;margin-bottom:3px">${l.type}</div>
+          <div style="font-size:12px;color:var(--ink3)">
+            👤 ${s?.name||'不明'} | 取得：${formatDate(l.get)} | 有効期限：${formatDate(l.exp)||'永続'} | ${l.org||'—'}
+          </div>
+        </div>
+        ${statusBadge}
+        <button class="btn btn-sm btn-red" onclick="deleteLicense(${l.id})">🗑️</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function deleteLicense(id){
+  if(!confirm('この資格を削除しますか？'))return;
+  STATE.licenses=STATE.licenses.filter(l=>l.id!==id);
+  saveState();renderLicenseList();renderHome();showToast('削除しました');
+}
+
+// SAFETY
+function openAddSafety(){
+  updateStaffSelects();
+  if(STATE.staff.length===0){showToast('先に作業員を登録してください');return;}
+  document.getElementById('se-date').value=new Date().toISOString().split('T')[0];
+  ['se-hours','se-teacher','se-memo'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  const cl=document.getElementById('safety-checklist');
+  cl.innerHTML=SAFETY_ITEMS.map((item,i)=>`
+    <div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border)">
+      <input type="checkbox" id="si-${i}" style="width:16px;height:16px;cursor:pointer">
+      <label for="si-${i}" style="font-size:12px;cursor:pointer">${item}</label>
+    </div>`).join('');
+  document.getElementById('modal-safety').classList.add('open');
+}
+
+function saveSafety(){
+  const staffId=parseInt(document.getElementById('se-staff').value);
+  const date=document.getElementById('se-date').value;
+  if(!date){showToast('実施日を入力してください');return;}
+  const items=SAFETY_ITEMS.filter((_,i)=>document.getElementById(`si-${i}`)?.checked);
+  STATE.safeties.push({
+    id:STATE.nextId.safety++,staffId,
+    type:document.getElementById('se-type').value,
+    date,hours:document.getElementById('se-hours').value,
+    method:document.getElementById('se-method').value,
+    teacher:document.getElementById('se-teacher').value,
+    items,memo:document.getElementById('se-memo').value,
+  });
+  saveState();closeModal('modal-safety');showToast('✅ 安全教育を記録しました');
+  renderSafetyList();renderHome();
+}
+
+function renderSafetyList(){
+  const el=document.getElementById('safety-list');
+  if(STATE.safeties.length===0){el.innerHTML='<div class="card" style="text-align:center;color:var(--ink3);padding:32px">安全教育の記録がありません</div>';return;}
+  el.innerHTML=STATE.safeties.sort((a,b)=>new Date(b.date)-new Date(a.date)).map(se=>{
+    const s=STATE.staff.find(x=>x.id===se.staffId);
+    return `
+    <div class="card" style="padding:14px 18px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <div>
+          <div style="font-size:13px;font-weight:700">${se.type} <span class="badge badge-orange">${se.method}</span></div>
+          <div style="font-size:12px;color:var(--ink3)">👤 ${s?.name||'不明'} | ${formatDate(se.date)} | ${se.hours||'時間未記録'} | 講師：${se.teacher||'—'}</div>
+        </div>
+        <button class="btn btn-sm btn-red" onclick="deleteSafety(${se.id})">🗑️</button>
+      </div>
+      ${se.items?.length>0?`<div style="display:flex;flex-wrap:wrap;gap:4px">${se.items.map(item=>`<span class="badge badge-ok" style="font-size:10px">${item.slice(0,12)}</span>`).join('')}</div>`:''}
+      ${se.memo?`<div style="font-size:12px;color:var(--ink2);margin-top:8px;background:var(--surface2);border-radius:var(--r);padding:8px">${se.memo}</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+function deleteSafety(id){
+  if(!confirm('この記録を削除しますか？'))return;
+  STATE.safeties=STATE.safeties.filter(s=>s.id!==id);
+  saveState();renderSafetyList();showToast('削除しました');
+}
+
+// KY
+function openAddKY(){
+  updateStaffSelects();
+  document.getElementById('ky-date').value=new Date().toISOString().split('T')[0];
+  ['ky-place','ky-work','ky-desc','ky-cause','ky-action'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('modal-ky').classList.add('open');
+}
+
+function saveKY(){
+  const date=document.getElementById('ky-date').value;
+  const desc=document.getElementById('ky-desc').value.trim();
+  if(!desc){showToast('状況・内容を入力してください');return;}
+  STATE.kys.push({
+    id:STATE.nextId.ky++,
+    staffId:parseInt(document.getElementById('ky-staff').value)||null,
+    date,type:document.getElementById('ky-type').value,
+    level:document.getElementById('ky-level').value,
+    place:document.getElementById('ky-place').value,
+    work:document.getElementById('ky-work').value,
+    desc,cause:document.getElementById('ky-cause').value,
+    action:document.getElementById('ky-action').value,
+  });
+  saveState();closeModal('modal-ky');showToast('✅ KY・ヒヤリハットを記録しました');
+  renderKYList();renderHome();
+}
+
+function renderKYList(){
+  const el=document.getElementById('ky-list');
+  if(STATE.kys.length===0){el.innerHTML='<div class="card" style="text-align:center;color:var(--ink3);padding:32px">KY・ヒヤリハットの記録がありません</div>';return;}
+  el.innerHTML=STATE.kys.sort((a,b)=>new Date(b.date)-new Date(a.date)).map(ky=>{
+    const s=STATE.staff.find(x=>x.id===ky.staffId);
+    const levelCls=ky.level==='high'?'ky-high':ky.level==='mid'?'ky-mid':'ky-low';
+    const levelLabel=ky.level==='high'?'高リスク':ky.level==='mid'?'中リスク':'低リスク';
+    return `
+    <div class="card" style="padding:14px 18px;border-left:4px solid ${ky.level==='high'?'var(--red)':ky.level==='mid'?'var(--amber)':'var(--green)'}">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px">
+        <div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px">
+            <span class="ky-level ${levelCls}">${levelLabel}</span>
+            <span class="badge badge-gray">${ky.type}</span>
+          </div>
+          <div style="font-size:12px;color:var(--ink3)">${formatDate(ky.date)} | ${ky.place||'場所未記録'} | ${ky.work||'—'} | 報告者：${s?.name||'—'}</div>
+        </div>
+        <button class="btn btn-sm btn-red" onclick="deleteKY(${ky.id})">🗑️</button>
+      </div>
+      <div style="font-size:13px;font-weight:600;margin-bottom:4px">📝 ${ky.desc}</div>
+      ${ky.cause?`<div style="font-size:12px;color:var(--ink3);margin-bottom:3px">🔍 原因：${ky.cause}</div>`:''}
+      ${ky.action?`<div style="font-size:12px;color:var(--green)">✅ 対策：${ky.action}</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+function deleteKY(id){
+  if(!confirm('この記録を削除しますか？'))return;
+  STATE.kys=STATE.kys.filter(k=>k.id!==id);
+  saveState();renderKYList();renderHome();showToast('削除しました');
+}
+
+// PATROL
+function openAddPatrol(){
+  document.getElementById('p-date').value=new Date().toISOString().split('T')[0];
+  ['p-person','p-area','p-issues','p-next'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  const cl=document.getElementById('patrol-checklist');
+  cl.innerHTML=PATROL_ITEMS.map((item,i)=>`
+    <div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border)">
+      <select id="pi-${i}" style="padding:4px 8px;border:1px solid var(--border2);border-radius:6px;font-size:12px;font-family:inherit;">
+        <option value="ok">✅ 問題なし</option>
+        <option value="warn">⚠️ 要改善</option>
+        <option value="ng">🚨 要即対応</option>
+      </select>
+      <label style="font-size:12px">${item}</label>
+    </div>`).join('');
+  document.getElementById('modal-patrol').classList.add('open');
+}
+
+function savePatrol(){
+  const date=document.getElementById('p-date').value;
+  if(!date){showToast('実施日を入力してください');return;}
+  const checks=PATROL_ITEMS.map((item,i)=>({item,result:document.getElementById(`pi-${i}`)?.value||'ok'}));
+  STATE.patrols.push({
+    id:STATE.nextId.patrol++,date,
+    person:document.getElementById('p-person').value,
+    area:document.getElementById('p-area').value,
+    result:document.getElementById('p-result').value,
+    checks,
+    issues:document.getElementById('p-issues').value,
+    next:document.getElementById('p-next').value,
+  });
+  saveState();closeModal('modal-patrol');showToast('✅ パトロール記録を保存しました');
+  renderPatrolList();
+}
+
+function renderPatrolList(){
+  const el=document.getElementById('patrol-list');
+  if(STATE.patrols.length===0){el.innerHTML='<div class="card" style="text-align:center;color:var(--ink3);padding:32px">パトロール記録がありません</div>';return;}
+  el.innerHTML=STATE.patrols.sort((a,b)=>new Date(b.date)-new Date(a.date)).map(p=>{
+    const resultBadge=p.result==='ok'?'badge-ok':p.result==='warn'?'badge-warn':'badge-ng';
+    const resultLabel=p.result==='ok'?'問題なし':p.result==='warn'?'要改善':'危険・即対応';
+    const issues=p.checks?.filter(c=>c.result!=='ok')||[];
+    return `
+    <div class="card" style="padding:14px 18px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <div>
+          <div style="font-size:13px;font-weight:700;margin-bottom:3px">安全パトロール <span class="badge ${resultBadge}">${resultLabel}</span></div>
+          <div style="font-size:12px;color:var(--ink3)">${formatDate(p.date)} | ${p.area||'エリア未記録'} | 実施者：${p.person||'—'}</div>
+        </div>
+        <button class="btn btn-sm btn-red" onclick="deletePatrol(${p.id})">🗑️</button>
+      </div>
+      ${issues.length>0?`<div style="font-size:12px;color:var(--amber);margin-bottom:6px">⚠️ 指摘項目：${issues.map(c=>c.item).join('・')}</div>`:''}
+      ${p.issues?`<div style="font-size:12px;background:var(--surface2);border-radius:var(--r);padding:8px;margin-bottom:6px">${p.issues}</div>`:''}
+      ${p.next?`<div style="font-size:11px;color:var(--blue)">次回パトロール予定：${formatDate(p.next)}</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+function deletePatrol(id){
+  if(!confirm('この記録を削除しますか？'))return;
+  STATE.patrols=STATE.patrols.filter(p=>p.id!==id);
+  saveState();renderPatrolList();showToast('削除しました');
+}
+
+// HOME
+function renderHome(){
+  const now=new Date();
+  document.getElementById('home-date').textContent=`${now.getFullYear()}年${now.getMonth()+1}月${now.getDate()}日（${['日','月','火','水','木','金','土'][now.getDay()]}）`;
+
+  let expired=0,soon=0;
+  const alerts=[];
+  STATE.licenses.forEach(l=>{
+    const days=daysUntil(l.exp);
+    if(days===null)return;
+    const s=STATE.staff.find(x=>x.id===l.staffId);
+    if(days<0){expired++;alerts.push({type:'red',msg:`【資格期限切れ】${s?.name||'—'}／${l.type}（${Math.abs(days)}日超過）`});}
+    else if(days<=30){soon++;alerts.push({type:'amber',msg:`【資格期限間近】${s?.name||'—'}／${l.type}（残り${days}日）`});}
+  });
+
+  STATE.staff.forEach(s=>{
+    if(!STATE.safeties.some(se=>se.staffId===s.id&&se.type==='雇入れ時安全衛生教育')){
+      alerts.push({type:'amber',msg:`【安全教育未実施】${s.name}（雇入れ時安全衛生教育）`});
+    }
+  });
+
+  const thisMonthKY=STATE.kys.filter(k=>{const d=new Date(k.date);return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();});
+  document.getElementById('stat-staff').textContent=STATE.staff.length;
+  document.getElementById('stat-expired').textContent=expired;
+  document.getElementById('stat-soon').textContent=soon;
+  document.getElementById('stat-ky').textContent=thisMonthKY.length;
+
+  const alertEl=document.getElementById('home-alerts');
+  alertEl.innerHTML=alerts.length===0?'<div class="alert alert-green"><span>✅</span><div>要対応アラートはありません</div></div>':
+    alerts.slice(0,5).map(a=>`<div class="alert alert-${a.type==='red'?'red':'amber'}"><span>${a.type==='red'?'🚨':'⚠️'}</span><div>${a.msg}</div></div>`).join('');
+
+  const staffEl=document.getElementById('home-staff');
+  staffEl.innerHTML=STATE.staff.length===0?'<div style="color:var(--ink3);font-size:13px">作業員が登録されていません</div>':
+    STATE.staff.slice(0,5).map(s=>`
+    <div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border)">
+      <span style="font-size:13px;font-weight:600;flex:1">${s.name}</span>
+      <span class="badge badge-gray">${s.line||'—'}</span>
+      <span class="badge badge-orange">${s.visa}</span>
+    </div>`).join('');
+
+  const licEl=document.getElementById('home-licenses');
+  const expiring=STATE.licenses.filter(l=>{const d=daysUntil(l.exp);return d!==null&&d>=0&&d<=60;}).sort((a,b)=>daysUntil(a.exp)-daysUntil(b.exp));
+  licEl.innerHTML=expiring.length===0?'<div style="color:var(--ink3);font-size:13px">期限が近い資格はありません</div>':
+    expiring.slice(0,5).map(l=>{
+      const s=STATE.staff.find(x=>x.id===l.staffId);
+      const days=daysUntil(l.exp);
+      return `<div style="font-size:12px;padding:6px 0;border-bottom:1px solid var(--border);display:flex;gap:8px;align-items:center">
+        <span style="flex:1">${s?.name||'—'} / ${l.type.slice(0,10)}…</span>
+        <span class="badge ${days<=30?'badge-warn':'badge-info'}">残り${days}日</span>
+      </div>`;
+    }).join('');
+}
+
+loadState();
+const initNow=new Date();
+document.getElementById('home-date').textContent=`${initNow.getFullYear()}年${initNow.getMonth()+1}月${initNow.getDate()}日（${['日','月','火','水','木','金','土'][initNow.getDay()]}）`;
+renderHome();
+</script>
+</body>
+</html>
