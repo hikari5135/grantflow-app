@@ -1,0 +1,1251 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>労務翻訳 + 助成金診断システム｜デモ版</title>
+  <!-- ファイル読み込みライブラリ -->
+  <script src="https://cdn.jsdelivr.net/npm/mammoth@1.6.0/mammoth.browser.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
+  <!-- Wordファイル生成ライブラリ -->
+  <script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js"></script>
+  <!-- PDFファイル生成ライブラリ -->
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+  <style>
+    @media print {
+      body { background: #fff !important; padding: 0; }
+      .container { max-width: 100%; }
+      /* 共通：非表示 */
+      .header, .tabs, .btn-row, .download-section, .hint,
+      #api-key-card, .toast, #btn-check, #check-loading,
+      .field { display: none !important; }
+      /* 翻訳印刷モード */
+      body.print-translate #panel-subsidy,
+      body.print-translate #panel-check { display: none !important; }
+      body.print-translate #panel-translate { display: block !important; }
+      body.print-translate .card:not(#print-target-card) { display: none !important; }
+      body.print-translate #print-target-card { display: block !important; box-shadow: none !important; border: none !important; padding: 0 !important; }
+      body.print-translate .grid2 { grid-template-columns: 1fr !important; }
+      body.print-translate .field:last-child { display: block !important; }
+      body.print-translate #trans-result { border: none !important; background: transparent !important; font-size: 13pt !important; line-height: 1.9 !important; white-space: pre-wrap; }
+      /* 労務チェック印刷モード */
+      body.print-check #panel-translate,
+      body.print-check #panel-subsidy { display: none !important; }
+      body.print-check #panel-check { display: block !important; }
+      body.print-check .card { display: block !important; box-shadow: none !important; border: 1px solid #ccc !important; margin-bottom: 12px !important; }
+      body.print-check #check-result { display: block !important; }
+      .print-header { display: block !important; }
+    }
+    .print-header { display: none; font-size: 15pt; font-weight: bold; margin-bottom: 12px; border-bottom: 2px solid #333; padding-bottom: 6px; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "Noto Sans JP", "Hiragino Kaku Gothic ProN", sans-serif;
+      background: #f0f4f8; color: #1a202c;
+      min-height: 100vh; padding: 32px 16px;
+    }
+    .container { max-width: 800px; margin: 0 auto; }
+
+    /* ヘッダー */
+    .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; }
+    .logo { display: flex; align-items: center; gap: 12px; }
+    .logo-icon {
+      width: 46px; height: 46px; border-radius: 14px;
+      background: linear-gradient(135deg, #1a56db, #3b82f6);
+      color: #fff; display: flex; align-items: center; justify-content: center; font-size: 22px;
+      box-shadow: 0 4px 12px rgba(26,86,219,.3);
+    }
+    .logo-title { font-size: 17px; font-weight: 700; color: #1a202c; }
+    .logo-sub { font-size: 12px; color: #718096; margin-top: 2px; }
+    .badge-demo {
+      font-size: 11px; background: #fef3c7; color: #92400e;
+      padding: 4px 12px; border-radius: 20px; border: 1px solid #fcd34d; font-weight: 700;
+    }
+
+    /* タブ */
+    .tabs {
+      display: flex; background: #e2e8f0; border-radius: 14px;
+      padding: 4px; margin-bottom: 24px; gap: 4px;
+    }
+    .tab {
+      flex: 1; padding: 10px; border: none; background: none;
+      border-radius: 10px; font-size: 14px; font-weight: 700;
+      cursor: pointer; color: #718096; transition: all .2s; font-family: inherit;
+    }
+    .tab.active { background: #fff; color: #1a56db; box-shadow: 0 2px 8px rgba(0,0,0,.1); }
+
+    /* カード */
+    .card {
+      background: #fff; border-radius: 20px;
+      border: 1px solid #e2e8f0; padding: 24px; margin-bottom: 16px;
+      box-shadow: 0 1px 4px rgba(0,0,0,.04);
+    }
+    .card-title { font-size: 15px; font-weight: 700; color: #1a202c; margin-bottom: 18px; }
+
+    /* フォーム */
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+    .field label, .section-label {
+      display: block; font-size: 12px; color: #718096; margin-bottom: 5px; font-weight: 700;
+    }
+    select, input[type=number] {
+      width: 100%; border: 1.5px solid #e2e8f0; border-radius: 10px;
+      padding: 9px 12px; font-size: 13px; color: #1a202c;
+      background: #fff; outline: none; transition: border .2s; font-family: inherit;
+    }
+    select:focus, input:focus { border-color: #1a56db; box-shadow: 0 0 0 3px rgba(26,86,219,.1); }
+    textarea {
+      width: 100%; border: 1.5px solid #e2e8f0; border-radius: 10px;
+      padding: 10px 12px; font-size: 13px; color: #1a202c;
+      resize: vertical; outline: none; font-family: inherit;
+      line-height: 1.7; transition: border .2s; min-height: 200px;
+    }
+    textarea:focus { border-color: #1a56db; box-shadow: 0 0 0 3px rgba(26,86,219,.1); }
+    .result-box {
+      min-height: 200px; background: #f7fafc;
+      border: 1.5px solid #e2e8f0; border-radius: 10px;
+      padding: 10px 12px; font-size: 13px; line-height: 1.7;
+      color: #2d3748; white-space: pre-wrap; overflow-y: auto;
+    }
+    .placeholder { color: #cbd5e0; font-size: 13px; }
+
+    /* アップロードエリア */
+    .upload-area {
+      border: 2px dashed #bee3f8; border-radius: 14px;
+      background: #ebf8ff; padding: 22px; text-align: center;
+      cursor: pointer; transition: all .2s; margin-bottom: 10px; position: relative;
+    }
+    .upload-area:hover, .upload-area.dragover { border-color: #3182ce; background: #bee3f8; }
+    .upload-area input[type=file] {
+      position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+    }
+    .upload-icon { font-size: 32px; margin-bottom: 8px; }
+    .upload-title { font-size: 14px; font-weight: 700; color: #2b6cb0; }
+    .upload-sub { font-size: 11px; color: #4299e1; margin-top: 4px; }
+    .file-types { display: flex; justify-content: center; gap: 8px; margin-top: 10px; }
+    .file-type-badge { font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 6px; }
+    .badge-pdf { background: #fed7d7; color: #9b2c2c; }
+    .badge-word { background: #bee3f8; color: #2c5282; }
+    .badge-txt { background: #c6f6d5; color: #22543d; }
+    .upload-success {
+      display: flex; align-items: center; gap: 8px;
+      background: #f0fff4; border: 1.5px solid #9ae6b4;
+      border-radius: 10px; padding: 10px 14px;
+      font-size: 13px; color: #276749; margin-bottom: 10px; font-weight: 700;
+    }
+    .upload-remove {
+      margin-left: auto; background: none; border: none;
+      color: #276749; cursor: pointer; font-size: 16px; opacity: .6;
+    }
+    .upload-remove:hover { opacity: 1; }
+    .progress-bar-wrap {
+      background: #e2e8f0; border-radius: 6px; height: 6px;
+      margin-bottom: 10px; overflow: hidden; display: none;
+    }
+    .progress-bar { height: 100%; background: #1a56db; transition: width .3s; border-radius: 6px; }
+
+    /* ボタン */
+    .btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
+    .btn {
+      padding: 12px; border: none; border-radius: 12px;
+      font-size: 14px; font-weight: 700; cursor: pointer;
+      transition: all .2s; font-family: inherit; display: flex;
+      align-items: center; justify-content: center; gap: 6px;
+    }
+    .btn:disabled { opacity: .5; cursor: not-allowed; }
+    .btn-blue { background: #1a56db; color: #fff; box-shadow: 0 2px 8px rgba(26,86,219,.3); }
+    .btn-blue:hover:not(:disabled) { background: #1447b8; transform: translateY(-1px); }
+    .btn-green { background: #38a169; color: #fff; box-shadow: 0 2px 8px rgba(56,161,105,.3); }
+    .btn-green:hover:not(:disabled) { background: #2f855a; transform: translateY(-1px); }
+    .btn-indigo { background: #5a67d8; color: #fff; box-shadow: 0 2px 8px rgba(90,103,216,.3); }
+    .btn-indigo:hover:not(:disabled) { background: #4c51bf; transform: translateY(-1px); }
+    .btn-orange { background: #dd6b20; color: #fff; box-shadow: 0 2px 8px rgba(221,107,32,.3); }
+    .btn-orange:hover:not(:disabled) { background: #c05621; transform: translateY(-1px); }
+    .btn-full { grid-column: 1 / -1; }
+    .hint { font-size: 11px; color: #a0aec0; margin-top: 10px; }
+
+    /* ダウンロードボタンエリア */
+    .download-section {
+      background: #f7fafc; border: 1.5px solid #e2e8f0;
+      border-radius: 14px; padding: 16px; margin-top: 12px; display: none;
+    }
+    .download-title { font-size: 13px; font-weight: 700; color: #4a5568; margin-bottom: 10px; }
+    .download-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+    .divider {
+      display: flex; align-items: center; gap: 10px;
+      margin: 14px 0; color: #a0aec0; font-size: 12px;
+    }
+    .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: #e2e8f0; }
+
+    /* 助成金 */
+    .tag-group { display: flex; flex-wrap: wrap; gap: 8px; }
+    .tag {
+      padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 700;
+      border: 1.5px solid #e2e8f0; background: #fff; color: #718096; cursor: pointer; transition: all .2s;
+    }
+    .tag.selected { background: #ebf8ff; color: #2b6cb0; border-color: #bee3f8; }
+    .result-card { border-radius: 16px; border: 1px solid #e2e8f0; overflow: hidden; margin-bottom: 12px; }
+    .result-header { padding: 12px 18px; font-size: 14px; font-weight: 700; }
+    .result-header.green { background: #f0fff4; color: #22543d; }
+    .result-header.blue { background: #ebf8ff; color: #2c5282; }
+    .result-body { padding: 16px 18px; font-size: 13px; line-height: 1.8; color: #2d3748; white-space: pre-wrap; background: #fff; }
+
+    .loading { display: flex; align-items: center; gap: 6px; padding: 12px 0; }
+    .dot { width: 7px; height: 7px; border-radius: 50%; background: #1a56db; animation: blink 1.2s infinite; }
+    .dot:nth-child(2) { animation-delay: .2s; }
+    .dot:nth-child(3) { animation-delay: .4s; }
+    @keyframes blink { 0%,100%{opacity:.2} 50%{opacity:1} }
+    .loading-text { font-size: 13px; color: #718096; }
+
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    .toast {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+      background: #1a202c; color: #fff; padding: 10px 20px;
+      border-radius: 10px; font-size: 13px; font-weight: 700;
+      opacity: 0; transition: opacity .3s; pointer-events: none; z-index: 999;
+    }
+    .toast.show { opacity: 1; }
+
+    /* 労務チェック */
+    .check-item { display:flex; align-items:flex-start; gap:10px; padding:10px 14px; border-radius:10px; margin-bottom:8px; font-size:13px; line-height:1.6; }
+    .check-item.ok { background:#f0fff4; color:#22543d; }
+    .check-item.warn { background:#fffbeb; color:#92400e; }
+    .check-item.danger { background:#fff5f5; color:#9b2c2c; }
+    .check-item.info { background:#ebf8ff; color:#2c5282; }
+    .check-icon { font-size:16px; flex-shrink:0; margin-top:1px; }
+    .doc-item { display:flex; align-items:center; gap:10px; padding:8px 12px; border-radius:8px; margin-bottom:6px; font-size:13px; }
+    .doc-item.have { background:#f0fff4; color:#22543d; }
+    .doc-item.missing { background:#fff5f5; color:#9b2c2c; }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <div class="logo">
+      <div class="logo-icon">🌐</div>
+      <div>
+        <div class="logo-title">労務翻訳 + 助成金診断</div>
+        <div class="logo-sub">外国人雇用支援プラットフォーム</div>
+      </div>
+    </div>
+    <span class="badge-demo">デモ版</span>
+  </div>
+
+  <!-- APIキー入力 -->
+  <div class="card" id="api-key-card" style="margin-bottom:16px; border: 1.5px solid #bee3f8; background:#ebf8ff;">
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
+      <div style="display:flex; align-items:center; gap:10px;">
+        <span style="font-size:18px;">🔑</span>
+        <span style="font-size:14px; font-weight:700; color:#2b6cb0;">Anthropic APIキー</span>
+      </div>
+      <span id="api-key-badge" style="font-size:11px; padding:2px 8px; border-radius:99px; font-weight:600;"></span>
+    </div>
+    <div style="display:flex; gap:8px;">
+      <input type="password" id="api-key-input" placeholder="sk-ant-api03-..." style="flex:1; border-color:#bee3f8;"
+        oninput="onApiKeyChange(this.value)">
+      <button class="btn btn-blue" id="api-key-save-btn" onclick="saveApiKey()" style="white-space:nowrap; padding:9px 16px; font-size:13px;" disabled>保存</button>
+      <button class="btn" id="api-key-clear-btn" onclick="clearApiKey()" title="キーを削除" style="padding:9px 12px; font-size:13px; display:none;">削除</button>
+    </div>
+    <div id="api-key-status" style="font-size:12px; color:#4299e1; margin-top:6px;">
+      ※ キーはこのブラウザのlocalStorageに保存されます。ページを再読込しても引き続き使用できます。
+    </div>
+  </div>
+
+  <!-- 直近の履歴パネル -->
+  <div class="card" id="history-card" style="margin-bottom:14px;padding:12px 16px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+      <div style="font-size:13px;font-weight:700;color:#2d3748">📂 直近の結果履歴（直近3件）</div>
+      <button onclick="localStorage.removeItem('roumu_history_v1');renderHistoryPanel();"
+        style="font-size:11px;color:#a0aec0;background:none;border:none;cursor:pointer">クリア</button>
+    </div>
+    <div id="history-panel"></div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('translate')">🌐 AI翻訳</button>
+    <button class="tab" onclick="switchTab('subsidy')">💰 助成金診断</button>
+    <button class="tab" onclick="switchTab('check')">📋 労務チェック</button>
+  </div>
+
+  <!-- AI翻訳パネル -->
+  <div id="panel-translate" class="panel active">
+    <div class="card" id="print-target-card">
+      <div class="print-header" id="print-doc-title"></div>
+      <div class="card-title">🌐 多言語AI翻訳</div>
+
+      <div class="grid2">
+        <div class="field">
+          <label>翻訳先の言語</label>
+          <select id="lang">
+            <option>ベトナム語</option>
+            <option>中国語（簡体字）</option>
+            <option>ミャンマー語</option>
+            <option>インドネシア語</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>文書の種類</label>
+          <select id="doctype">
+            <option>就業規則</option>
+            <option>雇用契約書</option>
+            <option>キャリアアップ計画書</option>
+            <option>社内通達</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="section-label">📎 ファイルから読み込む</div>
+      <div class="upload-area" id="upload-area"
+           ondragover="handleDragOver(event)" ondragleave="handleDragLeave()" ondrop="handleDrop(event)">
+        <input type="file" id="file-input" accept=".docx,.pdf,.txt" onchange="handleFileSelect(event)">
+        <div class="upload-icon">📂</div>
+        <div class="upload-title">クリックまたはドラッグ＆ドロップ</div>
+        <div class="upload-sub">就業規則・雇用契約書などをアップロード</div>
+        <div class="file-types">
+          <span class="file-type-badge badge-pdf">PDF</span>
+          <span class="file-type-badge badge-word">Word (.docx)</span>
+          <span class="file-type-badge badge-txt">テキスト (.txt)</span>
+        </div>
+      </div>
+      <div class="progress-bar-wrap" id="progress-wrap">
+        <div class="progress-bar" id="progress-bar" style="width:0%"></div>
+      </div>
+      <div class="upload-success" id="upload-success" style="display:none">
+        ✅ <span id="file-name"></span> を読み込みました
+        <button class="upload-remove" onclick="removeFile()">✕</button>
+      </div>
+
+      <div class="divider">または直接入力</div>
+
+      <div class="grid2">
+        <div class="field">
+          <div class="section-label">📝 日本語原文</div>
+          <textarea id="src-text" placeholder="就業規則や雇用契約書を入力、またはファイルをアップロードしてください">第1条（労働時間）
+所定労働時間は1日8時間、週40時間とする。
+
+第2条（時間外労働）
+時間外労働には法定の割増賃金を支払う。割増率は25%以上とする。
+
+第3条（年次有給休暇）
+継続勤務6ヶ月以上の労働者には10日の有給休暇を付与する。</textarea>
+        </div>
+        <div class="field">
+          <div class="section-label">✨ 翻訳・変換結果</div>
+          <div id="trans-result" class="result-box">
+            <span class="placeholder">翻訳ボタンを押すと結果が表示されます</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-blue" id="btn-trans" onclick="doTranslate()">✨ AI翻訳を実行</button>
+        <button class="btn btn-green" id="btn-simple" onclick="doSimple()">📝 やさしい日本語化</button>
+      </div>
+
+      <!-- ダウンロードセクション -->
+      <div class="download-section" id="download-section" style="display:block">
+        <div class="download-title">📥 翻訳結果をダウンロード・印刷</div>
+        <div class="download-btns">
+          <button class="btn btn-indigo" onclick="downloadWord()">📄 Wordファイルで保存</button>
+          <button class="btn btn-orange" onclick="downloadPdf()">📕 PDFファイルで保存</button>
+          <button class="btn btn-green" onclick="printResult()">🖨️ 印刷する</button>
+        </div>
+      </div>
+
+      <p class="hint">※ 翻訳結果は参考用です。最終確認は専門家にご依頼ください。</p>
+    </div>
+  </div>
+
+  <!-- 助成金診断パネル -->
+  <div id="panel-subsidy" class="panel">
+    <div class="card">
+      <div class="card-title">📋 企業情報を入力</div>
+      <div class="grid2">
+        <div class="field">
+          <label>業種</label>
+          <select id="industry">
+            <option>介護・福祉</option><option>建設業</option>
+            <option>製造業</option><option>飲食・サービス</option><option>農業</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>従業員数</label>
+          <select id="employees">
+            <option value="1〜30人">1〜30人</option>
+            <option value="31〜100人">31〜100人</option>
+            <option value="101人以上">101人以上</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>外国人労働者数</label>
+          <input type="number" id="foreign-count" value="3" min="1" max="99">
+        </div>
+        <div class="field">
+          <label>在留資格</label>
+          <select id="visa">
+            <option>技能実習</option><option>特定技能1号</option>
+            <option>特定技能2号</option><option>技術・人文・国際</option>
+          </select>
+        </div>
+      </div>
+      <div class="field" style="margin-bottom:18px">
+        <label style="margin-bottom:10px">検討していること（複数選択可）</label>
+        <div class="tag-group">
+          <span class="tag selected" onclick="toggleTag(this)">正規転換を検討</span>
+          <span class="tag" onclick="toggleTag(this)">処遇改善を検討</span>
+          <span class="tag" onclick="toggleTag(this)">多言語就業規則整備</span>
+          <span class="tag" onclick="toggleTag(this)">離職率の改善</span>
+          <span class="tag" onclick="toggleTag(this)">教育訓練の実施</span>
+        </div>
+      </div>
+      <button class="btn btn-blue btn-full" id="btn-diag" onclick="doDiagnose()">🔍 助成金を診断する</button>
+    </div>
+    <div id="diag-loading" style="display:none" class="loading">
+      <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+      <span class="loading-text">AIが診断中です...</span>
+    </div>
+    <div id="diag-result" style="display:none">
+      <div class="result-card">
+        <div class="result-header green">✅ キャリアアップ助成金</div>
+        <div class="result-body" id="res-career"></div>
+      </div>
+      <div class="result-card">
+        <div class="result-header blue">💼 人材確保等支援助成金</div>
+        <div class="result-body" id="res-jinzai"></div>
+      </div>
+      <p class="hint" style="text-align:center;margin-top:4px">
+        ※ 診断結果は参考情報です。申請前に必ず社労士または行政機関にご確認ください。
+      </p>
+    </div>
+  </div>
+
+<!-- 労務チェックパネル -->
+<div id="panel-check" class="panel">
+
+  <!-- 就業規則入力 -->
+  <div class="card">
+    <div class="card-title">📋 労務コンプライアンスチェック</div>
+    <div class="field" style="margin-bottom:14px">
+      <label>就業規則・雇用契約書の内容を貼り付けてください</label>
+      <textarea id="check-input" rows="7" placeholder="例）第1条（労働時間）所定労働時間は1日8時間とする。月給200,000円。固定残業代として月30時間分を含む。休日は毎週日曜日のみ...">第1条（労働時間）所定労働時間は1日8時間、週40時間とする。
+第2条（賃金）月給200,000円とする。時間外手当は固定残業代として月30時間分を含む。
+第3条（休日）毎週日曜日を休日とする。祝日は出勤とする。
+第4条（時間外労働）業務の都合により時間外労働を命じることがある。</textarea>
+    </div>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px;">
+      <div class="field">
+        <label>都道府県（最低賃金チェック用）</label>
+        <select id="check-pref">
+          <!-- 最低賃金はLAW_Rブロックから動的生成（下のscriptで挿入） -->
+          <option value="東京都|1113">東京都（1,113円）</option>
+        </select>
+        <div style="font-size:11px;color:#a0aec0;margin-top:4px;" id="minwage-update-label">※ <span id="minwage-updated-text"></span></div>
+      </div>
+      <div class="field">
+        <label>月所定労働時間（手入力可）</label>
+        <input type="number" id="check-hours" value="160" min="100" max="250" step="1" placeholder="例：160">
+        <div style="font-size:11px;color:#a0aec0;margin-top:4px;">※ 週40h=約160h、週43.3h=約173h</div>
+      </div>
+    </div>
+    <button class="btn btn-blue btn-full" id="btn-check" onclick="doLaborCheck()">🔍 労務チェックを実行</button>
+  </div>
+
+  <!-- ローディング -->
+  <div id="check-loading" style="display:none" class="card">
+    <div class="loading">
+      <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+      <span class="loading-text">AIが診断中です...</span>
+    </div>
+  </div>
+
+  <!-- 結果エリア -->
+  <div id="check-result" style="display:none">
+
+    <!-- 受給可能性スコア -->
+    <div class="card" style="margin-bottom:12px">
+      <div class="card-title">📊 受給可能性スコア</div>
+      <div style="display:flex; align-items:center; gap:16px;">
+        <div id="score-circle" style="width:80px;height:80px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;flex-shrink:0;border:4px solid #e2e8f0;">-</div>
+        <div>
+          <div id="score-label" style="font-size:15px;font-weight:700;margin-bottom:4px;">診断中...</div>
+          <div id="score-desc" style="font-size:12px;color:#718096;line-height:1.6;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 必要書類一覧 -->
+    <div class="card" style="margin-bottom:12px">
+      <div class="card-title">📄 必要書類一覧</div>
+      <div id="docs-list"></div>
+    </div>
+
+    <!-- 不足項目 -->
+    <div class="card" style="margin-bottom:12px">
+      <div class="card-title">⚠️ 不足・要確認項目</div>
+      <div id="missing-list"></div>
+    </div>
+
+    <!-- 労務リスク警告 -->
+    <div class="card" style="margin-bottom:12px">
+      <div class="card-title">🚨 労務リスク警告</div>
+      <div id="risk-list"></div>
+    </div>
+
+    <!-- 36協定チェック -->
+    <div class="card" style="margin-bottom:12px">
+      <div class="card-title">📝 36協定チェック</div>
+      <div id="article36-result"></div>
+    </div>
+
+    <!-- 最低賃金チェック -->
+    <div class="card" style="margin-bottom:12px">
+      <div class="card-title">💴 最低賃金チェック</div>
+      <div id="minwage-result"></div>
+    </div>
+
+    <p class="hint" style="text-align:center">※ 本診断はAIによる参考情報です。最終判断は社労士または労働基準監督署にご確認ください。</p>
+    <div style="margin-top:14px; text-align:center;">
+      <button class="btn btn-blue" style="display:inline-flex; padding:12px 32px;" onclick="printCheckResult()">🖨️ 診断結果を印刷する</button>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc =
+  'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
+
+// ================================================================
+//  ★★★ 法改正・最低賃金 更新ブロック ★★★
+//  改定時はこのブロックのみ更新してください
+//  最終更新：令和6年10月（最低賃金） / 令和7年度（労務基準）
+// ================================================================
+const LAW_R = {
+  fiscalYear: '令和7年度',
+  lastUpdated: '2025-04-01',
+
+  // 最低賃金（都道府県別）令和6年10月改定
+  // ※ 改定時は rates の値とラベル updated を更新する
+  minWage: {
+    updated: '令和6年10月改定',
+    rates: {
+      '東京都':     1113,
+      '神奈川県':   1112,
+      '大阪府':     1064,
+      '埼玉県':     1028,
+      '愛知県':     1027,
+      '千葉県':     1026,
+      '京都府':     1008,
+      '兵庫県':     1001,
+      '静岡県':      984,
+      '広島県':      970,
+      '北海道':      960,
+      '宮城県':      923,
+      '福岡県':      941,
+      'その他（1,023円〜）': 1023
+    }
+  },
+
+  // 時間外労働の法定割増率
+  overtimeRates: {
+    standard: 25,        // ％（月60時間以下）
+    over60h:  50,        // ％（月60時間超、中小企業は2023年4月から適用）
+    night:    25,        // ％（深夜22時〜5時）
+    holiday:  35         // ％（法定休日）
+  },
+
+  // 36協定の時間外労働上限
+  article36: {
+    monthlyLimit: 45,    // 時間（原則月45時間以内）
+    yearlyLimit: 360,    // 時間（原則年360時間以内）
+    specialMonthly: 100, // 時間（特別条項・月100時間未満）
+    specialYearly: 720   // 時間（特別条項・年720時間以内）
+  }
+};
+// ================================================================
+//  ★★★ 法改正・最低賃金 更新ブロック ここまで ★★★
+// ================================================================
+
+// 翻訳・診断結果の履歴管理（直近3件をlocalStorageに保存）
+const _HIST_KEY = 'roumu_history_v1';
+const _HIST_MAX = 3;
+
+function loadHistory() {
+  try {
+    const raw = localStorage.getItem(_HIST_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch(e) { return []; }
+}
+
+function saveHistory(type, title, preview) {
+  try {
+    const hist = loadHistory();
+    hist.unshift({
+      type,          // 'translate' | 'diagnose' | 'laborcheck'
+      title,
+      preview,
+      savedAt: new Date().toLocaleString('ja-JP', {month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'})
+    });
+    if(hist.length > _HIST_MAX) hist.length = _HIST_MAX;
+    localStorage.setItem(_HIST_KEY, JSON.stringify(hist));
+    renderHistoryPanel();
+  } catch(e) {}
+}
+
+function renderHistoryPanel() {
+  const el = document.getElementById('history-panel');
+  if (!el) return;
+  const hist = loadHistory();
+  if (!hist.length) {
+    el.innerHTML = '<div style="font-size:12px;color:#a0aec0;text-align:center;padding:8px">まだ履歴がありません</div>';
+    return;
+  }
+  const icons = {translate:'🌐', diagnose:'💰', laborcheck:'📋'};
+  el.innerHTML = hist.map((h, i) => `
+    <div style="display:flex;align-items:flex-start;gap:8px;padding:8px 0;border-bottom:1px solid #e2e8f0;cursor:pointer"
+         onclick="restoreHistory(${i})" title="クリックで結果を表示">
+      <span style="font-size:14px;flex-shrink:0">${icons[h.type]||'📄'}</span>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:12px;font-weight:600;color:#2d3748;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${h.title}</div>
+        <div style="font-size:11px;color:#718096;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${h.preview}</div>
+      </div>
+      <div style="font-size:10px;color:#a0aec0;flex-shrink:0">${h.savedAt}</div>
+    </div>`).join('');
+}
+
+function restoreHistory(i) {
+  const hist = loadHistory();
+  const h = hist[i];
+  if (!h) return;
+  if (h.type === 'translate') {
+    switchTab('translate');
+    showResult(h.fullText || h.preview);
+  } else if (h.type === 'laborcheck') {
+    switchTab('check');
+    showToast('💡 直前の診断結果を復元しました（再実行が必要な場合があります）');
+  }
+}
+
+let translatedText = '';
+let translatedLang = '';
+let translatedDoctype = '';
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+function switchTab(name) {
+  const tabs = ['translate','subsidy','check'];
+  document.querySelectorAll('.tab').forEach((t, i) => {
+    t.classList.toggle('active', tabs[i] === name);
+  });
+  document.querySelectorAll('.panel').forEach(p => {
+    p.classList.toggle('active', p.id === 'panel-' + name);
+  });
+}
+function toggleTag(el) { el.classList.toggle('selected'); }
+
+/* ── ファイルアップロード ── */
+function handleDragOver(e) { e.preventDefault(); document.getElementById('upload-area').classList.add('dragover'); }
+function handleDragLeave() { document.getElementById('upload-area').classList.remove('dragover'); }
+function handleDrop(e) { e.preventDefault(); handleDragLeave(); processFile(e.dataTransfer.files[0]); }
+function handleFileSelect(e) { processFile(e.target.files[0]); }
+function removeFile() {
+  document.getElementById('upload-success').style.display = 'none';
+  document.getElementById('upload-area').style.display = 'block';
+  document.getElementById('file-input').value = '';
+  document.getElementById('src-text').value = '';
+}
+function showSuccess(name) {
+  document.getElementById('file-name').textContent = name;
+  document.getElementById('upload-success').style.display = 'flex';
+  document.getElementById('upload-area').style.display = 'none';
+}
+function processFile(file) {
+  if (!file) return;
+  const ext = file.name.split('.').pop().toLowerCase();
+  if (ext === 'docx') readDocx(file);
+  else if (ext === 'pdf') readPdf(file);
+  else if (ext === 'txt') readTxt(file);
+  else alert('PDF・Word(.docx)・テキスト(.txt)に対応しています');
+}
+function readDocx(file) {
+  const reader = new FileReader();
+  reader.onload = e => {
+    mammoth.extractRawText({ arrayBuffer: e.target.result })
+      .then(r => { document.getElementById('src-text').value = r.value; showSuccess(file.name); })
+      .catch(err => alert('Wordファイルの読み込みに失敗しました: ' + err.message));
+  };
+  reader.readAsArrayBuffer(file);
+}
+async function readPdf(file) {
+  const pw = document.getElementById('progress-wrap');
+  const pb = document.getElementById('progress-bar');
+  pw.style.display = 'block'; pb.style.width = '0%';
+  try {
+    const pdf = await pdfjsLib.getDocument({ data: await file.arrayBuffer() }).promise;
+    let text = '';
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const page = await pdf.getPage(i);
+      const content = await page.getTextContent();
+      text += content.items.map(item => item.str).join(' ') + '\n\n';
+      pb.style.width = Math.round(i / pdf.numPages * 100) + '%';
+    }
+    document.getElementById('src-text').value = text.trim();
+    showSuccess(file.name);
+  } catch(e) { alert('PDFの読み込みに失敗しました: ' + e.message); }
+  finally { pw.style.display = 'none'; }
+}
+function readTxt(file) {
+  const reader = new FileReader();
+  reader.onload = e => { document.getElementById('src-text').value = e.target.result; showSuccess(file.name); };
+  reader.onerror = () => alert('テキストファイルの読み込みに失敗しました');
+  reader.readAsText(file, 'UTF-8');
+}
+
+/* ── APIキー管理 ── */
+// APIキーはlocalStorageに保存（ページ再読込後も維持）
+const _APIKEY_LS_R = 'roumu_apikey_v1';
+let _apiKey = '';
+(function(){
+  try { const k = localStorage.getItem(_APIKEY_LS_R); if(k) _apiKey = k; } catch(e) {}
+})();
+
+function onApiKeyChange(val) {
+  document.getElementById('api-key-save-btn').disabled = !val.startsWith('sk-ant-');
+}
+function saveApiKey() {
+  const val = document.getElementById('api-key-input').value.trim();
+  if (!val.startsWith('sk-ant-')) { alert('正しいAPIキーを入力してください（sk-ant- で始まる文字列）'); return; }
+  _apiKey = val;
+  try { localStorage.setItem(_APIKEY_LS_R, val); } catch(e) {}
+  document.getElementById('api-key-input').value = ''; // 入力フォームをクリア
+  document.getElementById('api-key-status').textContent = '✅ APIキーを保存しました（ページを閉じても維持されます）';
+  document.getElementById('api-key-status').style.color = '#38a169';
+  document.getElementById('api-key-save-btn').textContent = '変更';
+}
+function clearApiKey() {
+  if (!confirm('APIキーを削除しますか？')) return;
+  _apiKey = '';
+  try { localStorage.removeItem(_APIKEY_LS_R); } catch(e) {}
+  document.getElementById('api-key-status').textContent = 'APIキーを削除しました';
+  document.getElementById('api-key-status').style.color = '#718096';
+  document.getElementById('api-key-save-btn').textContent = '保存';
+}
+
+/* ── Claude API ── */
+async function callClaude(system, userMsg) {
+  if (!_apiKey) throw new Error('APIキーが設定されていません。画面上部でAPIキーを入力・保存してください。');
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': _apiKey,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true'
+    },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-5',
+      max_tokens: 4096,
+      system,
+      messages: [{ role: 'user', content: userMsg }]
+    })
+  });
+  const data = await res.json();
+  if (!res.ok || data.error) {
+    throw new Error(data.error?.message || `APIエラー (${res.status})`);
+  }
+  if (!data.content?.[0]?.text) {
+    throw new Error('レスポンスが空です');
+  }
+  return data.content[0].text;
+}
+
+/* ── チャンク分割ユーティリティ ── */
+// 就業規則を章・条単位で分割（約1500字以内のチャンクに）
+function splitIntoChunks(text, maxChars = 1500) {
+  // 章・条の区切りで分割
+  const chunkSeparator = /(?=第\d+章|第\d+条|第\s*\d+\s*条|【[^】]+】|\n\n\n)/;
+  const segments = text.split(chunkSeparator).filter(s => s.trim());
+  const chunks = [];
+  let current = '';
+  for (const seg of segments) {
+    if ((current + seg).length > maxChars && current.length > 0) {
+      chunks.push(current.trim());
+      current = seg;
+    } else {
+      current += (current ? '\n\n' : '') + seg;
+    }
+  }
+  if (current.trim()) chunks.push(current.trim());
+  return chunks.length > 0 ? chunks : [text]; // フォールバック
+}
+
+// 進捗表示付きチャンク翻訳
+async function callClaudeChunked(system, text, lang, doctype, onProgress) {
+  const CHAR_LIMIT = 1500;
+  if (text.length <= CHAR_LIMIT) {
+    // 短い文書はそのまま翻訳
+    onProgress && onProgress(1, 1, '翻訳中...');
+    return await callClaude(system, `以下の${doctype}を${lang}に翻訳してください:\n\n${text}`);
+  }
+  const chunks = splitIntoChunks(text, CHAR_LIMIT);
+  const total = chunks.length;
+  const results = [];
+  for (let i = 0; i < chunks.length; i++) {
+    onProgress && onProgress(i + 1, total, `翻訳中... (${i + 1}/${total}パート)`);
+    const chunkResult = await callClaude(
+      system + `\n\n【重要】これは全文の第${i+1}/${total}パートです。条番号・見出し・段落構造を必ず保持してください。`,
+      `以下の${doctype}（第${i+1}/${total}パート）を${lang}に翻訳してください。前後パートとの接続を意識してください:\n\n${chunks[i]}`
+    );
+    results.push(chunkResult);
+  }
+  return results.join('\n\n');
+}
+
+function setTransBtns(disabled) {
+  document.getElementById('btn-trans').disabled = disabled;
+  document.getElementById('btn-simple').disabled = disabled;
+}
+const loadingHTML = '<div class="loading"><div class="dot"></div><div class="dot"></div><div class="dot"></div><span class="loading-text">処理中...</span></div>';
+
+function showResult(text) {
+  translatedText = text;
+  const box = document.getElementById('trans-result');
+  box.textContent = text;
+  document.getElementById('download-section').style.display = 'block';
+}
+
+function showResultAndSaveHistory(text) {
+  showResult(text);
+  // 履歴に保存
+  const title = (translatedLang === 'やさしい日本語' ? 'やさしい日本語化' : translatedLang + '翻訳')
+    + '：' + translatedDoctype;
+  const preview = text.replace(/\n/g, ' ').slice(0, 60) + (text.length > 60 ? '…' : '');
+  saveHistory('translate', title, preview);
+}
+
+/* ── AI翻訳 ── */
+async function doTranslate() {
+  const text = document.getElementById('src-text').value.trim();
+  translatedLang = document.getElementById('lang').value;
+  translatedDoctype = document.getElementById('doctype').value;
+  if (!text) { alert('原文を入力またはファイルをアップロードしてください'); return; }
+  document.getElementById('trans-result').innerHTML = loadingHTML;
+  document.getElementById('download-section').style.display = 'none';
+  setTransBtns(true);
+
+  const system = `あなたは外国人労務専門の翻訳AIです。${translatedDoctype}を正確に翻訳してください。条番号・見出し・段落構造を保持し、法律用語は適切に訳してください。`;
+
+  // 進捗表示
+  const updateProgress = (current, total, msg) => {
+    if (total > 1) {
+      const pct = Math.round((current / total) * 100);
+      document.getElementById('trans-result').innerHTML =
+        `<div class="loading"><div class="dot"></div><div class="dot"></div><div class="dot"></div><span class="loading-text">${msg}</span></div>
+         <div style="margin-top:10px;">
+           <div style="background:#e2e8f0;border-radius:6px;height:8px;overflow:hidden;">
+             <div style="background:#1a56db;height:100%;width:${pct}%;transition:width .3s;border-radius:6px;"></div>
+           </div>
+           <div style="font-size:11px;color:#718096;margin-top:4px;text-align:right">${pct}%</div>
+         </div>`;
+    }
+  };
+
+  try {
+    const result = await callClaudeChunked(system, text, translatedLang, translatedDoctype, updateProgress);
+    showResultAndSaveHistory(result);
+    const chunks = splitIntoChunks(text, 1500);
+    if (chunks.length > 1) showToast(`✅ ${chunks.length}パートに分割して翻訳が完了しました`);
+  } catch(e) { document.getElementById('trans-result').textContent = 'エラー: ' + e.message; }
+  finally { setTransBtns(false); }
+}
+
+/* ── やさしい日本語 ── */
+async function doSimple() {
+  const text = document.getElementById('src-text').value.trim();
+  translatedLang = 'やさしい日本語';
+  translatedDoctype = document.getElementById('doctype').value;
+  if (!text) { alert('原文を入力またはファイルをアップロードしてください'); return; }
+  document.getElementById('trans-result').innerHTML = loadingHTML;
+  document.getElementById('download-section').style.display = 'none';
+  setTransBtns(true);
+
+  const system = '「やさしい日本語」の専門家として、難しい法律用語を日本語学習者（N4レベル）が理解できる平易な表現に変換してください。短い文に分け、ひらがなを多用し、難しい語には()でよみがなを補ってください。';
+
+  const updateProgress = (current, total, msg) => {
+    if (total > 1) {
+      const pct = Math.round((current / total) * 100);
+      document.getElementById('trans-result').innerHTML =
+        `<div class="loading"><div class="dot"></div><div class="dot"></div><div class="dot"></div><span class="loading-text">${msg}</span></div>
+         <div style="margin-top:10px;">
+           <div style="background:#e2e8f0;border-radius:6px;height:8px;overflow:hidden;">
+             <div style="background:#38a169;height:100%;width:${pct}%;transition:width .3s;border-radius:6px;"></div>
+           </div>
+           <div style="font-size:11px;color:#718096;margin-top:4px;text-align:right">${pct}%</div>
+         </div>`;
+    }
+  };
+
+  try {
+    const result = await callClaudeChunked(system, text, 'やさしい日本語', translatedDoctype, updateProgress);
+    showResultAndSaveHistory(result);
+    const chunks = splitIntoChunks(text, 1500);
+    if (chunks.length > 1) showToast(`✅ ${chunks.length}パートに分割して変換が完了しました`);
+  } catch(e) { document.getElementById('trans-result').textContent = 'エラー: ' + e.message; }
+  finally { setTransBtns(false); }
+}
+
+/* ── Wordダウンロード ── */
+async function downloadWord() {
+  if (!translatedText) return;
+  const { Document, Packer, Paragraph, TextRun, HeadingLevel } = docx;
+
+  const lines = translatedText.split('\n');
+  const children = [];
+
+  // タイトル
+  children.push(new Paragraph({
+    heading: HeadingLevel.HEADING_1,
+    children: [new TextRun({ text: `${translatedDoctype}（${translatedLang}）`, bold: true, size: 32 })]
+  }));
+
+  // 各行をパース（条番号行は見出し、それ以外は本文）
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (!trimmed) { children.push(new Paragraph({ text: '' })); continue; }
+    // 条番号パターン（第X条 や Article X など）
+    const isHeading = /^(第\d+条|Article\s*\d+|Điều\s*\d+|第\d+章|Chương|第\d+節)/.test(trimmed);
+    if (isHeading) {
+      children.push(new Paragraph({
+        heading: HeadingLevel.HEADING_2,
+        children: [new TextRun({ text: trimmed, bold: true, size: 26 })]
+      }));
+    } else {
+      children.push(new Paragraph({
+        children: [new TextRun({ text: trimmed, size: 22 })]
+      }));
+    }
+  }
+
+  // 末尾注記
+  children.push(new Paragraph({ text: '' }));
+  children.push(new Paragraph({
+    children: [new TextRun({
+      text: `※ この翻訳はAIによる参考訳です。正式な効力を持つ文書ではありません。`,
+      size: 18, color: '999999', italics: true
+    })]
+  }));
+
+  const doc = new Document({
+    sections: [{
+      properties: {
+        page: { size: { width: 11906, height: 16838 }, margin: { top: 1440, right: 1440, bottom: 1440, left: 1440 } }
+      },
+      children
+    }]
+  });
+
+  const blob = await Packer.toBlob(doc);
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${translatedDoctype}_${translatedLang}.docx`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('📄 Wordファイルをダウンロードしました');
+}
+
+/* ── PDFダウンロード ── */
+async function downloadPdf() {
+  if (!translatedText) return;
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+
+  const pageW = doc.internal.pageSize.getWidth();
+  const margin = 20;
+  const maxW = pageW - margin * 2;
+  let y = margin;
+
+  // タイトル
+  doc.setFontSize(16);
+  doc.setFont('helvetica', 'bold');
+  const title = `${translatedDoctype} (${translatedLang})`;
+  const titleLines = doc.splitTextToSize(title, maxW);
+  doc.text(titleLines, margin, y);
+  y += titleLines.length * 8 + 6;
+
+  // 区切り線
+  doc.setDrawColor(200, 200, 200);
+  doc.line(margin, y, pageW - margin, y);
+  y += 6;
+
+  // 本文
+  const lines = translatedText.split('\n');
+  for (const line of lines) {
+    const trimmed = line.trim();
+    const isHeading = /^(第\d+条|Article\s*\d+|Điều\s*\d+|第\d+章|Chương|第\d+節)/.test(trimmed);
+
+    if (isHeading) {
+      doc.setFontSize(12);
+      doc.setFont('helvetica', 'bold');
+    } else {
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'normal');
+    }
+
+    const wrapped = doc.splitTextToSize(trimmed || ' ', maxW);
+    const lineH = isHeading ? 7 : 5.5;
+
+    if (y + wrapped.length * lineH > doc.internal.pageSize.getHeight() - margin) {
+      doc.addPage();
+      y = margin;
+    }
+    doc.text(wrapped, margin, y);
+    y += wrapped.length * lineH + (isHeading ? 3 : 1);
+  }
+
+  // 末尾注記
+  y += 8;
+  doc.setFontSize(8);
+  doc.setFont('helvetica', 'italic');
+  doc.setTextColor(150, 150, 150);
+  doc.text('* This translation is AI-generated for reference only.', margin, y);
+
+  doc.save(`${translatedDoctype}_${translatedLang}.pdf`);
+  showToast('📕 PDFファイルをダウンロードしました');
+}
+
+/* ── 助成金診断 ── */
+async function doDiagnose() {
+  const industry = document.getElementById('industry').value;
+  const employees = document.getElementById('employees').value;
+  const foreignCount = document.getElementById('foreign-count').value;
+  const visa = document.getElementById('visa').value;
+  const selected = [...document.querySelectorAll('.tag.selected')].map(t => t.textContent);
+  const context = `業種:${industry} / 従業員:${employees} / 外国人労働者:${foreignCount}人 / 在留資格:${visa} / 検討事項:${selected.join('・') || 'なし'}`;
+
+  document.getElementById('diag-result').style.display = 'none';
+  document.getElementById('diag-loading').style.display = 'flex';
+  document.getElementById('btn-diag').disabled = true;
+
+  let r1 = '', r2 = '';
+  try {
+    [r1, r2] = await Promise.all([
+      callClaude(
+        'あなたは助成金専門の社労士AIです。キャリアアップ助成金について、企業情報をもとに適用可能性・受給額目安・必要な手続きのポイントを200字程度で簡潔に説明してください。',
+        `この企業のキャリアアップ助成金の適用可能性を診断してください。\n${context}`
+      ),
+      callClaude(
+        'あなたは助成金専門の社労士AIです。人材確保等支援助成金について、企業情報をもとに適用可能性・受給額目安・必要な手続きのポイントを200字程度で簡潔に説明してください。',
+        `この企業の人材確保等支援助成金の適用可能性を診断してください。\n${context}`
+      )
+    ]);
+  } catch(e) {
+    r1 = r1 || ('診断中にエラーが発生しました: ' + e.message);
+    r2 = r2 || ('診断中にエラーが発生しました: ' + e.message);
+  } finally {
+    document.getElementById('res-career').textContent = r1;
+    document.getElementById('res-jinzai').textContent = r2;
+    document.getElementById('diag-result').style.display = 'block';
+    document.getElementById('diag-loading').style.display = 'none';
+    document.getElementById('btn-diag').disabled = false;
+
+    // 履歴に保存
+    const diagTitle = '助成金診断：' + industry + ' / ' + employees;
+    const diagPreview = (r1 || '').replace(/\n/g,' ').slice(0, 50) + '…';
+    saveHistory('diagnose', diagTitle, diagPreview);
+  }
+}
+
+/* ── 労務チェック ── */
+async function doLaborCheck() {
+  const text = document.getElementById('check-input').value.trim();
+  if (!text) { showToast('就業規則の内容を入力してください'); return; }
+  const prefVal = document.getElementById('check-pref').value;
+  const [pref, minWage] = prefVal.split('|');
+  const hours = document.getElementById('check-hours').value;
+
+  document.getElementById('check-result').style.display = 'none';
+  document.getElementById('check-loading').style.display = 'block';
+  document.getElementById('btn-check').disabled = true;
+
+  try {
+    const prompt = `以下の就業規則・雇用契約書を労務コンプライアンスの観点から診断してください。
+都道府県: ${pref} / 最低賃金: ${minWage}円（2025年10月改定） / 月所定労働時間: ${hours}時間
+
+【就業規則内容】
+${text}
+
+以下のJSON形式のみで回答してください（他のテキスト不要）:
+{
+  "score": 数値(0-100),
+  "score_label": "スコアの評価（例：要改善・普通・良好・優秀）",
+  "score_desc": "スコアの簡単な説明（50字以内）",
+  "docs": [
+    {"name": "書類名", "have": true or false, "note": "補足（20字以内）"}
+  ],
+  "missing": [
+    {"text": "不足・要確認項目の説明"}
+  ],
+  "risks": [
+    {"level": "danger" or "warn" or "ok", "text": "リスクの説明"}
+  ],
+  "article36": {"status": "ok" or "warn" or "danger", "text": "36協定に関する診断コメント"},
+  "minwage": {"status": "ok" or "warn" or "danger", "text": "最低賃金に関する診断コメント（${pref}の最低賃金${minWage}円を考慮し月${hours}時間で換算）"}
+}
+docsには就業規則・雇用契約書・労働条件通知書・36協定届・賃金台帳・出勤簿・健康診断記録を含めること。`;
+
+    const raw = await callClaude(
+      'あなたは日本の労働法・労務管理の専門家AIです。就業規則を分析し、コンプライアンスリスクを正確に診断します。必ずJSONのみで回答してください。',
+      prompt
+    );
+
+    let data;
+    try {
+      data = JSON.parse(raw.replace(/```json|```/g, '').trim());
+    } catch(e) {
+      showToast('診断結果の解析に失敗しました。再試行してください。');
+      return;
+    }
+
+    // スコア表示
+    const score = data.score || 0;
+    const circle = document.getElementById('score-circle');
+    circle.textContent = score;
+    if (score >= 80) { circle.style.borderColor = '#38a169'; circle.style.color = '#22543d'; circle.style.background = '#f0fff4'; }
+    else if (score >= 60) { circle.style.borderColor = '#d69e2e'; circle.style.color = '#744210'; circle.style.background = '#fffff0'; }
+    else { circle.style.borderColor = '#e53e3e'; circle.style.color = '#9b2c2c'; circle.style.background = '#fff5f5'; }
+    document.getElementById('score-label').textContent = data.score_label || '';
+    document.getElementById('score-desc').textContent = data.score_desc || '';
+
+    // 必要書類一覧
+    const docsList = document.getElementById('docs-list');
+    docsList.innerHTML = (data.docs || []).map(d =>
+      `<div class="doc-item ${d.have ? 'have' : 'missing'}">
+        <span>${d.have ? '✅' : '❌'}</span>
+        <span style="font-weight:700;flex:1">${d.name}</span>
+        <span style="font-size:12px;color:inherit;opacity:.8">${d.note || ''}</span>
+      </div>`
+    ).join('');
+
+    // 不足項目
+    const missingList = document.getElementById('missing-list');
+    if (data.missing && data.missing.length > 0) {
+      missingList.innerHTML = data.missing.map(m =>
+        `<div class="check-item warn"><span class="check-icon">⚠️</span><span>${m.text}</span></div>`
+      ).join('');
+    } else {
+      missingList.innerHTML = '<div class="check-item ok"><span class="check-icon">✅</span><span>不足項目はありません</span></div>';
+    }
+
+    // 労務リスク警告
+    const riskList = document.getElementById('risk-list');
+    riskList.innerHTML = (data.risks || []).map(r =>
+      `<div class="check-item ${r.level}">
+        <span class="check-icon">${r.level === 'danger' ? '🚨' : r.level === 'warn' ? '⚠️' : '✅'}</span>
+        <span>${r.text}</span>
+      </div>`
+    ).join('') || '<div class="check-item ok"><span class="check-icon">✅</span><span>重大なリスクは検出されませんでした</span></div>';
+
+    // 36協定
+    const a36 = data.article36 || {};
+    document.getElementById('article36-result').innerHTML =
+      `<div class="check-item ${a36.status || 'info'}">
+        <span class="check-icon">${a36.status === 'ok' ? '✅' : a36.status === 'danger' ? '🚨' : '⚠️'}</span>
+        <span>${a36.text || ''}</span>
+      </div>`;
+
+    // 最低賃金
+    const mw = data.minwage || {};
+    document.getElementById('minwage-result').innerHTML =
+      `<div class="check-item ${mw.status || 'info'}">
+        <span class="check-icon">${mw.status === 'ok' ? '✅' : mw.status === 'danger' ? '🚨' : '⚠️'}</span>
+        <span>${mw.text || ''}</span>
+      </div>`;
+
+    document.getElementById('check-result').style.display = 'block';
+    showToast('✅ 労務チェックが完了しました');
+
+    // 履歴に保存
+    const checkTitle = '労務チェック：' + pref + '（スコア ' + score + '点）';
+    const checkPreview = (data.score_label || '') + ' — ' + (data.score_desc || '').slice(0, 40);
+    saveHistory('laborcheck', checkTitle, checkPreview);
+
+  } catch(e) {
+    showToast('エラー: ' + e.message);
+  } finally {
+    document.getElementById('check-loading').style.display = 'none';
+    document.getElementById('btn-check').disabled = false;
+  }
+}
+
+/* ── 初期化 ── */
+function initApp() {
+  // 最低賃金セレクトボックスをLAW_Rから動的生成
+  const sel = document.getElementById('check-pref');
+  if (sel) {
+    sel.innerHTML = '';
+    Object.entries(LAW_R.minWage.rates).forEach(([pref, rate]) => {
+      const opt = document.createElement('option');
+      opt.value = pref + '|' + rate;
+      opt.textContent = pref + '（' + rate.toLocaleString() + '円）';
+      sel.appendChild(opt);
+    });
+  }
+  // 最低賃金の更新日ラベルを設定
+  const updLabel = document.getElementById('minwage-updated-text');
+  if (updLabel) updLabel.textContent = LAW_R.minWage.updated;
+
+  // APIキーが保存済みの場合はバッジを更新
+  const badge = document.getElementById('api-key-badge');
+  const clearBtn = document.getElementById('api-key-clear-btn');
+  const status = document.getElementById('api-key-status');
+  if (_apiKey) {
+    if (badge) { badge.textContent = '✓ 設定済み'; badge.style.cssText='background:#c6f6d5;color:#276749;font-size:11px;padding:2px 8px;border-radius:99px;font-weight:600'; }
+    if (clearBtn) clearBtn.style.display = 'inline-block';
+    if (status) { status.textContent = '✅ APIキーが保存されています（再入力不要）'; status.style.color = '#38a169'; }
+  } else {
+    if (badge) { badge.textContent = '未設定'; badge.style.cssText='background:#fed7d7;color:#c53030;font-size:11px;padding:2px 8px;border-radius:99px;font-weight:600'; }
+  }
+
+  // 履歴パネルを描画
+  renderHistoryPanel();
+}
+
+// DOMContentLoaded後に実行
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initApp);
+} else {
+  initApp();
+}
+
+/* ── 印刷 ── */
+function printResult() {
+  if (!translatedText) { showToast('先に翻訳を実行してください'); return; }
+  document.getElementById('print-doc-title').textContent =
+    `${translatedDoctype}（${translatedLang}）`;
+  document.body.className = 'print-translate';
+  window.print();
+  setTimeout(() => { document.body.className = ''; }, 1000);
+}
+
+function printCheckResult() {
+  if (document.getElementById('check-result').style.display === 'none') {
+    showToast('先に労務チェックを実行してください'); return;
+  }
+  document.body.className = 'print-check';
+  window.print();
+  setTimeout(() => { document.body.className = ''; }, 1000);
+}
+</script>
+</body>
+</html>

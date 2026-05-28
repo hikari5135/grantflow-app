@@ -1,0 +1,1976 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>助成金サポートPro</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.11.0/dist/tabler-icons.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#fff;--bg2:#f8f8f6;--bg3:#f0efe9;
+  --tx:#1a1a1a;--tx2:#6b6b6b;--tx3:#9a9a9a;
+  --bd:#e5e5e0;--bd2:#d0d0c8;
+  --pu:#534AB7;--pl:#EEEDFE;--pd:#3C3489;
+  --gn:#1D9E75;--gl:#E1F5EE;--gb:#5DCAA5;
+  --al:#FAEEDA;--ab:#EF9F27;--ad:#633806;
+  --rd:#E24B4A;--rl:#FCEBEB;--rb:#F09595;--rdd:#791F1F;
+  --r:8px;--rl2:12px;
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Kaku Gothic ProN',sans-serif;background:var(--bg2);color:var(--tx);font-size:14px;line-height:1.6}
+.wrap{max-width:860px;margin:0 auto;padding:10px}
+/* ナビ */
+.nav{display:flex;justify-content:space-between;align-items:center;background:var(--bg);border:1px solid var(--bd);border-radius:var(--rl2);padding:10px 16px;position:sticky;top:8px;z-index:100;margin-bottom:14px;box-shadow:0 2px 8px rgba(0,0,0,.07);flex-wrap:wrap;gap:8px}
+.logo{font-size:15px;font-weight:700;cursor:pointer;color:var(--tx);display:flex;align-items:center;gap:6px}
+.logo i{color:var(--pu);font-size:20px}
+.nav-r{display:flex;gap:4px;flex-wrap:wrap;align-items:center}
+.msw{display:flex;gap:2px;background:var(--bg3);border-radius:8px;padding:3px}
+.msb{padding:5px 12px;font-size:12px;font-weight:600;border:none;border-radius:6px;background:transparent;cursor:pointer;color:var(--tx2)}
+.msb.on{background:var(--bg);color:var(--pu);box-shadow:0 1px 3px rgba(0,0,0,.1)}
+.nb{font-size:12px;padding:5px 10px;border-radius:99px;cursor:pointer;color:var(--tx2);border:1px solid transparent;background:none}
+.nb:hover{background:var(--bg3)}
+.nb.on{background:var(--pl);color:var(--pd);border-color:#AFA9EC}
+.nb.cta{background:var(--pu);color:#fff;border-color:var(--pu)}
+.chip{background:var(--rd);color:#fff;font-size:10px;padding:1px 5px;border-radius:99px;font-weight:700;display:none;margin-left:2px}
+/* ページ */
+.pg{display:none}.pg.on{display:block}
+/* カード */
+.card{background:var(--bg);border:1px solid var(--bd);border-radius:var(--rl2);padding:16px 18px;margin-bottom:11px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.ct{font-size:13px;font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.h2{font-size:18px;font-weight:700;margin-bottom:4px}
+.sub{font-size:13px;color:var(--tx2);line-height:1.6;margin-bottom:1rem}
+.tag{font-size:10px;padding:2px 7px;border-radius:99px;font-weight:600;margin-left:5px;background:var(--pl);color:var(--pd)}
+/* ボタン */
+.btn{padding:8px 16px;font-size:13px;font-weight:600;border-radius:var(--r);cursor:pointer;border:1px solid var(--bd2);background:var(--bg);color:var(--tx);display:inline-flex;align-items:center;gap:5px;transition:.15s}
+.btn:hover{background:var(--bg3)}
+.btn-p{background:var(--pu);color:#fff;border-color:var(--pu)}.btn-p:hover{background:var(--pd)}
+.btn-g{background:var(--gn);color:#fff;border-color:var(--gn)}.btn-g:hover{background:#0F6E56}
+.btn-r{background:var(--rd);color:#fff;border-color:var(--rd)}.btn-r:hover{background:#c43a39}
+.btn-sm{padding:4px 9px;font-size:11px}
+.nbtn{width:100%;padding:11px;font-size:14px;font-weight:600;background:var(--pu);color:#fff;border:none;border-radius:var(--rl2);cursor:pointer;margin-top:4px}
+.nbtn:hover{background:var(--pd)}
+.nbtn:disabled{background:var(--bg3);color:var(--tx3);cursor:not-allowed}
+.btn-row{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
+/* アラート */
+.aok{background:var(--gl);border:1px solid var(--gb);border-radius:var(--r);padding:10px 13px;font-size:12px;color:#085041;line-height:1.7;margin-bottom:11px;display:flex;gap:7px}
+.awk{background:var(--al);border:1px solid var(--ab);border-radius:var(--r);padding:10px 13px;font-size:12px;color:var(--ad);line-height:1.7;margin-bottom:11px;display:flex;gap:7px}
+.ang{background:var(--rl);border:1px solid var(--rb);border-radius:var(--r);padding:10px 13px;font-size:12px;color:var(--rdd);line-height:1.7;margin-bottom:11px;display:flex;gap:7px}
+/* フォーム */
+.fg{display:flex;flex-direction:column;gap:3px;margin-bottom:10px}
+.fg label{font-size:11px;color:var(--tx2);font-weight:600}
+.fg input,.fg select,.fg textarea{padding:8px 11px;font-size:13px;border:1px solid var(--bd2);border-radius:var(--r);background:var(--bg);color:var(--tx);width:100%}
+.fg input:focus,.fg select:focus,.fg textarea:focus{outline:none;border-color:var(--pu);box-shadow:0 0 0 2px rgba(83,74,183,.12)}
+.fg2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.full{grid-column:1/-1}
+/* 統計 */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:9px;margin-bottom:14px}
+.stat{background:var(--bg);border:1px solid var(--bd);border-radius:var(--rl2);padding:11px 13px}
+.sl{font-size:11px;color:var(--tx2);margin-bottom:3px}
+.sv{font-size:21px;font-weight:700}
+/* テーブル */
+.tblw{background:var(--bg);border:1px solid var(--bd);border-radius:var(--rl2);overflow:hidden;margin-bottom:11px;overflow-x:auto}
+.tbl{width:100%;border-collapse:collapse;font-size:13px;min-width:560px}
+.tbl th{padding:8px 11px;text-align:left;font-weight:600;border-bottom:2px solid var(--bd);background:var(--bg2);font-size:11px;color:var(--tx2);white-space:nowrap}
+.tbl td{padding:9px 11px;border-bottom:1px solid var(--bg3);vertical-align:middle}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:#fafaf8}
+/* バッジ */
+.badge{font-size:10px;padding:2px 7px;border-radius:99px;font-weight:700;white-space:nowrap}
+.b-ok{background:var(--gl);color:#085041}
+.b-warn{background:var(--al);color:var(--ad)}
+.b-ng{background:var(--rl);color:var(--rdd)}
+.b-blue{background:var(--pl);color:var(--pd)}
+.b-gray{background:var(--bg3);color:var(--tx2)}
+/* プログレス */
+.pbar{height:5px;background:var(--bg3);border-radius:99px;overflow:hidden;margin-bottom:.9rem}
+.pfill{height:100%;background:var(--pu);border-radius:99px;transition:width .3s}
+.m3{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:9px}
+.mc{background:var(--bg2);border-radius:var(--r);padding:8px 9px}
+.ml{font-size:10px;color:var(--tx2);margin-bottom:2px}
+.mv{font-size:19px;font-weight:700}
+/* ローディング */
+.ds{display:inline-flex;gap:3px;align-items:center}
+.ds span{width:5px;height:5px;border-radius:50%;background:var(--pu);animation:bl 1.2s infinite}
+.ds span:nth-child(2){animation-delay:.2s}.ds span:nth-child(3){animation-delay:.4s}
+@keyframes bl{0%,80%,100%{opacity:.2}40%{opacity:1}}
+/* AI */
+.aibox{border:1px solid var(--bd);border-radius:var(--rl2);padding:.9rem 1.1rem;margin-bottom:12px}
+.ailbl{font-size:11px;font-weight:600;color:var(--pu);margin-bottom:6px;display:flex;align-items:center;gap:4px}
+.aitxt{font-size:13px;line-height:1.8;white-space:pre-wrap}
+/* 選択肢 */
+.opt{display:flex;align-items:center;gap:8px;padding:10px 12px;border:1px solid var(--bd);border-radius:var(--r);margin-bottom:7px;cursor:pointer;font-size:13px;transition:.15s}
+.opt:hover{background:var(--bg2)}
+.opt.sy{background:var(--gl);border-color:var(--gb);color:#085041;font-weight:600}
+.opt.sn{background:var(--rl);border-color:var(--rb);color:var(--rdd);font-weight:600}
+.opt.sw{background:var(--al);border-color:var(--ab);color:var(--ad);font-weight:600}
+.si{display:flex;align-items:flex-start;gap:6px;font-size:12px;padding:5px 8px;border-radius:var(--r);background:var(--bg2);margin-bottom:3px}
+/* STEP2 */
+.tli{display:flex;gap:9px;margin-bottom:10px}
+.tld{width:9px;height:9px;border-radius:50%;background:var(--pu);flex-shrink:0;margin-top:5px}
+.tld.w{background:var(--ab)}.tld.r{background:var(--rd)}
+.tll{font-size:13px;font-weight:600}.tls{font-size:10px;color:var(--pu);font-weight:600;margin-bottom:1px}
+.hi{color:var(--pu);font-weight:600}.wa{color:var(--ad);font-weight:600}.er{color:var(--rdd);font-weight:600}
+/* STEP3 */
+.tr2{display:flex;gap:4px;margin-bottom:.9rem}
+.tb{flex:1;padding:8px;font-size:13px;font-weight:600;border:1px solid var(--bd2);border-radius:var(--r);background:var(--bg);cursor:pointer;color:var(--tx2);text-align:center}
+.tb.active{background:var(--pu);border-color:var(--pu);color:#fff}
+.grp{background:var(--bg);border:1px solid var(--bd);border-radius:var(--rl2);margin-bottom:8px;overflow:hidden}
+.gh{padding:8px 12px;display:flex;align-items:center;gap:6px;border-bottom:1px solid var(--bd);background:var(--bg2)}
+.gbadge{font-size:10px;padding:2px 6px;border-radius:99px;font-weight:600}
+.mu{background:var(--rl);color:#A32D2D}.co{background:#EAF3DE;color:#3B6D11}
+.gt{font-size:13px;font-weight:600;flex:1}.gpr{font-size:10px;color:var(--tx2)}
+.ck{display:flex;align-items:flex-start;gap:8px;padding:9px 12px;border-bottom:1px solid var(--bd);cursor:pointer}
+.ck:last-child{border-bottom:none}.ck:hover{background:var(--bg2)}
+.cb{width:15px;height:15px;border:1px solid var(--bd2);border-radius:3px;flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;transition:.15s}
+.cb.on{background:var(--pu);border-color:var(--pu)}
+.cl{font-size:13px;line-height:1.5;flex:1}.ck.ced .cl{text-decoration:line-through;color:var(--tx3)}
+.cn{font-size:11px;color:var(--tx2);margin-top:2px;line-height:1.4}
+.dbdone{background:var(--gl);border:1px solid var(--gb);border-radius:var(--r);padding:9px 12px;color:#085041;font-size:13px;display:flex;align-items:center;gap:6px;margin-bottom:9px}
+/* STEP4 */
+.ps3{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:11px}
+.psc{background:var(--bg2);border-radius:var(--r);padding:8px 9px;text-align:center}
+.psv{font-size:19px;font-weight:700;margin-bottom:2px}.psl{font-size:10px;color:var(--tx2)}
+.fi{border:1px solid var(--bd);border-radius:var(--rl2);margin-bottom:8px;overflow:hidden}
+.fi.fd{border-color:var(--gb)}.fi.fn{border-color:var(--pu)}
+.fh{display:flex;align-items:center;gap:8px;padding:10px 12px;cursor:pointer;background:var(--bg)}
+.fh:hover{background:var(--bg2)}
+.fnum{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;flex-shrink:0;border:1px solid var(--bd2);color:var(--tx2);background:var(--bg2)}
+.fnum.done{background:var(--gl);border-color:var(--gb);color:#085041}
+.fnum.now{background:var(--pu);border-color:var(--pu);color:#fff}
+.finfo{flex:1}.ftit{font-size:13px;font-weight:600}.ftm{font-size:10px;color:var(--pu);font-weight:600;margin-top:1px}
+.fbody{border-top:1px solid var(--bd);padding:10px 12px;background:var(--bg2)}
+.fpts{display:flex;flex-direction:column;gap:5px;margin:8px 0}
+.fpt{display:flex;align-items:flex-start;gap:5px;font-size:12px;color:var(--tx2)}
+.pok{color:var(--gn)}.pw{color:var(--ad)}.pi2{color:#185FA5}
+.mkbtn{display:flex;align-items:center;gap:5px;padding:7px 12px;font-size:12px;font-weight:600;border:1px solid var(--bd2);border-radius:var(--r);background:var(--bg);cursor:pointer;color:var(--tx2)}
+.mkbtn:hover{border-color:var(--gb);color:#085041}.mkbtn.mk{background:var(--gl);border-color:var(--gb);color:#085041}
+.done-banner{background:var(--gl);border:1px solid var(--gb);border-radius:var(--rl2);padding:13px;color:#085041;font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px;margin-bottom:11px}
+.scr{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--bd);font-size:12px;gap:8px}
+.scr:last-child{border-bottom:none}.sck{color:var(--tx2);flex-shrink:0}.scv{font-weight:600;color:var(--pu);text-align:right}
+/* ホーム */
+.hg{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:12px}
+.hc{background:var(--bg);border:1px solid var(--bd);border-radius:var(--rl2);padding:.9rem 1rem;cursor:pointer;display:flex;flex-direction:column;gap:4px;transition:.15s}
+.hc:hover{background:var(--bg2)}
+.hc.dc{border-color:var(--gb)}.hc.ac{border-color:var(--pu)}.hc.lc{opacity:.4;pointer-events:none}
+.hct{display:flex;justify-content:space-between}
+.hcn{font-size:10px;color:var(--tx2)}
+.hcb{font-size:10px;padding:2px 6px;border-radius:99px;font-weight:600}
+.d{background:var(--gl);color:#085041}.a{background:var(--pl);color:var(--pd)}.l{background:var(--bg3);color:var(--tx3)}
+.hci{font-size:20px;color:var(--pu);margin-top:2px}.hc.dc .hci{color:var(--gn)}
+.hcl{font-size:13px;font-weight:600}.hcd{font-size:11px;color:var(--tx2);line-height:1.4}
+.ob{background:var(--bg2);border-radius:var(--rl2);padding:.9rem 1.1rem;margin-bottom:10px}
+.obr{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.obl{font-size:13px;font-weight:600}.obp{font-size:13px;color:var(--pu);font-weight:600}
+.pb2{height:7px;background:var(--bd);border-radius:99px;overflow:hidden}
+.pf2{height:100%;background:var(--pu);border-radius:99px;transition:width .4s}
+/* CRM */
+.search-row{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.srch{flex:1;min-width:160px;padding:8px 12px;font-size:13px;border:1px solid var(--bd2);border-radius:var(--r);background:var(--bg)}
+.srch:focus{outline:none;border-color:var(--pu)}
+.fsel{padding:8px 11px;font-size:13px;border:1px solid var(--bd2);border-radius:var(--r);background:var(--bg);color:var(--tx);cursor:pointer}
+.ai-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--bg3)}
+.ai-item:last-child{border-bottom:none}
+.adot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.dz{border:2px dashed var(--bd2);border-radius:10px;padding:28px;text-align:center;cursor:pointer;color:var(--tx2);transition:.2s;margin-bottom:12px}
+.dz:hover,.dz.drag{border-color:var(--pu);background:#EEEDFE15;color:var(--pu)}
+.dz i{font-size:30px;display:block;margin:0 auto 8px;opacity:.6}
+.line-box{background:#06C755;border-radius:var(--rl2);padding:14px;color:#fff;margin-bottom:12px}
+/* モーダル */
+.modbg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;align-items:center;justify-content:center;padding:12px}
+.modbg.open{display:flex}
+.modal{background:var(--bg);border-radius:16px;padding:22px;width:min(580px,100%);max-height:90vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,.2)}
+.modtop{font-size:16px;font-weight:700;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center}
+.modx{font-size:20px;cursor:pointer;color:var(--tx3);padding:4px}
+.modx:hover{color:var(--tx)}
+/* タブ */
+.tabrow{display:flex;gap:2px;background:var(--bg3);border-radius:10px;padding:3px;margin-bottom:14px}
+.tabt{flex:1;padding:7px;font-size:12px;font-weight:600;border:none;border-radius:7px;background:transparent;cursor:pointer;color:var(--tx2);text-align:center}
+.tabt.active{background:var(--bg);color:var(--pu);box-shadow:0 1px 3px rgba(0,0,0,.1)}
+/* レスポンシブ */
+@media(max-width:540px){.fg2,.hg{grid-template-columns:1fr}}
+@media print{.nav,.btn-row,.np{display:none!important}body{background:#fff}}
+</style>
+</head>
+<body>
+<!-- APIキー管理（localStorage保存） -->
+<script>
+// APIキーはlocalStorageから読み込み（ファイルにべた書きしない）
+var _APIKEY_LS = 'sp_apikey_v1';
+var API_KEY = '';
+(function(){
+  try { var k = localStorage.getItem(_APIKEY_LS); if(k) API_KEY = k; } catch(e){}
+})();
+</script>
+
+<div class="wrap">
+
+<!-- ナビ -->
+<nav class="nav">
+  <div class="logo" id="logo"><i class="ti ti-building"></i>助成金サポートPro</div>
+  <div class="nav-r">
+    <div class="msw">
+      <button class="msb on" id="msb-tool"><i class="ti ti-clipboard-check" style="font-size:12px"></i> 申請サポート</button>
+      <button class="msb" id="msb-crm"><i class="ti ti-users" style="font-size:12px"></i> 顧客管理</button>
+    </div>
+    <!-- 申請ナビ -->
+    <div id="tnav" style="display:flex;gap:3px">
+      <div class="nb on" id="tnl-home">ホーム</div>
+      <div class="nb" id="tnl-pricing">料金</div>
+    </div>
+    <!-- CRMナビ -->
+    <div id="cnav" style="display:none;gap:3px">
+      <div class="nb on" id="cnl-dash">DB</div>
+      <div class="nb" id="cnl-list">顧客</div>
+      <div class="nb" id="cnl-import">登録</div>
+      <div class="nb" id="cnl-alerts">期限<span class="chip" id="achip"></span></div>
+      <div class="nb" id="cnl-line">LINE</div>
+      <div class="nb cta" id="btn-addcust">+ 追加</div>
+    </div>
+  </div>
+</nav>
+
+<!-- ===== 申請サポート側 ===== -->
+<!-- ツールホーム -->
+<div class="pg on" id="pg-home">
+  <div class="h2">外国人スタッフ雇用助成金サポート</div>
+  <div class="sub">STEP 1〜4を順番に進めて申請の準備を整えましょう。データは自動保存されます。</div>
+  <div id="linked-info"></div>
+  <div id="diag-result"></div>
+  <div class="ob">
+    <div class="obr"><div class="obl">全体の進捗</div><div class="obp" id="opct">0%</div></div>
+    <div class="pb2"><div class="pf2" id="ofill" style="width:0%"></div></div>
+  </div>
+  <div class="hg" id="hcards"></div>
+  <div class="btn-row">
+    <button class="btn btn-sm" onclick="toolClearAll()"><i class="ti ti-trash" style="font-size:12px"></i> データリセット</button>
+  </div>
+</div>
+
+<!-- 料金 -->
+<div class="pg" id="pg-pricing">
+  <div class="h2">料金プラン</div>
+  <div class="sub">全プラン2週間の無料トライアル付き。</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1.5rem">
+    <div class="card" style="border:2px solid var(--pu)">
+      <div style="font-size:11px;padding:2px 7px;border-radius:99px;background:var(--pl);color:var(--pd);font-weight:600;align-self:flex-start;display:inline-block;margin-bottom:8px">おすすめ</div>
+      <div style="font-size:15px;font-weight:600;margin-bottom:4px">買い切りプラン</div>
+      <div style="font-size:22px;font-weight:700;color:var(--pu);margin-bottom:4px">¥49,800<span style="font-size:12px;color:var(--tx2);font-weight:400"> 一括</span></div>
+      <div style="font-size:12px;color:var(--gn);font-weight:600;margin-bottom:8px">6か月以上使うと元が取れる</div>
+      <div style="font-size:12px;color:var(--tx2);line-height:1.5">永続利用・制度改正アップデート（1年）・優先サポート付き</div>
+    </div>
+    <div class="card">
+      <div style="font-size:11px;padding:2px 7px;border-radius:99px;background:var(--pl);color:var(--pd);font-weight:600;display:inline-block;margin-bottom:8px">月額プラン</div>
+      <div style="font-size:15px;font-weight:600;margin-bottom:4px">スタンダード</div>
+      <div style="font-size:22px;font-weight:700;color:var(--pu);margin-bottom:4px">¥9,000<span style="font-size:12px;color:var(--tx2);font-weight:400">/月</span></div>
+      <div style="font-size:12px;color:var(--tx2);margin-bottom:8px">2週間無料トライアル後に課金開始</div>
+      <div style="font-size:12px;color:var(--tx2);line-height:1.5">いつでもキャンセル可能・制度改正時アップデート付き</div>
+    </div>
+  </div>
+  <div class="card">
+    <div style="font-size:13px;font-weight:600;margin-bottom:10px">月額 vs 買い切り 比較</div>
+    <div class="scr"><span class="sck">6か月</span><span>月額¥54,000 vs <span style="color:var(--pu);font-weight:600">買い切り¥49,800</span></span></div>
+    <div class="scr"><span class="sck">12か月</span><span>月額¥108,000 vs <span style="color:var(--pu);font-weight:600">買い切り¥49,800</span></span></div>
+    <div class="scr"><span class="sck">24か月</span><span>月額¥216,000 vs <span style="color:var(--pu);font-weight:600">買い切り¥49,800</span></span></div>
+  </div>
+
+  <!-- AI機能用APIキー設定 -->
+  <div class="card" style="border:1px solid var(--pu);margin-top:10px">
+    <div class="ct"><i class="ti ti-key"></i>AI機能用 Anthropic APIキー設定</div>
+    <div style="font-size:12px;color:var(--tx2);line-height:1.6;margin-bottom:10px">
+      AI診断・アドバイス機能を利用するにはAnthropicのAPIキーが必要です。
+      入力したキーはこのブラウザのみに保存され、外部には送信されません。
+    </div>
+    <div class="fg">
+      <label>APIキー（sk-ant- から始まる文字列）</label>
+      <div style="display:flex;gap:6px">
+        <input type="password" id="apikey-input" placeholder="sk-ant-..." style="flex:1">
+        <button class="btn btn-p" onclick="saveApiKeyJ()">保存</button>
+        <button class="btn" onclick="clearApiKeyJ()" title="キーを削除">削除</button>
+      </div>
+    </div>
+    <div id="apikey-status" style="font-size:12px;margin-top:4px;min-height:18px"></div>
+  </div>
+
+  <!-- 法改正情報 -->
+  <div class="card" style="margin-top:10px">
+    <div class="ct"><i class="ti ti-refresh"></i>制度・最低賃金情報</div>
+    <div id="law-info-panel" style="font-size:12px;color:var(--tx2);line-height:1.8"></div>
+  </div>
+</div>
+
+<!-- STEP1 -->
+<div class="pg" id="pg-s1">
+  <div style="font-size:17px;font-weight:700;margin-bottom:4px">STEP 1 受給できるか診断<span class="tag">AI</span></div>
+  <div class="sub">8つの質問に答えてから「診断する」を押してください。</div>
+  <div class="m3">
+    <div class="mc"><div class="ml">合計</div><div class="mv">8</div></div>
+    <div class="mc"><div class="ml">回答済み</div><div class="mv" id="q-done" style="color:var(--gn)">0</div></div>
+    <div class="mc"><div class="ml">残り</div><div class="mv" id="q-left" style="color:var(--rd)">8</div></div>
+  </div>
+  <div class="pbar"><div class="pfill" id="q-bar" style="width:0%"></div></div>
+  <div id="qlist"></div>
+  <button class="nbtn" id="dbtn" onclick="diagnose()" disabled>診断する</button>
+</div>
+
+<!-- STEP1結果 -->
+<div class="pg" id="pg-s1r">
+  <div style="font-size:17px;font-weight:700;margin-bottom:8px" id="r1t"></div>
+  <div id="r1res"></div>
+  <div class="aibox"><div class="ailbl"><i class="ti ti-sparkles"></i>AIによる分析</div><div id="ai1"><div class="ds"><span></span><span></span><span></span></div></div></div>
+  <div class="card"><div style="font-size:13px;font-weight:600;margin-bottom:7px">回答のまとめ</div><div id="r1sum"></div></div>
+  <button class="nbtn" id="r1next" onclick="goStep(2)" style="display:none">次へ：期限を計算する →</button>
+  <div class="btn-row">
+    <button class="btn" onclick="resetS1()"><i class="ti ti-refresh"></i> やり直す</button>
+    <button class="btn" onclick="goHome()">ホームへ</button>
+    <button class="btn btn-g" id="save-to-crm" style="display:none" onclick="saveDiagToCRM()"><i class="ti ti-users"></i> 顧客管理に保存</button>
+  </div>
+</div>
+
+<!-- STEP2 -->
+<div class="pg" id="pg-s2">
+  <div style="font-size:17px;font-weight:700;margin-bottom:4px">STEP 2 期限を自動計算する<span class="tag">AI</span></div>
+  <div class="sub">日付を入力すると申請スケジュールが自動表示されます。</div>
+  <div class="card">
+    <div class="ct"><i class="ti ti-calendar"></i>日付を入力</div>
+    <div class="fg2">
+      <div class="fg"><label>計画の開始予定日</label><input type="date" id="d1" oninput="calcD()"></div>
+      <div class="fg"><label>計画の終了予定日</label><input type="date" id="d2" oninput="calcD()"></div>
+      <div class="fg"><label>措置の実施完了予定日</label><input type="date" id="d3" oninput="calcD()"></div>
+      <div class="fg"><label>外国人労務責任者講習</label>
+        <select id="d4" onchange="calcD()">
+          <option value="0">受講しない／未定</option>
+          <option value="1">受講する（受講済み）</option>
+        </select>
+      </div>
+    </div>
+    <div style="font-size:12px;color:var(--tx2);background:var(--bg2);border-radius:var(--r);padding:6px 9px;margin-top:5px;line-height:1.6">計画の開始予定日だけ入力すれば申請期限が確認できます。</div>
+  </div>
+  <div id="sched-result"></div>
+  <div id="s2-pdf-area" style="display:none">
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">
+      <button class="btn" style="background:#1D9E75;color:#fff;border-color:#1D9E75" onclick="showCalPanel()"><i class="ti ti-calendar-event"></i> Googleカレンダーに登録</button>
+      <button class="btn btn-p np" onclick="printS2()"><i class="ti ti-printer"></i> PDF保存</button>
+    </div>
+    <div id="cal-panel" style="display:none"></div>
+  </div>
+  <button class="nbtn" onclick="completeStep(2)" style="margin-top:8px">確認完了 → STEP 3 書類確認へ</button>
+  <div class="btn-row"><button class="btn" onclick="goHome()">ホームへ</button></div>
+</div>
+
+<!-- STEP3 -->
+<div class="pg" id="pg-s3">
+  <div style="font-size:17px;font-weight:700;margin-bottom:4px">STEP 3 提出書類チェックリスト<span class="tag">AI</span></div>
+  <div class="sub">書類を確認してチェックを入れてください。</div>
+  <div class="tr2 np">
+    <div class="tb active" id="tb-plan" onclick="switchDocTab('plan')"><i class="ti ti-file-plus" style="font-size:12px;margin-right:3px"></i>① 計画申請</div>
+    <div class="tb" id="tb-apply" onclick="switchDocTab('apply')"><i class="ti ti-send" style="font-size:12px;margin-right:3px"></i>② 支給申請</div>
+  </div>
+  <div id="doc-done-banner"></div>
+  <div class="m3">
+    <div class="mc"><div class="ml">合計</div><div class="mv" id="doc-total">0</div></div>
+    <div class="mc"><div class="ml">確認済み</div><div class="mv" id="doc-done" style="color:var(--gn)">0</div></div>
+    <div class="mc"><div class="ml">残り</div><div class="mv" id="doc-left" style="color:var(--rd)">0</div></div>
+  </div>
+  <div class="pbar"><div class="pfill" id="doc-bar" style="width:0%"></div></div>
+  <div id="doclist"></div>
+  <div class="aibox np"><div class="ailbl"><i class="ti ti-sparkles"></i>AIによる書類アドバイス</div><div id="ai3"><div class="ds"><span></span><span></span><span></span></div></div></div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
+    <button class="btn" style="background:#1D9E75;color:#fff;border-color:#1D9E75" onclick="showCal3Panel()"><i class="ti ti-calendar-event"></i> 提出日をカレンダー登録</button>
+    <button class="btn btn-p np" onclick="printS3()"><i class="ti ti-printer"></i> PDF保存</button>
+  </div>
+  <div id="cal3-panel" style="display:none"></div>
+  <button class="nbtn" onclick="completeStep(3)">確認完了 → STEP 4 申請フローへ</button>
+  <div class="btn-row"><button class="btn" onclick="goHome()">ホームへ</button></div>
+</div>
+
+<!-- STEP4 -->
+<div class="pg" id="pg-s4">
+  <div style="font-size:17px;font-weight:700;margin-bottom:4px">STEP 4 申請フローガイダンス<span class="tag">AI</span></div>
+  <div class="sub">各ステップをタップして詳細を確認。完了したらチェックを入れましょう。</div>
+  <div id="s4-complete-banner"></div>
+  <div class="ps3">
+    <div class="psc"><div class="psv">7</div><div class="psl">総ステップ</div></div>
+    <div class="psc"><div class="psv" id="f4d" style="color:var(--gn)">0</div><div class="psl">完了</div></div>
+    <div class="psc"><div class="psv" id="f4l" style="color:var(--rd)">7</div><div class="psl">残り</div></div>
+  </div>
+  <div class="pbar"><div class="pfill" id="f4bar" style="width:0%"></div></div>
+  <div id="flowlist"></div>
+  <div class="aibox np"><div class="ailbl"><i class="ti ti-sparkles"></i>AIによる全体アドバイス</div><div id="ai4"><div class="ds"><span></span><span></span><span></span></div></div></div>
+  <div class="card">
+    <div class="ct"><i class="ti ti-clipboard-list"></i>申請全体のポイント</div>
+    <div class="scr"><span class="sck">支給額</span><span class="scv">1措置につき20万円（最大80万円）</span></div>
+    <div class="scr"><span class="sck">計画期間</span><span class="scv">3か月以上1年以内</span></div>
+    <div class="scr"><span class="sck">離職率の目標</span><span class="scv">15%以下（2〜10人は離職1人以下）</span></div>
+    <div class="scr"><span class="sck">書類保管</span><span class="scv">支給決定日の翌日から5年間</span></div>
+    <div class="scr"><span class="sck">提出先</span><span class="scv">本社管轄の都道府県労働局またはハローワーク</span></div>
+  </div>
+  <div class="btn-row">
+    <button class="btn" onclick="goHome()">ホームへ</button>
+    <button class="btn" onclick="resetFlow()"><i class="ti ti-refresh"></i> 進捗リセット</button>
+  </div>
+</div>
+
+<!-- ===== 顧客管理側 ===== -->
+<!-- ダッシュボード -->
+<div class="pg" id="pg-dash">
+  <div class="h2">ダッシュボード</div>
+  <div class="sub">顧客の申請状況と期限を一覧で確認できます。</div>
+  <div class="stats" id="c-stats"></div>
+  <div class="card"><div class="ct"><i class="ti ti-alert-triangle" style="color:var(--ab)"></i>期限が近い顧客（30日以内）</div><div id="c-near"></div></div>
+  <div class="card"><div class="ct"><i class="ti ti-history"></i>最近登録した顧客</div><div id="c-recent"></div></div>
+</div>
+
+<!-- 顧客一覧 -->
+<div class="pg" id="pg-list">
+  <div class="h2">顧客管理</div>
+  <div class="sub">検索・絞り込み・申請サポート連携ができます。</div>
+  <div class="search-row">
+    <input class="srch" type="text" id="c-srch" placeholder="🔍 顧客名・担当者名で検索…" oninput="renderList()">
+    <select class="fsel" id="c-fst" onchange="renderList()">
+      <option value="">すべてのステータス</option>
+      <option>未着手</option><option>計画申請中</option><option>措置実施中</option><option>支給申請中</option><option>完了</option>
+    </select>
+    <select class="fsel" id="c-fstf" onchange="renderList()"><option value="">すべての担当者</option></select>
+    <button class="btn btn-g btn-sm" onclick="exportCSV()"><i class="ti ti-download"></i>CSV出力</button>
+  </div>
+  <div class="tblw">
+    <table class="tbl">
+      <thead><tr>
+        <th>顧客名</th><th>担当者</th><th>ステータス</th><th>次の期限</th><th>AI判定</th><th>申請サポート</th><th>操作</th>
+      </tr></thead>
+      <tbody id="c-tbody"></tbody>
+    </table>
+  </div>
+  <div id="c-nodata" style="text-align:center;padding:2rem;color:var(--tx3);display:none">
+    <i class="ti ti-users" style="font-size:32px;display:block;margin:0 auto 8px;opacity:.4"></i>
+    顧客が登録されていません。
+  </div>
+</div>
+
+<!-- 一括登録 -->
+<div class="pg" id="pg-import">
+  <div class="h2">一括登録</div>
+  <div class="sub">CSVファイルから顧客を一括で登録できます。</div>
+  <div class="tabrow">
+    <button class="tabt active" id="itb-csv" onclick="switchITab('csv')">CSVインポート</button>
+    <button class="tabt" id="itb-tmpl" onclick="switchITab('tmpl')">テンプレートDL</button>
+  </div>
+  <div id="import-body"></div>
+</div>
+
+<!-- 期限アラート -->
+<div class="pg" id="pg-alerts">
+  <div class="h2">期限アラート</div>
+  <div class="sub">申請期限が近い顧客を自動で検出します。</div>
+  <div id="alerts-body"></div>
+</div>
+
+<!-- LINE通知 -->
+<div class="pg" id="pg-line">
+  <div class="h2">LINE通知設定</div>
+  <div class="sub">LINE Notifyのトークンを設定すると、期限アラートをLINEで受け取れます。</div>
+  <div class="line-box">
+    <div style="font-size:14px;font-weight:700;margin-bottom:5px;display:flex;align-items:center;gap:6px"><i class="ti ti-brand-line" style="font-size:18px"></i>LINE Notify連携</div>
+    <div style="font-size:12px;opacity:.9;line-height:1.6">期限アラート画面からワンクリックで顧客ごとにLINE通知を送れます。</div>
+  </div>
+  <div class="card">
+    <div class="ct"><i class="ti ti-settings"></i>LINE Notify設定</div>
+    <div class="fg"><label>LINE Notifyトークン</label><input type="password" id="line-token" placeholder="トークンを入力…"></div>
+    <div class="fg"><label>通知タイミング</label>
+      <select id="line-timing"><option value="3">期限3日前</option><option value="7">期限7日前</option></select>
+    </div>
+    <div class="btn-row">
+      <button class="btn" style="background:#06C755;color:#fff;border-color:#06C755" onclick="testLine()"><i class="ti ti-send"></i>テスト送信</button>
+      <button class="btn btn-p" onclick="saveLine()"><i class="ti ti-device-floppy"></i>設定を保存</button>
+    </div>
+    <div id="line-msg" style="margin-top:8px"></div>
+  </div>
+  <div class="card">
+    <div class="ct"><i class="ti ti-help-circle"></i>LINE Notifyトークンの取得方法</div>
+    <ol style="font-size:13px;line-height:1.9;padding-left:18px;color:var(--tx2)">
+      <li>notify-bot.line.me にアクセス</li>
+      <li>LINEアカウントでログイン</li>
+      <li>「マイページ」→「トークンを発行する」をクリック</li>
+      <li>通知名を入力し、通知先のトークルームを選択</li>
+      <li>発行されたトークンをコピーして上のフォームに貼り付け</li>
+    </ol>
+  </div>
+</div>
+
+<!-- 顧客追加・編集モーダル -->
+<div class="modbg" id="mod-add">
+  <div class="modal">
+    <div class="modtop"><span id="mod-ttl">顧客を追加</span><span class="modx" id="mod-close">✕</span></div>
+    <div class="fg2">
+      <div class="fg"><label>顧客名★</label><input type="text" id="m-name" placeholder="○○株式会社"></div>
+      <div class="fg"><label>担当者名★</label><input type="text" id="m-staff" placeholder="山田 太郎"></div>
+      <div class="fg"><label>外国人スタッフ数</label><input type="number" id="m-fgn" placeholder="3" min="1"></div>
+      <div class="fg"><label>業種</label>
+        <select id="m-ind">
+          <option value="">選択</option>
+          <option>飲食業</option><option>製造業</option><option>建設業</option>
+          <option>小売業</option><option>農業</option><option>サービス業</option><option>その他</option>
+        </select>
+      </div>
+      <div class="fg"><label>ステータス</label>
+        <select id="m-st">
+          <option>未着手</option><option>計画申請中</option>
+          <option>措置実施中</option><option>支給申請中</option><option>完了</option>
+        </select>
+      </div>
+      <div class="fg"><label>電話番号</label><input type="tel" id="m-tel" placeholder="06-0000-0000"></div>
+      <div class="fg"><label>計画申請期限</label><input type="date" id="m-pldl"></div>
+      <div class="fg"><label>支給申請期限</label><input type="date" id="m-apdl"></div>
+      <div class="fg full"><label>メモ</label><textarea id="m-memo" rows="2"></textarea></div>
+    </div>
+    <div id="mod-ai-res" style="margin-bottom:8px"></div>
+    <div class="btn-row">
+      <button class="btn btn-p" id="mod-save">保存する</button>
+      <button class="btn" id="mod-ai-btn"><i class="ti ti-sparkles"></i>AI不足判定</button>
+      <button class="btn" id="mod-cancel">キャンセル</button>
+    </div>
+  </div>
+</div>
+
+<!-- 顧客詳細モーダル -->
+<div class="modbg" id="mod-det">
+  <div class="modal">
+    <div class="modtop"><span id="det-ttl">顧客詳細</span><span class="modx" id="det-close">✕</span></div>
+    <div id="det-body"></div>
+  </div>
+</div>
+
+</div><!-- /wrap --><script>
+/* ==================== 定数・データ ==================== */
+
+// ================================================================
+//  ★★★ 法改正・最低賃金 更新ブロック ★★★
+//  制度改正・最低賃金改定時はこのブロックのみ更新してください
+//  最終更新：令和6年10月（最低賃金）/ 令和7年度（助成金制度）
+// ================================================================
+var LAW_J = {
+  fiscalYear: '令和7年度',
+  lastUpdated: '2025-04-01',
+
+  // 人材確保等支援助成金（外国人労働者雇用管理改善等計画コース）
+  subsidy: {
+    name: '人材確保等支援助成金（外国人労働者雇用管理改善等計画コース）',
+    planAmount_small: 72,   // 万円・中小企業（計画認定助成）
+    planAmount_large: 48,   // 万円・大企業
+    applyAmount_small: 36,  // 万円・中小企業（支給申請助成）
+    applyAmount_large: 24,  // 万円・大企業
+    requiredMeasures: ['外国人担当者の選任', '就業規則等の多言語化'],
+    optionalMeasures: ['相談窓口の整備', '一時帰国のための有給休暇', '社内マニュアル等の多言語化']
+  },
+
+  // 最低賃金（都道府県別）令和6年10月改定
+  // ※ 改定時は rates の値を更新する
+  minWage: {
+    updated: '令和6年10月改定',
+    rates: {
+      '東京都':1113,'神奈川県':1112,'埼玉県':1028,'千葉県':1026,
+      '大阪府':1064,'愛知県':1027,'京都府':1008,'兵庫県':1001,
+      '静岡県':984,'広島県':970,'福岡県':941,'北海道':960,
+      '宮城県':923,'その他（全国目安）':1004
+    }
+  },
+
+  // 計画期間・申請期限
+  schedule: {
+    planPeriodMonths: 6,        // 計画認定から措置実施まで（月）
+    applyDeadlineMonths: 12,    // 措置完了から申請まで（月）
+    continuousEmployMonths: 6   // 継続雇用が必要な期間（月）
+  }
+};
+// ================================================================
+//  ★★★ 法改正・最低賃金 更新ブロック ここまで ★★★
+// ================================================================
+
+var T_KEY = 'sp_tool_v1';
+var C_KEY = 'sp_crm_v1';
+var linkedCId = null;
+var editId = null;
+var currentDocTab = 'plan';
+var flowOpen = null;
+
+/* ---- ツールステート ---- */
+var TS = {
+  s1:false, s2:false, s3:false, s4:false,
+  res:'', qa:{},
+  ck:{plan:{}, apply:{}},
+  fd:{}, dt:'plan',
+  ai3loaded:{plan:false, apply:false},
+  ai4loaded:false
+};
+
+/* ---- CRMステート ---- */
+var CDB = { customers:[], lineToken:'', lineTiming:'3' };
+
+/* ==================== APIキー管理 ==================== */
+function saveApiKeyJ() {
+  var val = document.getElementById('apikey-input').value.trim();
+  var st = document.getElementById('apikey-status');
+  if (!val) { st.style.color='var(--rd)'; st.textContent='キーを入力してください'; return; }
+  if (!val.startsWith('sk-ant-')) { st.style.color='var(--rd)'; st.textContent='正しいAPIキー形式ではありません（sk-ant- で始まる文字列）'; return; }
+  try {
+    localStorage.setItem(_APIKEY_LS, val);
+    API_KEY = val;
+    document.getElementById('apikey-input').value = '';
+    st.style.color='var(--gn)'; st.textContent='✓ APIキーを保存しました（このブラウザのみ有効）';
+  } catch(e) { st.style.color='var(--rd)'; st.textContent='保存に失敗しました'; }
+}
+function clearApiKeyJ() {
+  if (!confirm('APIキーを削除しますか？AI機能が使えなくなります。')) return;
+  try { localStorage.removeItem(_APIKEY_LS); } catch(e) {}
+  API_KEY = '';
+  var st = document.getElementById('apikey-status');
+  if (st) { st.style.color='var(--tx2)'; st.textContent='APIキーを削除しました'; }
+}
+function renderLawPanel() {
+  var el = document.getElementById('law-info-panel');
+  if (!el) return;
+  var rates = LAW_J.minWage.rates;
+  var rateRows = Object.keys(rates).map(function(k) {
+    return '<div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid var(--bd)"><span>' + k + '</span><span style="font-weight:600">' + rates[k].toLocaleString() + '円</span></div>';
+  }).join('');
+  var hasKey = !!API_KEY;
+  el.innerHTML =
+    '<div style="margin-bottom:8px"><strong>' + LAW_J.fiscalYear + '　制度情報</strong>（' + LAW_J.lastUpdated + ' 更新）</div>' +
+    '<div style="margin-bottom:4px">対象助成金：' + LAW_J.subsidy.name + '</div>' +
+    '<div style="margin-bottom:4px">計画認定助成：中小企業 ' + LAW_J.subsidy.planAmount_small + '万円 / 大企業 ' + LAW_J.subsidy.planAmount_large + '万円</div>' +
+    '<div style="margin-bottom:8px">支給申請助成：中小企業 ' + LAW_J.subsidy.applyAmount_small + '万円 / 大企業 ' + LAW_J.subsidy.applyAmount_large + '万円</div>' +
+    '<div style="margin-bottom:6px"><strong>最低賃金一覧（' + LAW_J.minWage.updated + '）</strong></div>' +
+    '<div style="max-height:200px;overflow-y:auto;border:1px solid var(--bd);border-radius:var(--r);padding:6px 10px">' + rateRows + '</div>' +
+    '<div style="margin-top:8px;font-size:11px;padding:6px 10px;background:var(--al);border-radius:var(--r);color:var(--ad)">' +
+    '⚠ 制度改正・最低賃金改定時はソースコードの LAW_J ブロックを更新してください</div>' +
+    '<div style="margin-top:6px;font-size:11px;padding:6px 10px;background:' + (hasKey ? 'var(--gl)' : 'var(--rl)') + ';border-radius:var(--r);color:' + (hasKey ? '#085041' : 'var(--rdd)') + '">' +
+    (hasKey ? '✓ APIキー設定済み — AI機能が利用可能です' : '✗ APIキー未設定 — 上の設定からAPIキーを入力するとAI機能が利用できます') + '</div>';
+}
+
+/* ==================== 保存確認トースト ==================== */
+function showSaveToast() {
+  var el = document.getElementById('save-toast');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'save-toast';
+    el.style.cssText = 'position:fixed;bottom:20px;right:20px;background:#1D9E75;color:#fff;padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;z-index:9999;opacity:0;transition:opacity .3s;pointer-events:none';
+    document.body.appendChild(el);
+  }
+  el.textContent = '✓ 自動保存しました';
+  el.style.opacity = '1';
+  clearTimeout(el._t);
+  el._t = setTimeout(function(){ el.style.opacity = '0'; }, 1500);
+}
+
+/* ==================== 保存・読込 ==================== */
+function saveTool() {
+  try {
+    var d1 = document.getElementById('d1');
+    var d2 = document.getElementById('d2');
+    var d3 = document.getElementById('d3');
+    var d4 = document.getElementById('d4');
+    var data = {
+      res:TS.res, s1:TS.s1, s2:TS.s2, s3:TS.s3, s4:TS.s4,
+      qa:TS.qa, ck:TS.ck, fd:TS.fd, dt:TS.dt,
+      d1: d1 ? d1.value : '',
+      d2: d2 ? d2.value : '',
+      d3: d3 ? d3.value : '',
+      d4: d4 ? d4.value : '0'
+    };
+    localStorage.setItem(T_KEY, JSON.stringify(data));
+    showSaveToast();
+  } catch(e) {}
+}
+
+function loadTool() {
+  try {
+    var raw = localStorage.getItem(T_KEY);
+    if (!raw) return;
+    var d = JSON.parse(raw);
+    TS.res = d.res || '';
+    TS.s1 = d.s1 || false;
+    TS.s2 = d.s2 || false;
+    TS.s3 = d.s3 || false;
+    TS.s4 = d.s4 || false;
+    TS.qa = d.qa || {};
+    TS.ck = d.ck || {plan:{}, apply:{}};
+    TS.fd = d.fd || {};
+    TS.dt = d.dt || 'plan';
+    setTimeout(function() {
+      var fields = ['d1','d2','d3','d4'];
+      for (var i = 0; i < fields.length; i++) {
+        var el = document.getElementById(fields[i]);
+        if (el && d[fields[i]]) el.value = d[fields[i]];
+      }
+    }, 50);
+  } catch(e) {}
+}
+
+function saveCRM() {
+  try { localStorage.setItem(C_KEY, JSON.stringify(CDB)); showSaveToast(); } catch(e) {}
+}
+
+function loadCRM() {
+  try {
+    var raw = localStorage.getItem(C_KEY);
+    if (raw) CDB = JSON.parse(raw);
+  } catch(e) {}
+}
+
+function toolClearAll() {
+  if (!confirm('申請ツールのデータをリセットしますか？')) return;
+  try { localStorage.removeItem(T_KEY); } catch(e) {}
+  TS = {s1:false,s2:false,s3:false,s4:false,res:'',qa:{},ck:{plan:{},apply:{}},fd:{},dt:'plan',ai3loaded:{plan:false,apply:false},ai4loaded:false};
+  linkedCId = null;
+  var fs = ['d1','d2','d3'];
+  for (var i=0; i<fs.length; i++) {
+    var el = document.getElementById(fs[i]);
+    if (el) el.value = '';
+  }
+  var d4 = document.getElementById('d4');
+  if (d4) d4.value = '0';
+  renderHome();
+}
+
+/* ==================== ナビゲーション ==================== */
+function showPage(id) {
+  var pages = document.querySelectorAll('.pg');
+  for (var i=0; i<pages.length; i++) pages[i].classList.remove('on');
+  var target = document.getElementById('pg-' + id);
+  if (target) target.classList.add('on');
+}
+
+function setNavMode(mode) {
+  var tnav = document.getElementById('tnav');
+  var cnav = document.getElementById('cnav');
+  var msbtool = document.getElementById('msb-tool');
+  var msbcrm = document.getElementById('msb-crm');
+  if (mode === 'tool') {
+    tnav.style.display = 'flex';
+    cnav.style.display = 'none';
+    msbtool.classList.add('on');
+    msbcrm.classList.remove('on');
+  } else {
+    tnav.style.display = 'none';
+    cnav.style.display = 'flex';
+    msbtool.classList.remove('on');
+    msbcrm.classList.add('on');
+  }
+}
+
+function setToolNav(id) {
+  var ids = ['tnl-home','tnl-pricing'];
+  for (var i=0; i<ids.length; i++) {
+    var el = document.getElementById(ids[i]);
+    if (el) el.classList.toggle('on', ids[i] === id);
+  }
+}
+
+function setCRMNav(id) {
+  var ids = ['cnl-dash','cnl-list','cnl-import','cnl-alerts','cnl-line'];
+  for (var i=0; i<ids.length; i++) {
+    var el = document.getElementById(ids[i]);
+    if (el) el.classList.toggle('on', ids[i] === id);
+  }
+}
+
+function goHome() {
+  setNavMode('tool');
+  setToolNav('tnl-home');
+  showPage('home');
+  renderHome();
+}
+
+function goStep(n) {
+  setNavMode('tool');
+  setToolNav('tnl-home');
+  showPage('s' + n);
+  if (n === 1) renderQ();
+  if (n === 3) {
+    renderDocs();
+    if (!TS.ai3loaded[currentDocTab]) {
+      TS.ai3loaded[currentDocTab] = true;
+      callAI(
+        'あなたは助成金アドバイザーです。「人材確保等支援助成金」の' + (currentDocTab==='plan'?'計画申請':'支給申請') + '書類準備について、従業員10人以下の零細企業向けに140字で①忘れがちな書類②準備のコツ③励まし、を書いてください。専門用語なし。',
+        'ai3'
+      );
+    }
+  }
+  if (n === 4) {
+    renderFlow();
+    if (!TS.ai4loaded) {
+      TS.ai4loaded = true;
+      callAI('あなたは助成金アドバイザーです。「人材確保等支援助成金」の申請全体について、従業員10人以下の零細企業向けに140字で①最重要ポイント②失敗しやすい点と対策③励まし、で書いてください。専門用語なし。', 'ai4');
+    }
+  }
+}
+
+function completeStep(n) {
+  TS['s'+n] = true;
+  saveTool();
+  goStep(n+1);
+}
+
+function goCRM(id) {
+  setNavMode('crm');
+  setCRMNav('cnl-' + id);
+  showPage(id);
+  if (id === 'dash') renderDash();
+  else if (id === 'list') renderList();
+  else if (id === 'import') renderImport('csv');
+  else if (id === 'alerts') renderAlerts();
+  else if (id === 'line') loadLineSettings();
+  updateChip();
+}
+
+/* ==================== AI呼び出し ==================== */
+function callAI(prompt, targetId) {
+  var el = document.getElementById(targetId);
+  if (!el) return;
+  el.innerHTML = '<div class="ds"><span></span><span></span><span></span></div>';
+  if (!API_KEY || API_KEY === 'YOUR_API_KEY_HERE') {
+    el.innerHTML = '<div style="font-size:12px;color:var(--tx2)">⚠️ APIキーが未設定です。ナビゲーション「料金」タブ → 「AI機能用APIキー設定」からキーを入力してください。</div>';
+    return;
+  }
+  fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': API_KEY,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true'
+    },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 800,
+      messages: [{role:'user', content:prompt}]
+    })
+  }).then(function(r) {
+    return r.json();
+  }).then(function(d) {
+    if (d.error) throw new Error(d.error.message);
+    var text = '';
+    if (d.content) {
+      for (var i=0; i<d.content.length; i++) {
+        if (d.content[i].type === 'text') { text = d.content[i].text; break; }
+      }
+    }
+    el.innerHTML = '<div class="aitxt">' + text + '</div>';
+  }).catch(function(e) {
+    el.innerHTML = '<div style="font-size:12px;color:var(--tx2)">コメントを取得できませんでした。</div>';
+  });
+}
+
+/* ==================== ツールホーム ==================== */
+function renderHome() {
+  var steps = [
+    {n:1, ic:'ti-clipboard-check', l:'受給できるか診断', d:'8問に答えるだけ', done:TS.s1, unlock:true},
+    {n:2, ic:'ti-calendar-event', l:'期限を計算する', d:'日付を入れると自動表示', done:TS.s2, unlock:TS.s1 && TS.res==='ok'},
+    {n:3, ic:'ti-files', l:'書類を確認する', d:'提出書類のチェックリスト', done:TS.s3, unlock:TS.s2},
+    {n:4, ic:'ti-list-check', l:'申請フローを見る', d:'7ステップで申請完了', done:TS.s4, unlock:TS.s3}
+  ];
+  var done = 0;
+  for (var i=0; i<steps.length; i++) { if (steps[i].done) done++; }
+  var pct = Math.round(done/4*100);
+  document.getElementById('opct').textContent = pct + '%';
+  document.getElementById('ofill').style.width = pct + '%';
+
+  var html = '';
+  for (var i=0; i<steps.length; i++) {
+    var s = steps[i];
+    var cc = s.done ? 'dc' : s.unlock ? 'ac' : 'lc';
+    var bc = s.done ? 'd' : s.unlock ? 'a' : 'l';
+    var bl = s.done ? '完了' : s.unlock ? '進行中' : 'ロック中';
+    var click = (s.unlock || s.done) ? 'onclick="goStep(' + s.n + ')"' : '';
+    html += '<div class="hc ' + cc + '" ' + click + '>';
+    html += '<div class="hct"><div class="hcn">STEP ' + s.n + '</div>';
+    html += '<div class="hcb ' + bc + '">' + (s.done?'✓ ':'') + bl + '</div></div>';
+    html += '<i class="ti ' + s.ic + ' hci"></i>';
+    html += '<div class="hcl">' + s.l + '</div>';
+    html += '<div class="hcd">' + s.d + '</div></div>';
+  }
+  document.getElementById('hcards').innerHTML = html;
+
+  var ra = document.getElementById('diag-result');
+  if (TS.res) {
+    var rc = TS.res==='ok' ? 'aok' : TS.res==='ng' ? 'ang' : 'awk';
+    var ri = TS.res==='ok' ? 'ti-circle-check' : TS.res==='ng' ? 'ti-circle-x' : 'ti-alert-circle';
+    var rl = TS.res==='ok' ? '受給の可能性あり' : TS.res==='ng' ? '現時点では対象外' : '要確認';
+    ra.innerHTML = '<div class="' + rc + '" style="margin-bottom:9px"><i class="ti ' + ri + '" style="font-size:14px;flex-shrink:0;margin-top:1px"></i><span>' + rl + '</span></div>';
+  } else {
+    ra.innerHTML = '';
+  }
+
+  var li = document.getElementById('linked-info');
+  if (linkedCId) {
+    var c = findCustomer(linkedCId);
+    if (c) {
+      li.innerHTML = '<div class="aok" style="margin-bottom:8px"><i class="ti ti-link" style="font-size:15px;flex-shrink:0;margin-top:1px"></i><div>「' + c.name + '」の申請サポートを開いています（担当：' + c.staff + '）</div></div>';
+    }
+  } else {
+    li.innerHTML = '';
+  }
+}
+
+/* ==================== STEP1 ==================== */
+var QS = [
+  {id:'q1', t:'お店・会社は雇用保険に加入していますか？', n:'従業員が1人でもいれば原則加入が必要です。', yL:'はい、加入しています', nL:'いいえ / わからない', yC:'sy', nC:'sn'},
+  {id:'q2', t:'外国人スタッフを雇ったとき、ハローワークへ「外国人雇用状況の届出」をしましたか？', n:'雇い入れた翌月10日までに届出が必要です。', yL:'はい、届出しました', nL:'していない / わからない', yC:'sy', nC:'sn'},
+  {id:'q3', t:'その外国人スタッフは雇用保険に加入していますか？', n:'週20時間以上・31日以上の雇用見込みがあれば加入できます。', yL:'はい、加入しています', nL:'していない / わからない', yC:'sy', nC:'sn'},
+  {id:'q4', t:'この助成金を過去に受け取ったことはありますか？', n:'はじめての場合は「いいえ」を選んでください。', yL:'受け取ったことがある', nL:'はじめてです', yC:'sw', nC:'sy'},
+  {id:'q4b', t:'最後に受け取ってから3年以上たっていますか？', n:'Q4で「はじめて」を選んだ方は「はい」を選んでください。', yL:'3年以上たっている', nL:'3年未満です', yC:'sy', nC:'sn'},
+  {id:'q5', t:'計画開始予定日の6か月前から今日の間に、外国人スタッフを会社都合や退職勧奨で辞めさせたことはありますか？', n:'本人が自分から辞めた場合は問題ありません。', yL:'あります', nL:'ありません', yC:'sn', nC:'sy'},
+  {id:'q6', t:'「外国人担当者の選任」と「就業規則などの多言語化」の両方を実施できますか？', n:'この2つはセットで必須です。担当者は兼任でも問題ありません。', yL:'両方できます', nL:'どちらか難しい', yC:'sy', nC:'sn'},
+  {id:'q7', t:'「相談窓口の整備」「一時帰国のための有給休暇」「社内マニュアル等の多言語化」のうち1つ以上実施できますか？', n:'3つのうちどれか1つでも実施できれば問題ありません。', yL:'1つ以上できます', nL:'どれも難しい', yC:'sy', nC:'sn'}
+];
+var QLS = {q1:'雇用保険の加入',q2:'外国人雇用状況届出',q3:'外国人スタッフの保険加入',q4:'過去の受給歴',q4b:'3年経過の確認',q5:'解雇等の有無',q6:'必須2措置の実施可否',q7:'追加措置の実施可否'};
+
+function renderQ() {
+  var a = TS.qa;
+  var done = Object.keys(a).length;
+  document.getElementById('q-done').textContent = done;
+  document.getElementById('q-left').textContent = 8 - done;
+  document.getElementById('q-bar').style.width = Math.round(done/8*100) + '%';
+  var html = '';
+  for (var i=0; i<QS.length; i++) {
+    var q = QS[i];
+    var va = a[q.id];
+    html += '<div class="card" style="margin-bottom:9px">';
+    html += '<div style="font-size:10px;color:var(--pu);font-weight:600;margin-bottom:4px">質問 ' + (i+1) + ' / 8</div>';
+    html += '<div style="font-size:14px;font-weight:600;line-height:1.6;margin-bottom:7px">' + q.t + '</div>';
+    html += '<div style="font-size:12px;color:var(--tx2);background:var(--bg2);border-radius:var(--r);padding:6px 9px;margin-bottom:10px;line-height:1.6">' + q.n + '</div>';
+    html += '<div class="opt ' + (va==='yes'?q.yC:'') + '" onclick="pickQ(\'' + q.id + '\',\'yes\')"><i class="ti ti-check" style="font-size:14px;flex-shrink:0"></i>' + q.yL + '</div>';
+    html += '<div class="opt ' + (va==='no'?q.nC:'') + '" onclick="pickQ(\'' + q.id + '\',\'no\')"><i class="ti ti-x" style="font-size:14px;flex-shrink:0"></i>' + q.nL + '</div>';
+    html += '</div>';
+  }
+  document.getElementById('qlist').innerHTML = html;
+  document.getElementById('dbtn').disabled = (done < 8);
+}
+
+function pickQ(id, v) {
+  TS.qa[id] = v;
+  saveTool();
+  renderQ();
+}
+
+function diagnose() {
+  var a = TS.qa;
+  var r = 'ok';
+  if (a.q1==='no' || a.q2==='no' || a.q3==='no' || (a.q4==='yes' && a.q4b==='no')) r = 'ng';
+  else if (a.q5==='yes' || a.q6==='no' || a.q7==='no') r = 'warn';
+  TS.res = r; TS.s1 = true; saveTool();
+  showPage('s1r');
+
+  var titles = {ok:'受給できる可能性があります！', ng:'現時点では対象外の可能性があります', warn:'要確認の項目があります'};
+  document.getElementById('r1t').textContent = titles[r];
+
+  var cc = r==='ok'?'aok':r==='ng'?'ang':'awk';
+  var ic = r==='ok'?'ti-circle-check':r==='ng'?'ti-circle-x':'ti-alert-circle';
+  var lb = r==='ok'?'受給の可能性あり':r==='ng'?'現時点では対象外':'要確認';
+  document.getElementById('r1res').innerHTML = '<div class="' + cc + '" style="margin-bottom:11px"><i class="ti ' + ic + '" style="font-size:14px;flex-shrink:0;margin-top:1px"></i><span style="font-size:13px;font-weight:600">' + lb + '</span></div>';
+
+  var sh = '';
+  var keys = Object.keys(a);
+  for (var i=0; i<keys.length; i++) {
+    var k = keys[i]; var v = a[k];
+    var ok = (v==='yes' && k!=='q5') || (v==='no' && (k==='q5'||k==='q4'));
+    sh += '<div class="si ' + (ok?'':'') + '" style="color:' + (ok?'#085041':'var(--rdd)') + '">';
+    sh += '<i class="ti ' + (ok?'ti-check':'ti-x') + '" style="font-size:12px;flex-shrink:0;margin-top:1px"></i>';
+    sh += '<span>' + (QLS[k]||k) + '：' + (v==='yes'?'はい':'いいえ') + '</span></div>';
+  }
+  document.getElementById('r1sum').innerHTML = sh;
+
+  var nextBtn = document.getElementById('r1next');
+  nextBtn.style.display = (r==='ok') ? 'block' : 'none';
+
+  var saveBtn = document.getElementById('save-to-crm');
+  saveBtn.style.display = linkedCId ? 'flex' : 'none';
+
+  var lines = [];
+  var qkeys = Object.keys(a);
+  for (var i=0; i<qkeys.length; i++) {
+    lines.push('・' + (QLS[qkeys[i]]||qkeys[i]) + '：' + (a[qkeys[i]]==='yes'?'はい':'いいえ'));
+  }
+  var vt = r==='ok'?'受給できる可能性あり':r==='ng'?'現時点では対象外':'要確認';
+  callAI('あなたは中小企業の経営者に寄り添う助成金アドバイザーです。診断結果：' + vt + '\n回答：\n' + lines.join('\n') + '\n従業員10人以下の零細企業の経営者に向けて、200字で①結果をやさしく伝える②次のアクション1〜2点③励まし、を書いてください。専門用語なし。', 'ai1');
+}
+
+function resetS1() {
+  TS.qa = {}; TS.s1 = false; TS.res = '';
+  saveTool(); goStep(1);
+}
+
+function saveDiagToCRM() {
+  if (!linkedCId) return;
+  var idx = findCustomerIdx(linkedCId);
+  if (idx < 0) return;
+  var c = CDB.customers[idx];
+  c.aiR = TS.res==='ok' ? 'ok' : TS.res==='warn' ? 'warn' : 'ng';
+  c.aiT = TS.res==='ok' ? '✅ 問題なし：受給診断で問題なしと判定されました。' : TS.res==='warn' ? '⚠️ 要確認：受給診断で確認が必要な項目があります。' : '❌ 不足あり：受給診断で対象外または要件不足の項目があります。';
+  saveCRM();
+  alert('「' + c.name + '」の顧客情報を更新しました。');
+}
+
+/* ==================== STEP2 ==================== */
+function fmtD(d) {
+  if (!d || isNaN(d.getTime())) return '—';
+  return d.getFullYear() + '/' + (d.getMonth()+1) + '/' + d.getDate();
+}
+function addDays(d, n) { var r = new Date(d); r.setDate(r.getDate()+n); return r; }
+function addMonths(d, m) { var r = new Date(d); r.setMonth(r.getMonth()+m); return r; }
+function daysDiff(a, b) { return Math.floor((b-a)/(1000*60*60*24)); }
+
+function calcD() {
+  var sv = document.getElementById('d1').value;
+  var ev = document.getElementById('d2').value;
+  var iv = document.getElementById('d3').value;
+  var tr = document.getElementById('d4').value === '1';
+  var el = document.getElementById('sched-result');
+  var pdfArea = document.getElementById('s2-pdf-area');
+  saveTool();
+
+  if (!sv) { el.innerHTML = ''; pdfArea.style.display='none'; return; }
+
+  var ds = new Date(sv);
+  var now = new Date();
+  var late = addDays(ds, -30);
+  var early = addMonths(ds, -6);
+  var dl = daysDiff(now, late);
+
+  var alertCls = dl<0?'ang':dl<14?'ang':dl<30?'awk':'aok';
+  var alertIco = dl<0?'ti-alert-circle':dl<14?'ti-alert-circle':dl<30?'ti-alert-triangle':'ti-circle-check';
+  var alertMsg = dl<0?'計画申請の提出期限が過ぎています。':dl<14?'期限まであと'+dl+'日です。今すぐ準備を！':dl<30?'期限まであと'+dl+'日です。早めに準備しましょう。':'期限まであと'+dl+'日あります。余裕を持って準備しましょう。';
+
+  var items = [];
+  var planIso = late.toISOString().split('T')[0] + 'T09:00:00';
+  var planIsoe = late.toISOString().split('T')[0] + 'T09:30:00';
+  items.push({s:'計画申請の提出期限', dr:fmtD(early)+'〜'+fmtD(late), dot:dl<14?'r':dl<30?'w':'', iso:planIso, isoe:planIsoe, desc:'人材確保等支援助成金 計画申請の提出期限です。'});
+
+  if (ev) {
+    var de = new Date(ev);
+    var evIso = de.toISOString().split('T')[0] + 'T09:00:00';
+    items.push({s:'計画期間の終了日', dr:fmtD(ds)+'〜'+fmtD(de), dot:'', iso:evIso, isoe:de.toISOString().split('T')[0]+'T09:30:00', desc:'就労環境整備計画期間の終了日です。'});
+  }
+  if (iv) {
+    var di = new Date(iv);
+    var rs = addDays(di, 1);
+    var re = addMonths(rs, 6);
+    var ae = addMonths(re, 2);
+    var da = daysDiff(now, ae);
+    items.push({s:'措置の実施完了予定日', dr:fmtD(di), dot:'', iso:di.toISOString().split('T')[0]+'T09:00:00', isoe:di.toISOString().split('T')[0]+'T09:30:00', desc:'措置の実施完了予定日。翌日から離職率計算期間が始まります。'});
+    items.push({s:'離職率計算期間の終了', dr:fmtD(rs)+'〜'+fmtD(re), dot:'', iso:re.toISOString().split('T')[0]+'T09:00:00', isoe:re.toISOString().split('T')[0]+'T09:30:00', desc:'離職率の計算期間終了日です。'});
+    items.push({s:'支給申請の期限（最終日）', dr:fmtD(addDays(re,1))+'〜'+fmtD(ae), dot:da<30?'w':'', iso:ae.toISOString().split('T')[0]+'T09:00:00', isoe:ae.toISOString().split('T')[0]+'T09:30:00', desc:'支給申請の最終期限です。今すぐ対応してください。'});
+    if (tr) {
+      var ee = addMonths(di, 2);
+      items.push({s:'早期申請期限（講習受講者）', dr:fmtD(addDays(di,1))+'〜'+fmtD(ee), dot:'', iso:ee.toISOString().split('T')[0]+'T09:00:00', isoe:ee.toISOString().split('T')[0]+'T09:30:00', desc:'講習受講者の早期申請期限です。'});
+    }
+  }
+
+  var tlHtml = '';
+  for (var i=0; i<items.length; i++) {
+    var it = items[i];
+    tlHtml += '<div class="tli">';
+    tlHtml += '<div class="tld ' + it.dot + '"></div>';
+    tlHtml += '<div><div class="tls">' + it.s + '</div>';
+    tlHtml += '<div class="tll">' + it.dr + '</div></div></div>';
+  }
+
+  el.innerHTML = '<div class="card"><div class="ct"><i class="ti ti-clock"></i>申請スケジュール</div>'
+    + '<div class="' + alertCls + '"><i class="ti ' + alertIco + '" style="font-size:15px;flex-shrink:0;margin-top:1px"></i><div>' + alertMsg + '</div></div>'
+    + '<div style="margin-top:9px">' + tlHtml + '</div></div>';
+
+  pdfArea.style.display = 'block';
+  window._schedItems = items;  // カレンダー登録用に保存
+  document.getElementById('cal-panel').style.display = 'none';
+
+  // 顧客連携：期限を自動反映
+  if (linkedCId) {
+    el.innerHTML += '<div style="margin-top:8px"><button class="btn btn-g btn-sm" onclick="syncDatesToCRM()"><i class="ti ti-link"></i>この期限を顧客情報に反映する</button></div>';
+  }
+}
+
+function syncDatesToCRM() {
+  if (!linkedCId) return;
+  var idx = findCustomerIdx(linkedCId);
+  if (idx < 0) return;
+  var d1v = document.getElementById('d1').value;
+  var d3v = document.getElementById('d3').value;
+  if (d1v) CDB.customers[idx].pldl = d1v;
+  if (d3v) {
+    var di = new Date(d3v);
+    CDB.customers[idx].apdl = addMonths(addDays(di,1), 8).toISOString().split('T')[0];
+  }
+  saveCRM();
+  alert('期限を顧客情報に反映しました。');
+}
+
+function printS2() { window.print(); }
+
+/* ==================== STEP3 ==================== */
+var DOCS = {
+  plan:[
+    {name:'必ず必要な書類',cls:'mu',badge:'必須',items:[
+      {l:'就労環境整備計画書（様式第ａ-1号）',n:'ハローワークまたは労働局で入手できます'},
+      {l:'担当者の選任・就業規則多言語化の概要票（別紙１）',n:''},
+      {l:'相談窓口・帰国休暇・マニュアル多言語化の概要票（別紙２）',n:''},
+      {l:'事業所の外国人スタッフ名簿（別紙３）',n:'雇用保険被保険者番号が必要です'},
+      {l:'事業所確認票（様式第ａ-２号）',n:''},
+      {l:'多言語化する予定の就業規則等（外国人スタッフ1名分）',n:''}
+    ]},
+    {name:'当てはまる場合のみ必要',cls:'co',badge:'条件付',items:[
+      {l:'相談窓口または帰国休暇を追加する場合：変更予定の就業規則（案）',n:''},
+      {l:'外部業者に委託する場合：見積書（1社分でOK）',n:''},
+      {l:'社内マニュアル等を多言語化する場合：対象マニュアルの写し',n:''},
+      {l:'外国人雇用労務責任者講習を受けた（または受ける予定）：受講証明書または予定書類',n:''}
+    ]}
+  ],
+  apply:[
+    {name:'必ず必要な書類',cls:'mu',badge:'必須',items:[
+      {l:'支給申請書（様式第ａ-６号）',n:''},
+      {l:'事業所確認票（様式第ａ-２号）',n:''},
+      {l:'外国人スタッフ名簿（別紙３）',n:''},
+      {l:'離職した外国人スタッフがいる場合：離職理由がわかる書類',n:''},
+      {l:'担当者の選任・就業規則多言語化の概要票（別紙１）',n:''},
+      {l:'相談窓口・帰国休暇・マニュアル多言語化の概要票（別紙２）',n:''},
+      {l:'外国人スタッフの出勤簿等',n:''},
+      {l:'担当者による面談結果一覧表（別紙３）',n:''},
+      {l:'多言語化した就業規則等',n:''},
+      {l:'措置の実施を証明する書類（措置の種類ごと）',n:''},
+      {l:'支給要件確認申立書（共通要領様式第１号）',n:''}
+    ]},
+    {name:'当てはまる場合のみ必要',cls:'co',badge:'条件付',items:[
+      {l:'外部業者に委託した場合：領収書（写し）等の支払証明',n:''},
+      {l:'外国人雇用労務責任者講習を受けた場合：受講証明書（写し）',n:''},
+      {l:'在留期間満了で帰国した外国人スタッフがいる場合：在留資格を証明する書面',n:''}
+    ]}
+  ]
+};
+
+function switchDocTab(t) {
+  currentDocTab = t;
+  document.getElementById('tb-plan').classList.toggle('active', t==='plan');
+  document.getElementById('tb-apply').classList.toggle('active', t==='apply');
+  renderDocs();
+  if (!TS.ai3loaded[t]) {
+    TS.ai3loaded[t] = true;
+    callAI('あなたは助成金アドバイザーです。「人材確保等支援助成金」の' + (t==='plan'?'計画申請':'支給申請') + '書類準備について、従業員10人以下の零細企業向けに140字で①忘れがちな書類②準備のコツ③励まし、を書いてください。専門用語なし。', 'ai3');
+  }
+}
+
+function renderDocs() {
+  var gs = DOCS[currentDocTab];
+  var st = TS.ck[currentDocTab] || {};
+  var total = 0, done = 0, html = '';
+  for (var gi=0; gi<gs.length; gi++) {
+    var g = gs[gi];
+    var gd = 0, ih = '';
+    for (var ii=0; ii<g.items.length; ii++) {
+      var item = g.items[ii];
+      var key = gi + '-' + ii;
+      var ck = st[key] || false;
+      total++; if (ck) { done++; gd++; }
+      ih += '<div class="ck ' + (ck?'ced':'') + '" onclick="togCk(\'' + currentDocTab + '\',\'' + key + '\')">';
+      ih += '<div class="cb ' + (ck?'on':'') + '">' + (ck?'<i class="ti ti-check" style="font-size:10px;color:#fff"></i>':'') + '</div>';
+      ih += '<div><div class="cl">' + item.l + '</div>';
+      if (item.n) ih += '<div class="cn">' + item.n + '</div>';
+      ih += '</div></div>';
+    }
+    html += '<div class="grp"><div class="gh">';
+    html += '<span class="gbadge ' + g.cls + '">' + g.badge + '</span>';
+    html += '<span class="gt">' + g.name + '</span>';
+    html += '<span class="gpr">' + gd + '/' + g.items.length + '</span>';
+    html += '</div>' + ih + '</div>';
+  }
+  var pct = total > 0 ? Math.round(done/total*100) : 0;
+  document.getElementById('doc-total').textContent = total;
+  document.getElementById('doc-done').textContent = done;
+  document.getElementById('doc-left').textContent = total - done;
+  document.getElementById('doc-bar').style.width = pct + '%';
+  document.getElementById('doclist').innerHTML = html;
+  document.getElementById('doc-done-banner').innerHTML = pct===100 ? '<div class="dbdone"><i class="ti ti-circle-check" style="font-size:15px"></i> すべての書類を確認しました！</div>' : '';
+}
+
+function togCk(tab, key) {
+  if (!TS.ck[tab]) TS.ck[tab] = {};
+  TS.ck[tab][key] = !TS.ck[tab][key];
+  saveTool();
+  renderDocs();
+}
+
+function printS3() { window.print(); }
+
+/* ==================== STEP4 ==================== */
+var FLOWS = [
+  {ic:'ti-file-plus',t:'計画書を作って提出する',tm:'計画開始日の1か月前〜6か月前',d:'「就労環境整備計画書」を記入して、本社管轄の都道府県労働局（またはハローワーク）に提出します。',pts:[{c:'pw',tx:'郵送の場合は期限内に届いている必要があります。余裕を持って送りましょう。'},{c:'pok',tx:'事前にハローワークで相談しながら作ると安心です。'}]},
+  {ic:'ti-stamp',t:'計画が認定される',tm:'提出後、都道府県労働局が審査',d:'提出した計画書の内容が審査され、問題なければ「認定通知書」が届きます。',pts:[{c:'pw',tx:'計画開始日が近いのに連絡がない場合は労働局に電話で確認しましょう。'},{c:'pi2',tx:'認定後に計画内容を変更したい場合は変更書の提出が必要です。'}]},
+  {ic:'ti-tools',t:'3種類の措置を導入する',tm:'就労環境整備計画期間内',d:'①外国人担当者の選任 ②就業規則等の多言語化 ③相談窓口・帰国休暇・マニュアル多言語化のいずれか1つ、の3種類すべてを導入します。',pts:[{c:'pok',tx:'外部業者への委託費用も助成対象になります（計画提出後に依頼したものに限る）。'},{c:'pw',tx:'計画提出前に業者へ依頼したり費用を払ったりすると対象外になります。'}]},
+  {ic:'ti-users',t:'措置を実際に実施する',tm:'計画期間内に完了',d:'導入した措置を外国人スタッフに対して実際に行います。面談・就業規則の周知など、日付と内容を必ず記録しておきましょう。',pts:[{c:'pok',tx:'この「実施日」の翌日から離職率の計算期間（6か月間）が始まります。'},{c:'pw',tx:'外国人スタッフ全員に実施することが必要です。名簿で管理しましょう。'}]},
+  {ic:'ti-chart-bar',t:'離職率を確認する',tm:'措置の実施日翌日から6か月間',d:'措置の実施日の翌日から6か月間が「離職率の計算期間」です。この期間中の外国人スタッフの離職率が15%以下であることが必要です。',pts:[{c:'pok',tx:'2〜10人の場合は「離職者が1人以下」という基準が適用されます。'},{c:'pok',tx:'定年退職・本人都合・在留期間満了による帰国は離職者数に含めません。'}]},
+  {ic:'ti-send',t:'支給申請を提出する',tm:'離職率計算期間終了後2か月以内',d:'書類一式をまとめて本社管轄の都道府県労働局へ提出します。',pts:[{c:'pw',tx:'申請期限を過ぎると受け付けてもらえません。期限はカレンダーに記録しておきましょう。'},{c:'pi2',tx:'早期申請でも支給決定は計画期間終了後になります。'}]},
+  {ic:'ti-coin',t:'助成金が支給される',tm:'審査完了後に支給',d:'審査が完了すると助成金が支給されます。1措置につき20万円、最大80万円です。',pts:[{c:'pi2',tx:'審査は厳正に行われ、時間がかかる場合があります。'},{c:'pw',tx:'支給申請書等の書類は支給決定日の翌日から5年間保管が必要です。'}]}
+];
+
+function renderFlow() {
+  var done = 0;
+  var keys = Object.keys(TS.fd);
+  for (var i=0; i<keys.length; i++) { if (TS.fd[keys[i]]) done++; }
+  var total = 7;
+  var pct = Math.round(done/total*100);
+  document.getElementById('f4d').textContent = done;
+  document.getElementById('f4l').textContent = total - done;
+  document.getElementById('f4bar').style.width = pct + '%';
+  document.getElementById('s4-complete-banner').innerHTML = done===total ? '<div class="done-banner"><i class="ti ti-trophy" style="font-size:21px;flex-shrink:0"></i><div>すべてのステップが完了しました！お疲れさまでした。</div></div>' : '';
+
+  var html = '';
+  var firstUndoneDone = false;
+  for (var i=0; i<FLOWS.length; i++) {
+    var f = FLOWS[i];
+    var isDone = TS.fd[i] || false;
+    var isNow = !isDone && !firstUndoneDone;
+    if (isNow) firstUndoneDone = true;
+    var isOpen = flowOpen === i;
+
+    var fiCls = isDone ? 'fi fd' : isNow ? 'fi fn' : 'fi';
+    var numCls = isDone ? 'fnum done' : isNow ? 'fnum now' : 'fnum';
+    var numContent = isDone ? '<i class="ti ti-check" style="font-size:12px"></i>' : String(i+1);
+
+    html += '<div class="' + fiCls + '">';
+    html += '<div class="fh" onclick="toggleFlow(' + i + ')">';
+    html += '<div class="' + numCls + '">' + numContent + '</div>';
+    html += '<div class="finfo"><div class="ftit">STEP ' + (i+1) + '　' + f.t + '</div>';
+    html += '<div class="ftm">' + f.tm + '</div></div>';
+    html += '<i class="ti ' + (isOpen?'ti-chevron-up':'ti-chevron-down') + '" style="font-size:13px;color:var(--tx2)"></i>';
+    html += '</div>';
+
+    if (isOpen) {
+      html += '<div class="fbody">';
+      html += '<div style="font-size:13px;line-height:1.7;margin-bottom:8px">' + f.d + '</div>';
+      html += '<div class="fpts">';
+      for (var j=0; j<f.pts.length; j++) {
+        var pt = f.pts[j];
+        html += '<div class="fpt"><i class="ti ' + (pt.c==='pok'?'ti-check':pt.c==='pw'?'ti-alert-triangle':'ti-info-circle') + ' ' + pt.c + '" style="font-size:12px;flex-shrink:0;margin-top:1px"></i><span>' + pt.tx + '</span></div>';
+      }
+      html += '</div>';
+      var mkCls = isDone ? 'mkbtn mk' : 'mkbtn';
+      html += '<button class="' + mkCls + '" onclick="markFlow(' + i + ')"><i class="ti ' + (isDone?'ti-check':'ti-circle') + '" style="font-size:12px"></i> ' + (isDone?'完了済み':'このステップを完了にする') + '</button>';
+      html += '</div>';
+    }
+    html += '</div>';
+  }
+  document.getElementById('flowlist').innerHTML = html;
+  if (done === total) { TS.s4 = true; saveTool(); }
+}
+
+function toggleFlow(i) {
+  flowOpen = (flowOpen === i) ? null : i;
+  renderFlow();
+}
+
+function markFlow(i) {
+  TS.fd[i] = !TS.fd[i];
+  saveTool();
+  renderFlow();
+}
+
+function resetFlow() {
+  TS.fd = {}; flowOpen = null;
+  saveTool(); renderFlow();
+}
+
+/* ==================== 顧客管理 ==================== */
+function findCustomer(id) {
+  for (var i=0; i<CDB.customers.length; i++) {
+    if (CDB.customers[i].id === id) return CDB.customers[i];
+  }
+  return null;
+}
+function findCustomerIdx(id) {
+  for (var i=0; i<CDB.customers.length; i++) {
+    if (CDB.customers[i].id === id) return i;
+  }
+  return -1;
+}
+
+function statusBadge(s) {
+  return s==='完了'?'b-ok':s==='支給申請中'?'b-warn':s==='未着手'?'b-gray':'b-blue';
+}
+
+function updateChip() {
+  var today = new Date();
+  var n = 0;
+  for (var i=0; i<CDB.customers.length; i++) {
+    var c = CDB.customers[i];
+    var dl = c.apdl || c.pldl;
+    if (!dl) continue;
+    var d = daysDiff(today, new Date(dl));
+    if (d >= 0 && d <= 7) n++;
+  }
+  var chip = document.getElementById('achip');
+  if (chip) { chip.textContent = n; chip.style.display = n > 0 ? 'inline' : 'none'; }
+}
+
+function renderDash() {
+  var cs = CDB.customers;
+  var today = new Date();
+  var urgent = 0, near = [];
+  for (var i=0; i<cs.length; i++) {
+    var c = cs[i];
+    var dl = c.apdl || c.pldl;
+    if (!dl) continue;
+    var d = daysDiff(today, new Date(dl));
+    if (d >= 0 && d <= 7) urgent++;
+    if (d >= 0 && d <= 30) near.push({c:c, d:d});
+  }
+  near.sort(function(a,b){return a.d-b.d;});
+
+  var byS = {};
+  for (var i=0; i<cs.length; i++) {
+    var s = cs[i].status;
+    byS[s] = (byS[s]||0)+1;
+  }
+  var ngCount = 0;
+  for (var i=0; i<cs.length; i++) { if(cs[i].aiR==='ng') ngCount++; }
+
+  document.getElementById('c-stats').innerHTML =
+    '<div class="stat"><div class="sl">総顧客数</div><div class="sv">' + cs.length + '</div></div>' +
+    '<div class="stat"><div class="sl">期限まで7日以内</div><div class="sv" style="color:var(--rd)">' + urgent + '</div></div>' +
+    '<div class="stat"><div class="sl">期限まで30日以内</div><div class="sv" style="color:var(--ab)">' + near.length + '</div></div>' +
+    '<div class="stat"><div class="sl">完了</div><div class="sv" style="color:var(--gn)">' + (byS['完了']||0) + '</div></div>' +
+    '<div class="stat"><div class="sl">AI：不足あり</div><div class="sv" style="color:var(--rd)">' + ngCount + '</div></div>';
+
+  var alHtml = '';
+  if (near.length === 0) {
+    alHtml = '<div style="color:var(--tx3);font-size:13px;padding:4px 0">期限が近い顧客はいません。</div>';
+  } else {
+    for (var i=0; i<near.length; i++) {
+      var item = near[i];
+      var col = item.d<=3?'var(--rd)':item.d<=7?'var(--ab)':'var(--pu)';
+      var bcls = item.d<=3?'b-ng':item.d<=7?'b-warn':'b-blue';
+      var bTxt = item.d<=3?'至急':item.d<=7?'要対応':'確認';
+      alHtml += '<div class="ai-item">';
+      alHtml += '<div class="adot" style="background:' + col + '"></div>';
+      alHtml += '<div style="flex:1"><div style="font-size:13px;font-weight:600">' + item.c.name + '</div>';
+      alHtml += '<div style="font-size:11px;color:var(--tx2)">' + (item.c.apdl?'支給申請期限':'計画申請期限') + '：あと' + item.d + '日｜担当：' + item.c.staff + '</div></div>';
+      alHtml += '<div style="display:flex;gap:5px"><span class="badge ' + bcls + '">' + bTxt + '</span>';
+      alHtml += '<button class="btn btn-sm" onclick="openDet(' + item.c.id + ')"><i class="ti ti-eye" style="font-size:11px"></i></button></div>';
+      alHtml += '</div>';
+    }
+  }
+  document.getElementById('c-near').innerHTML = alHtml;
+
+  var recent = cs.slice(-4).reverse();
+  var rHtml = '';
+  if (recent.length === 0) {
+    rHtml = '<div style="color:var(--tx3);font-size:13px">顧客が登録されていません。</div>';
+  } else {
+    for (var i=0; i<recent.length; i++) {
+      var c = recent[i];
+      rHtml += '<div class="ai-item">';
+      rHtml += '<div style="flex:1"><div style="font-size:13px;font-weight:600">' + c.name + '</div>';
+      rHtml += '<div style="font-size:11px;color:var(--tx2)">担当：' + c.staff + '　' + c.fgn + '名</div></div>';
+      rHtml += '<div style="display:flex;align-items:center;gap:6px"><span class="badge ' + statusBadge(c.status) + '">' + c.status + '</span>';
+      rHtml += '<button class="btn btn-sm" onclick="openDet(' + c.id + ')"><i class="ti ti-eye" style="font-size:11px"></i></button></div>';
+      rHtml += '</div>';
+    }
+  }
+  document.getElementById('c-recent').innerHTML = rHtml;
+}
+
+function renderList() {
+  var q = (document.getElementById('c-srch')?.value||'').toLowerCase();
+  var fs = document.getElementById('c-fst')?.value||'';
+  var fstf = document.getElementById('c-fstf')?.value||'';
+
+  var staffs = [];
+  for (var i=0; i<CDB.customers.length; i++) {
+    var s = CDB.customers[i].staff;
+    if (s && staffs.indexOf(s) < 0) staffs.push(s);
+  }
+  staffs.sort();
+  var fsel = document.getElementById('c-fstf');
+  if (fsel) {
+    var cur = fsel.value;
+    var opts = '<option value="">すべての担当者</option>';
+    for (var i=0; i<staffs.length; i++) {
+      opts += '<option value="' + staffs[i] + '"' + (staffs[i]===cur?' selected':'') + '>' + staffs[i] + '</option>';
+    }
+    fsel.innerHTML = opts;
+  }
+
+  var cs = [];
+  for (var i=0; i<CDB.customers.length; i++) {
+    var c = CDB.customers[i];
+    if (q && (c.name+c.staff).toLowerCase().indexOf(q) < 0) continue;
+    if (fs && c.status !== fs) continue;
+    if (fstf && c.staff !== fstf) continue;
+    cs.push(c);
+  }
+
+  var tbody = document.getElementById('c-tbody');
+  var nodata = document.getElementById('c-nodata');
+  if (cs.length === 0) { tbody.innerHTML=''; nodata.style.display='block'; return; }
+  nodata.style.display = 'none';
+
+  var today = new Date();
+  var html = '';
+  for (var i=0; i<cs.length; i++) {
+    var c = cs[i];
+    var dl = c.apdl || c.pldl;
+    var dL = dl ? daysDiff(today, new Date(dl)) : null;
+    var dlHtml = dl
+      ? '<span style="color:' + (dL<=3?'var(--rd)':dL<=7?'var(--ab)':'var(--pu)') + ';font-weight:600">' + fmtD(new Date(dl)) + '<br><small>あと' + dL + '日</small></span>'
+      : '<span style="color:var(--tx3)">未設定</span>';
+    var aiIcon = c.aiR==='ok'
+      ? '<i class="ti ti-circle-check" style="color:var(--gn);font-size:16px" title="問題なし"></i>'
+      : c.aiR==='warn'
+      ? '<i class="ti ti-alert-triangle" style="color:var(--ab);font-size:16px" title="要確認"></i>'
+      : c.aiR==='ng'
+      ? '<i class="ti ti-circle-x" style="color:var(--rd);font-size:16px" title="不足あり"></i>'
+      : '<span style="color:var(--tx3);font-size:11px">未判定</span>';
+
+    html += '<tr>';
+    html += '<td><div style="font-weight:600">' + c.name + '</div><div style="font-size:11px;color:var(--tx2)">' + (c.industry||'') + '</div></td>';
+    html += '<td>' + c.staff + '</td>';
+    html += '<td><span class="badge ' + statusBadge(c.status) + '">' + c.status + '</span></td>';
+    html += '<td>' + dlHtml + '</td>';
+    html += '<td style="text-align:center">' + aiIcon + '</td>';
+    html += '<td><button class="btn btn-sm" style="background:var(--pl);color:var(--pd);border-color:#AFA9EC;font-size:11px;white-space:nowrap" onclick="openToolFor(' + c.id + ')"><i class="ti ti-clipboard-check" style="font-size:11px"></i>申請サポート</button></td>';
+    html += '<td><div style="display:flex;gap:4px">';
+    html += '<button class="btn btn-sm" onclick="openDet(' + c.id + ')"><i class="ti ti-eye" style="font-size:11px"></i></button>';
+    html += '<button class="btn btn-sm" onclick="openEdit(' + c.id + ')"><i class="ti ti-edit" style="font-size:11px"></i></button>';
+    html += '<button class="btn btn-sm btn-r" onclick="delC(' + c.id + ')"><i class="ti ti-trash" style="font-size:11px"></i></button>';
+    html += '</div></td></tr>';
+  }
+  tbody.innerHTML = html;
+}
+
+function exportCSV() {
+  var headers = ['顧客名','担当者名','外国人スタッフ数','業種','ステータス','電話番号','計画申請期限','支給申請期限','メモ','AI判定'];
+  var rows = [headers];
+  for (var i=0; i<CDB.customers.length; i++) {
+    var c = CDB.customers[i];
+    var ai = c.aiR==='ok'?'問題なし':c.aiR==='warn'?'要確認':c.aiR==='ng'?'不足あり':'未判定';
+    rows.push([c.name,c.staff,c.fgn||'',c.industry||'',c.status,c.tel||'',c.pldl||'',c.apdl||'',c.memo||'',ai]);
+  }
+  var csv = rows.map(function(r){return r.map(function(v){return '"'+String(v).replace(/"/g,'""')+'"';}).join(',');}).join('\n');
+  var blob = new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8;'});
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = '顧客一覧.csv';
+  a.click();
+}
+
+function openToolFor(id) {
+  linkedCId = id;
+  setNavMode('tool');
+  setToolNav('tnl-home');
+  showPage('home');
+  renderHome();
+}
+
+/* ==================== 一括登録 ==================== */
+function switchITab(t) {
+  document.getElementById('itb-csv').classList.toggle('active', t==='csv');
+  document.getElementById('itb-tmpl').classList.toggle('active', t==='tmpl');
+  renderImport(t);
+}
+
+function renderImport(t) {
+  var el = document.getElementById('import-body');
+  if (t === 'tmpl') {
+    el.innerHTML = '<div class="card"><div class="ct"><i class="ti ti-download"></i>CSVテンプレートをダウンロード</div>'
+      + '<div style="font-size:13px;color:var(--tx2);line-height:1.7;margin-bottom:12px">以下の形式でCSVを作成し、インポートしてください。</div>'
+      + '<div style="background:var(--bg2);border-radius:var(--r);padding:11px;font-family:monospace;font-size:12px;margin-bottom:12px;border:1px solid var(--bd)">顧客名,担当者名,外国人スタッフ数,業種,ステータス,電話番号,計画申請期限,支給申請期限,メモ<br>株式会社サンプル,山田太郎,5,飲食業,計画申請中,06-0000-0000,2026/06/01,2026/12/01,メモ欄</div>'
+      + '<button class="btn btn-g" onclick="dlTmpl()"><i class="ti ti-download"></i>テンプレートをダウンロード</button></div>';
+    return;
+  }
+  el.innerHTML = '<div class="card"><div class="ct"><i class="ti ti-file-import"></i>CSVファイルをインポート</div>'
+    + '<div class="dz" id="dz" onclick="document.getElementById(\'fin\').click()" ondragover="event.preventDefault();this.classList.add(\'drag\')" ondragleave="this.classList.remove(\'drag\')" ondrop="handleDrop(event)">'
+    + '<i class="ti ti-cloud-upload"></i>'
+    + '<div style="font-size:14px;font-weight:600;margin-bottom:4px">ここにCSVをドロップ</div>'
+    + '<div style="font-size:12px">または クリックしてファイルを選択</div>'
+    + '</div>'
+    + '<input type="file" id="fin" accept=".csv" style="display:none" onchange="handleFile(event)">'
+    + '<div id="import-res"></div></div>';
+}
+
+function handleDrop(e) {
+  e.preventDefault();
+  var dz = document.getElementById('dz');
+  if (dz) dz.classList.remove('drag');
+  var f = e.dataTransfer.files[0];
+  if (f) processCSV(f);
+}
+
+function handleFile(e) {
+  if (e.target.files[0]) processCSV(e.target.files[0]);
+}
+
+function processCSV(file) {
+  var el = document.getElementById('import-res');
+  el.innerHTML = '<div style="color:var(--tx2);font-size:13px;margin-top:8px"><div class="ds"><span></span><span></span><span></span></div> 読み込み中…</div>';
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      var lines = e.target.result.split(/\r?\n/).filter(function(l){return l.trim();});
+      var added = 0;
+      for (var i=1; i<lines.length; i++) {
+        var c = lines[i].split(',').map(function(v){return v.replace(/^"|"$/g,'').trim();});
+        if (!c[0] || !c[1]) continue;
+        var name = c[0];
+        var exists = false;
+        for (var j=0; j<CDB.customers.length; j++) {
+          if (CDB.customers[j].name === name) { exists=true; break; }
+        }
+        if (!exists) {
+          CDB.customers.push({id:Date.now()+added,created:new Date().toISOString(),name:c[0],staff:c[1],fgn:parseInt(c[2])||1,industry:c[3]||'',status:c[4]||'未着手',tel:c[5]||'',pldl:(c[6]||'').replace(/\//g,'-'),apdl:(c[7]||'').replace(/\//g,'-'),memo:c[8]||'',aiR:'',aiT:''});
+          added++;
+        }
+      }
+      saveCRM(); updateChip();
+      el.innerHTML = '<div class="aok" style="margin-top:8px"><i class="ti ti-circle-check" style="font-size:15px;flex-shrink:0;margin-top:1px"></i><div><strong>' + added + '件</strong>を登録しました。<a href="#" onclick="goCRM(\'list\');return false" style="color:#085041;font-weight:600">顧客一覧を確認 →</a></div></div>';
+    } catch(err) {
+      el.innerHTML = '<div class="ang" style="margin-top:8px"><i class="ti ti-x" style="font-size:15px;flex-shrink:0;margin-top:1px"></i><div>読み込みに失敗しました。</div></div>';
+    }
+  };
+  reader.readAsText(file, 'UTF-8');
+}
+
+function dlTmpl() {
+  var csv = '顧客名,担当者名,外国人スタッフ数,業種,ステータス,電話番号,計画申請期限,支給申請期限,メモ\n株式会社サンプル,山田太郎,5,飲食業,計画申請中,06-0000-0000,2026/06/01,2026/12/01,メモ欄';
+  var blob = new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8;'});
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = '顧客登録テンプレート.csv';
+  a.click();
+}
+
+/* ==================== 期限アラート ==================== */
+function renderAlerts() {
+  var today = new Date();
+  var groups = {red:[], amber:[], blue:[]};
+  for (var i=0; i<CDB.customers.length; i++) {
+    var c = CDB.customers[i];
+    var dl = c.apdl || c.pldl;
+    if (!dl) continue;
+    var d = daysDiff(today, new Date(dl));
+    if (d < 0) continue;
+    var dlLabel = c.apdl ? '支給申請期限' : '計画申請期限';
+    var obj = {c:c, d:d, dlLabel:dlLabel};
+    if (d<=3) groups.red.push(obj);
+    else if (d<=7) groups.amber.push(obj);
+    else if (d<=30) groups.blue.push(obj);
+  }
+
+  function mkSection(list, title, col, icon) {
+    if (list.length===0) return '';
+    list.sort(function(a,b){return a.d-b.d;});
+    var h = '<div class="card"><div class="ct"><i class="ti ' + icon + '" style="color:' + col + '"></i>' + title + '（' + list.length + '件）</div>';
+    for (var i=0; i<list.length; i++) {
+      var it = list[i];
+      h += '<div class="ai-item">';
+      h += '<div class="adot" style="background:' + col + '"></div>';
+      h += '<div style="flex:1"><div style="font-size:13px;font-weight:600">' + it.c.name + '</div>';
+      h += '<div style="font-size:11px;color:var(--tx2)">担当：' + it.c.staff + '　' + it.dlLabel + '：あと' + it.d + '日</div>';
+      if (it.c.aiT) h += '<div style="font-size:11px;margin-top:2px;color:' + (it.c.aiR==='ng'?'var(--rdd)':it.c.aiR==='warn'?'var(--ad)':'#085041') + '">' + it.c.aiT.slice(0,60) + '…</div>';
+      h += '</div>';
+      h += '<div style="display:flex;gap:5px;flex-wrap:wrap">';
+      h += '<button class="btn btn-sm" style="background:#06C755;color:#fff;border-color:#06C755;font-size:11px" onclick="notifyLine(\'' + it.c.name + '\',\'' + it.dlLabel + '\',' + it.d + ')"><i class="ti ti-brand-line" style="font-size:11px"></i>LINE</button>';
+      h += '<button class="btn btn-sm" style="background:var(--pl);color:var(--pd);border-color:#AFA9EC;font-size:11px" onclick="openToolFor(' + it.c.id + ')"><i class="ti ti-clipboard-check" style="font-size:11px"></i>申請</button>';
+      h += '<button class="btn btn-sm" onclick="openDet(' + it.c.id + ')"><i class="ti ti-eye" style="font-size:11px"></i></button>';
+      h += '</div></div>';
+    }
+    h += '</div>';
+    return h;
+  }
+
+  var total = groups.red.length + groups.amber.length + groups.blue.length;
+  var html = '';
+  if (total === 0) html = '<div class="aok"><i class="ti ti-circle-check" style="font-size:15px;flex-shrink:0;margin-top:1px"></i><div>期限が近い顧客はいません。すべて順調です。</div></div>';
+  html += mkSection(groups.red, '至急対応（3日以内）', 'var(--rd)', 'ti-alert-circle');
+  html += mkSection(groups.amber, '要対応（7日以内）', 'var(--ab)', 'ti-alert-triangle');
+  html += mkSection(groups.blue, '確認推奨（30日以内）', 'var(--pu)', 'ti-clock');
+  document.getElementById('alerts-body').innerHTML = html;
+}
+
+/* ==================== 顧客追加・編集 ==================== */
+function openAddMod() {
+  editId = null;
+  document.getElementById('mod-ttl').textContent = '顧客を追加';
+  var fields = ['m-name','m-staff','m-tel','m-memo'];
+  for (var i=0; i<fields.length; i++) document.getElementById(fields[i]).value = '';
+  document.getElementById('m-fgn').value = '';
+  document.getElementById('m-ind').value = '';
+  document.getElementById('m-st').value = '未着手';
+  document.getElementById('m-pldl').value = '';
+  document.getElementById('m-apdl').value = '';
+  document.getElementById('mod-ai-res').innerHTML = '';
+  document.getElementById('mod-add').classList.add('open');
+}
+
+function openEdit(id) {
+  var c = findCustomer(id);
+  if (!c) return;
+  editId = id;
+  document.getElementById('mod-ttl').textContent = '顧客を編集';
+  document.getElementById('m-name').value = c.name||'';
+  document.getElementById('m-staff').value = c.staff||'';
+  document.getElementById('m-fgn').value = c.fgn||'';
+  document.getElementById('m-ind').value = c.industry||'';
+  document.getElementById('m-st').value = c.status||'未着手';
+  document.getElementById('m-tel').value = c.tel||'';
+  document.getElementById('m-pldl').value = c.pldl||'';
+  document.getElementById('m-apdl').value = c.apdl||'';
+  document.getElementById('m-memo').value = c.memo||'';
+  document.getElementById('mod-ai-res').innerHTML = c.aiT
+    ? '<div class="' + (c.aiR==='ok'?'aok':c.aiR==='warn'?'awk':'ang') + '"><div class="ailbl"><i class="ti ti-sparkles"></i>AI不足判定（前回）</div>' + c.aiT + '</div>'
+    : '';
+  document.getElementById('mod-add').classList.add('open');
+}
+
+function closeMod() { document.getElementById('mod-add').classList.remove('open'); }
+
+function saveC() {
+  var name = document.getElementById('m-name').value.trim();
+  var staff = document.getElementById('m-staff').value.trim();
+  if (!name || !staff) { alert('顧客名と担当者名は必須です。'); return; }
+  var data = {
+    name:name, staff:staff,
+    fgn:parseInt(document.getElementById('m-fgn').value)||1,
+    industry:document.getElementById('m-ind').value,
+    status:document.getElementById('m-st').value,
+    tel:document.getElementById('m-tel').value.trim(),
+    pldl:document.getElementById('m-pldl').value,
+    apdl:document.getElementById('m-apdl').value,
+    memo:document.getElementById('m-memo').value.trim()
+  };
+  if (editId !== null) {
+    var idx = findCustomerIdx(editId);
+    if (idx >= 0) Object.assign(CDB.customers[idx], data);
+  } else {
+    data.id = Date.now();
+    data.created = new Date().toISOString();
+    data.aiR = ''; data.aiT = '';
+    CDB.customers.push(data);
+  }
+  saveCRM(); closeMod(); updateChip();
+  var cur = document.querySelector('.pg.on');
+  if (cur) {
+    if (cur.id==='pg-dash') renderDash();
+    else if (cur.id==='pg-list') renderList();
+  }
+}
+
+function delC(id) {
+  if (!confirm('この顧客を削除しますか？')) return;
+  CDB.customers = CDB.customers.filter(function(c){return c.id!==id;});
+  saveCRM(); renderList(); updateChip();
+}
+
+/* ==================== AI不足判定 ==================== */
+function runAI() {
+  var name = document.getElementById('m-name').value.trim();
+  var status = document.getElementById('m-st').value;
+  var pldl = document.getElementById('m-pldl').value;
+  var apdl = document.getElementById('m-apdl').value;
+  var memo = document.getElementById('m-memo').value;
+  var fgn = document.getElementById('m-fgn').value;
+  var el = document.getElementById('mod-ai-res');
+  el.innerHTML = '<div class="awk"><div class="ailbl"><i class="ti ti-sparkles"></i>AI不足判定</div><div class="ds"><span></span><span></span><span></span></div> 判定中…</div>';
+
+  if (!API_KEY || API_KEY==='YOUR_API_KEY_HERE') {
+    el.innerHTML = '<div class="awk"><i class="ti ti-alert-triangle" style="font-size:15px;flex-shrink:0;margin-top:1px"></i><div>APIキーが設定されていません。</div></div>';
+    return;
+  }
+
+  var today = new Date();
+  var plL = pldl ? daysDiff(today, new Date(pldl)) : null;
+  var apL = apdl ? daysDiff(today, new Date(apdl)) : null;
+  var prompt = 'あなたは人材確保等支援助成金（外国人労働者就労環境整備助成コース）の申請支援の専門家です。\n'
+    + '以下の顧客情報をもとに、申請に必要な書類・対応の不足を判定してください。\n'
+    + '顧客名：' + (name||'未設定') + '\n外国人スタッフ数：' + (fgn||'不明') + '名\nステータス：' + status + '\n'
+    + '計画申請期限：' + (pldl||'未設定') + (plL!==null?'（あと'+plL+'日）':'') + '\n'
+    + '支給申請期限：' + (apdl||'未設定') + (apL!==null?'（あと'+apL+'日）':'') + '\n'
+    + 'メモ：' + (memo||'なし') + '\n'
+    + '必ず以下のいずれかで始め、100〜150字で具体的に答えてください：\n・「✅ 問題なし：」\n・「⚠️ 要確認：」\n・「❌ 不足あり：」';
+
+  fetch('https://api.anthropic.com/v1/messages', {
+    method:'POST',
+    headers:{'Content-Type':'application/json','x-api-key':API_KEY,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+    body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:500,messages:[{role:'user',content:prompt}]})
+  }).then(function(r){return r.json();}).then(function(d) {
+    if (d.error) throw new Error(d.error.message);
+    var text = '';
+    if (d.content) { for(var i=0;i<d.content.length;i++){if(d.content[i].type==='text'){text=d.content[i].text;break;}} }
+    var aiR = text.startsWith('✅')?'ok':text.startsWith('⚠️')?'warn':'ng';
+    var cls = aiR==='ok'?'aok':aiR==='warn'?'awk':'ang';
+    el.innerHTML = '<div class="' + cls + '"><div class="ailbl"><i class="ti ti-sparkles"></i>AI不足判定結果</div>' + text + '</div>';
+    if (editId !== null) {
+      var idx = findCustomerIdx(editId);
+      if (idx>=0) { CDB.customers[idx].aiR=aiR; CDB.customers[idx].aiT=text; saveCRM(); }
+    }
+  }).catch(function(e) {
+    el.innerHTML = '<div class="ang"><i class="ti ti-x" style="font-size:15px;flex-shrink:0;margin-top:1px"></i><div>AI判定に失敗しました：' + e.message + '</div></div>';
+  });
+}
+
+/* ==================== 顧客詳細 ==================== */
+function openDet(id) {
+  var c = findCustomer(id);
+  if (!c) return;
+  document.getElementById('det-ttl').textContent = c.name;
+  var today = new Date();
+  var plL = c.pldl ? daysDiff(today, new Date(c.pldl)) : null;
+  var apL = c.apdl ? daysDiff(today, new Date(c.apdl)) : null;
+  var html = '<div class="fg2" style="margin-bottom:14px">';
+  html += '<div><div style="font-size:11px;color:var(--tx2);margin-bottom:2px">担当者</div><div style="font-weight:600">' + c.staff + '</div></div>';
+  html += '<div><div style="font-size:11px;color:var(--tx2);margin-bottom:2px">ステータス</div><span class="badge ' + statusBadge(c.status) + '">' + c.status + '</span></div>';
+  html += '<div><div style="font-size:11px;color:var(--tx2);margin-bottom:2px">業種</div><div>' + (c.industry||'未設定') + '</div></div>';
+  html += '<div><div style="font-size:11px;color:var(--tx2);margin-bottom:2px">外国人スタッフ数</div><div>' + c.fgn + '名</div></div>';
+  html += '<div><div style="font-size:11px;color:var(--tx2);margin-bottom:2px">電話番号</div><div>' + (c.tel||'未設定') + '</div></div>';
+  html += '<div><div style="font-size:11px;color:var(--tx2);margin-bottom:2px">計画申請期限</div><div style="color:' + (plL!==null&&plL<=7?'var(--rd)':'var(--pu)') + ';font-weight:600">' + (c.pldl?fmtD(new Date(c.pldl))+'（あと'+plL+'日）':'未設定') + '</div></div>';
+  html += '<div><div style="font-size:11px;color:var(--tx2);margin-bottom:2px">支給申請期限</div><div style="color:' + (apL!==null&&apL<=7?'var(--rd)':'var(--pu)') + ';font-weight:600">' + (c.apdl?fmtD(new Date(c.apdl))+'（あと'+apL+'日）':'未設定') + '</div></div>';
+  html += '</div>';
+  if (c.memo) html += '<div style="background:var(--bg2);border-radius:var(--r);padding:10px;font-size:13px;line-height:1.6;margin-bottom:12px"><strong>メモ：</strong>' + c.memo + '</div>';
+  if (c.aiT) html += '<div class="' + (c.aiR==='ok'?'aok':c.aiR==='warn'?'awk':'ang') + '" style="margin-bottom:12px"><div class="ailbl"><i class="ti ti-sparkles"></i>AI不足判定</div>' + c.aiT + '</div>';
+  html += '<div class="btn-row">';
+  html += '<button class="btn btn-p" onclick="closeDet();openEdit(' + c.id + ')"><i class="ti ti-edit"></i>編集する</button>';
+  html += '<button class="btn" style="background:var(--pl);color:var(--pd);border-color:#AFA9EC" onclick="closeDet();openToolFor(' + c.id + ')"><i class="ti ti-clipboard-check"></i>申請サポートを開く</button>';
+  html += '<button class="btn" onclick="closeDet()"><i class="ti ti-arrow-left"></i>閉じる</button>';
+  html += '</div>';
+  document.getElementById('det-body').innerHTML = html;
+  document.getElementById('mod-det').classList.add('open');
+}
+
+function closeDet() { document.getElementById('mod-det').classList.remove('open'); }
+
+/* ==================== LINE通知 ==================== */
+function loadLineSettings() {
+  document.getElementById('line-token').value = CDB.lineToken||'';
+  document.getElementById('line-timing').value = CDB.lineTiming||'3';
+}
+
+function saveLine() {
+  CDB.lineToken = document.getElementById('line-token').value.trim();
+  CDB.lineTiming = document.getElementById('line-timing').value;
+  saveCRM();
+  document.getElementById('line-msg').innerHTML = '<div class="aok"><i class="ti ti-circle-check" style="font-size:15px;flex-shrink:0;margin-top:1px"></i><div>設定を保存しました。</div></div>';
+}
+
+function testLine() {
+  var token = document.getElementById('line-token').value.trim();
+  if (!token) { alert('LINE Notifyトークンを入力してください。'); return; }
+  document.getElementById('line-msg').innerHTML = '<div style="color:var(--tx2);font-size:13px"><div class="ds"><span></span><span></span><span></span></div> 送信中…</div>';
+  fetch('https://notify-api.line.me/api/notify', {
+    method:'POST',
+    headers:{'Authorization':'Bearer '+token,'Content-Type':'application/x-www-form-urlencoded'},
+    body:'message=【助成金サポートPro】テスト通知です。LINE通知の設定が完了しました。'
+  }).then(function() {
+    document.getElementById('line-msg').innerHTML = '<div class="aok"><i class="ti ti-circle-check" style="font-size:15px;flex-shrink:0;margin-top:1px"></i><div>テスト通知を送信しました。LINEを確認してください。</div></div>';
+  }).catch(function() {
+    document.getElementById('line-msg').innerHTML = '<div class="awk"><i class="ti ti-alert-triangle" style="font-size:15px;flex-shrink:0;margin-top:1px"></i><div>ブラウザのCORS制限により直接送信できませんでした。</div></div>';
+  });
+}
+
+function notifyLine(name, dlLabel, days) {
+  if (!CDB.lineToken) { alert('LINE通知の設定がされていません。'); return; }
+  var msg = '\n【助成金サポートPro】期限アラート\n\n顧客：'+name+'\n'+dlLabel+'まであと'+days+'日です。\n早めにご対応をご確認ください。';
+  fetch('https://notify-api.line.me/api/notify', {
+    method:'POST',
+    headers:{'Authorization':'Bearer '+CDB.lineToken,'Content-Type':'application/x-www-form-urlencoded'},
+    body:'message='+encodeURIComponent(msg)
+  }).then(function(){alert('LINE通知を送信しました。');}).catch(function(){alert('送信できませんでした。');});
+}
+
+/* ==================== サンプルデータ ==================== */
+function addSample() {
+  var now = new Date();
+  function addD(n) { var d=new Date(now); d.setDate(d.getDate()+n); return d.toISOString().split('T')[0]; }
+  CDB.customers = [
+    {id:1,name:'株式会社サンライズ食品',staff:'山田 太郎',fgn:5,industry:'飲食業',status:'計画申請中',tel:'06-1234-5678',pldl:addD(12),apdl:addD(180),memo:'外国人スタッフ5名。ベトナム出身が中心。',aiR:'warn',aiT:'⚠️ 要確認：就業規則の多言語化が未実施の可能性があります。',created:now.toISOString()},
+    {id:2,name:'有限会社東京テック',staff:'鈴木 花子',fgn:2,industry:'製造業',status:'措置実施中',tel:'03-9876-5432',pldl:addD(-30),apdl:addD(25),memo:'雇用保険加入済み。届出も完了。',aiR:'ok',aiT:'✅ 問題なし：現時点では書類が揃っています。',created:now.toISOString()},
+    {id:3,name:'農業法人グリーンファーム',staff:'田中 次郎',fgn:8,industry:'農業',status:'支給申請中',tel:'0120-000-000',pldl:addD(-90),apdl:addD(3),memo:'特定技能1号の外国人スタッフが多い。',aiR:'ng',aiT:'❌ 不足あり：支給申請期限まで3日です。面談結果一覧表の準備が必要です。',created:now.toISOString()},
+    {id:4,name:'合同会社ビューティサロン',staff:'山田 太郎',fgn:3,industry:'サービス業',status:'未着手',tel:'06-5555-5555',pldl:'',apdl:'',memo:'先月新規契約。受給診断がまだ。',aiR:'',aiT:'',created:now.toISOString()}
+  ];
+  saveCRM();
+}
+
+/* ==================== イベント設定 ==================== */
+function setupEvents() {
+  // モード切替
+  document.getElementById('msb-tool').onclick = function() { goHome(); };
+  document.getElementById('msb-crm').onclick = function() { goCRM('dash'); };
+
+  // ロゴ
+  document.getElementById('logo').onclick = function() { goHome(); };
+
+  // 申請ナビ
+  document.getElementById('tnl-home').onclick = function() { setToolNav('tnl-home'); goHome(); };
+  document.getElementById('tnl-pricing').onclick = function() { setToolNav('tnl-pricing'); showPage('pricing'); };
+
+  // CRMナビ
+  document.getElementById('cnl-dash').onclick = function() { goCRM('dash'); };
+  document.getElementById('cnl-list').onclick = function() { goCRM('list'); };
+  document.getElementById('cnl-import').onclick = function() { goCRM('import'); };
+  document.getElementById('cnl-alerts').onclick = function() { goCRM('alerts'); };
+  document.getElementById('cnl-line').onclick = function() { goCRM('line'); };
+  document.getElementById('btn-addcust').onclick = function() { openAddMod(); };
+
+  // モーダル
+  document.getElementById('mod-close').onclick = function() { closeMod(); };
+  document.getElementById('mod-cancel').onclick = function() { closeMod(); };
+  document.getElementById('mod-save').onclick = function() { saveC(); };
+  document.getElementById('mod-ai-btn').onclick = function() { runAI(); };
+  document.getElementById('det-close').onclick = function() { closeDet(); };
+
+  // モーダル外クリックで閉じる
+  document.getElementById('mod-add').onclick = function(e) { if(e.target===this) closeMod(); };
+  document.getElementById('mod-det').onclick = function(e) { if(e.target===this) closeDet(); };
+}
+
+/* ==================== Googleカレンダー登録 ==================== */
+// STEP2スケジュールのカレンダーパネル
+function showCalPanel() {
+  var panel = document.getElementById('cal-panel');
+  if (panel.style.display !== 'none') { panel.style.display = 'none'; return; }
+  if (!window._schedItems || window._schedItems.length === 0) {
+    alert('まず日付を入力してスケジュールを表示してください。');
+    return;
+  }
+  var html = '<div style="background:#fff;border:1px solid #e5e5e0;border-radius:12px;padding:14px;margin-top:8px">';
+  html += '<div style="font-size:13px;font-weight:600;margin-bottom:8px;color:#1D9E75;display:flex;align-items:center;gap:5px"><i class="ti ti-calendar-event"></i> Googleカレンダーに登録する期限を選んでください</div>';
+  for (var i=0; i<window._schedItems.length; i++) {
+    var it = window._schedItems[i];
+    var regId = 'calreg-' + i;
+    var statusId = 'calstat-' + i;
+    html += '<div style="display:flex;align-items:flex-start;gap:8px;padding:7px 0;border-bottom:1px solid #f0efe9">';
+    html += '<input type="checkbox" id="' + regId + '" checked style="margin-top:3px;accent-color:#534AB7;cursor:pointer">';
+    html += '<div style="flex:1"><div style="font-size:13px;font-weight:600">' + it.s + '</div>';
+    html += '<div style="font-size:11px;color:#6b6b6b">' + it.dr + '</div></div>';
+    html += '<span id="' + statusId + '" style="font-size:11px"></span>';
+    html += '</div>';
+  }
+  html += '<button onclick="registerAllCal()" style="margin-top:10px;width:100%;padding:10px;font-size:13px;font-weight:600;background:#1D9E75;color:#fff;border:none;border-radius:8px;cursor:pointer"><i class="ti ti-calendar-plus"></i> 選択した期限を一括登録する</button>';
+  html += '</div>';
+  panel.innerHTML = html;
+  panel.style.display = 'block';
+}
+
+function registerAllCal() {
+  if (!window._schedItems) return;
+  for (var i=0; i<window._schedItems.length; i++) {
+    var cb = document.getElementById('calreg-' + i);
+    if (cb && cb.checked) {
+      registerCalItem(i);
+    }
+  }
+}
+
+function registerCalItem(i) {
+  var it = window._schedItems[i];
+  var statusEl = document.getElementById('calstat-' + i);
+  if (statusEl) statusEl.innerHTML = '<span style="color:#534AB7"><span style="display:inline-flex;gap:2px"><span style="width:4px;height:4px;border-radius:50%;background:#534AB7;animation:bl 1.2s infinite;display:inline-block"></span><span style="width:4px;height:4px;border-radius:50%;background:#534AB7;animation:bl 1.2s .2s infinite;display:inline-block"></span><span style="width:4px;height:4px;border-radius:50%;background:#534AB7;animation:bl 1.2s .4s infinite;display:inline-block"></span></span></span>';
+  // sendPromptでGoogleカレンダーMCPを呼び出す
+  if (typeof sendPrompt === 'function') {
+    sendPrompt('Googleカレンダーに以下のイベントを登録してください。\nタイトル：助成金申請「' + it.s + '」\n日時：' + it.iso + ' 〜 ' + it.isoe + '\n説明：' + it.desc + '\nタイムゾーン：Asia/Tokyo');
+    if (statusEl) statusEl.innerHTML = '<span style="color:#1D9E75;font-size:11px;font-weight:600">✓ 登録済み</span>';
+  } else {
+    // sendPromptが使えない場合はGoogleカレンダーURLを開く
+    var title = encodeURIComponent('助成金申請「' + it.s + '」');
+    var dates = it.iso.replace(/[-:]/g,'').replace('T','T') + '/' + it.isoe.replace(/[-:]/g,'').replace('T','T');
+    var details = encodeURIComponent(it.desc);
+    var url = 'https://calendar.google.com/calendar/render?action=TEMPLATE&text=' + title + '&dates=' + dates + '&details=' + details;
+    window.open(url, '_blank');
+    if (statusEl) statusEl.innerHTML = '<span style="color:#1D9E75;font-size:11px;font-weight:600">✓ 開きました</span>';
+  }
+}
+
+// STEP3書類チェックリストのカレンダーパネル
+var CAL3_ITEMS = [
+  {n:'計画申請書の提出リマインダー（1週間前）', o:'提出書類の最終確認と準備をしましょう'},
+  {n:'就業規則多言語化の完成確認', o:'多言語化した就業規則等が完成しているか確認します'},
+  {n:'外国人担当者との面談実施', o:'計画期間内に1回以上の面談が必要です'},
+  {n:'就労環境整備措置の実施完了確認', o:'実施完了日の翌日から離職率計算期間が開始します'},
+  {n:'支給申請書の提出リマインダー（1か月前）', o:'支給申請期限の1か月前に書類準備を開始しましょう'}
+];
+
+function showCal3Panel() {
+  var panel = document.getElementById('cal3-panel');
+  if (panel.style.display !== 'none') { panel.style.display = 'none'; return; }
+  var html = '<div style="background:#fff;border:1px solid #e5e5e0;border-radius:12px;padding:14px;margin-bottom:10px">';
+  html += '<div style="font-size:13px;font-weight:600;margin-bottom:8px;color:#1D9E75;display:flex;align-items:center;gap:5px"><i class="ti ti-calendar-event"></i> 提出リマインダーをGoogleカレンダーに登録</div>';
+  html += '<div style="font-size:12px;color:#6b6b6b;margin-bottom:10px;line-height:1.6">STEP 2で計画開始日を設定すると正確な日付で登録できます。</div>';
+  var today = new Date();
+  for (var i=0; i<CAL3_ITEMS.length; i++) {
+    var it = CAL3_ITEMS[i];
+    var regDate = new Date(today);
+    regDate.setDate(regDate.getDate() + 7 + i*14);
+    var ds = regDate.toISOString().split('T')[0] + 'T09:00:00';
+    var de = regDate.toISOString().split('T')[0] + 'T09:30:00';
+    var statusId = 'cal3stat-' + i;
+    html += '<div style="display:flex;align-items:flex-start;gap:8px;padding:7px 0;border-bottom:1px solid #f0efe9">';
+    html += '<input type="checkbox" id="cal3reg-' + i + '" checked style="margin-top:3px;accent-color:#534AB7;cursor:pointer">';
+    html += '<div style="flex:1"><div style="font-size:13px;font-weight:600">' + it.n + '</div>';
+    html += '<div style="font-size:11px;color:#6b6b6b">' + it.o + '</div></div>';
+    html += '<span id="' + statusId + '" style="font-size:11px"></span>';
+    html += '</div>';
+  }
+  html += '<button onclick="registerAllCal3()" style="margin-top:10px;width:100%;padding:10px;font-size:13px;font-weight:600;background:#1D9E75;color:#fff;border:none;border-radius:8px;cursor:pointer"><i class="ti ti-calendar-plus"></i> 選択した項目を一括登録する</button>';
+  html += '</div>';
+  panel.innerHTML = html;
+  panel.style.display = 'block';
+}
+
+function registerAllCal3() {
+  var today = new Date();
+  for (var i=0; i<CAL3_ITEMS.length; i++) {
+    var cb = document.getElementById('cal3reg-' + i);
+    if (!cb || !cb.checked) continue;
+    var it = CAL3_ITEMS[i];
+    var statusEl = document.getElementById('cal3stat-' + i);
+    var regDate = new Date(today);
+    regDate.setDate(regDate.getDate() + 7 + i*14);
+    var ds = regDate.toISOString().split('T')[0] + 'T09:00:00';
+    var de = regDate.toISOString().split('T')[0] + 'T09:30:00';
+    if (typeof sendPrompt === 'function') {
+      sendPrompt('Googleカレンダーに以下のイベントを登録してください。\nタイトル：' + it.n + '\n日時：' + ds + ' 〜 ' + de + '\n説明：' + it.o + '\nタイムゾーン：Asia/Tokyo');
+      if (statusEl) statusEl.innerHTML = '<span style="color:#1D9E75;font-size:11px;font-weight:600">✓ 登録済み</span>';
+    } else {
+      var title = encodeURIComponent(it.n);
+      var dates = ds.replace(/[-:]/g,'') + '/' + de.replace(/[-:]/g,'');
+      var details = encodeURIComponent(it.o);
+      var url = 'https://calendar.google.com/calendar/render?action=TEMPLATE&text=' + title + '&dates=' + dates + '&details=' + details;
+      window.open(url, '_blank');
+      if (statusEl) statusEl.innerHTML = '<span style="color:#1D9E75;font-size:11px;font-weight:600">✓ 開きました</span>';
+    }
+  }
+}
+
+/* ==================== 起動 ==================== */
+loadTool();
+loadCRM();
+if (CDB.customers.length === 0) addSample();
+else updateChip();
+setupEvents();
+
+// APIキー設定UIの初期化
+(function(){
+  var k = API_KEY;
+  var st = document.getElementById('apikey-status');
+  if (st) {
+    if (k) { st.style.color='var(--gn)'; st.textContent='✓ APIキー設定済み'; }
+    else { st.style.color='var(--tx2)'; st.textContent='未設定（AI機能を使う場合は入力してください）'; }
+  }
+  // 法改正パネル描画（料金ページが開かれたときに描画）
+  renderLawPanel();
+})();
+
+// 料金ページ表示時に法改正パネルを更新
+document.getElementById('tnl-pricing').addEventListener('click', function() {
+  setTimeout(renderLawPanel, 50);
+});
+
+goHome();
+</script>
+</body>
+</html>

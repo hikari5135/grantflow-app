@@ -1,0 +1,3782 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>労務支援統合プラットフォーム v2</title>
+<script src="https://cdn.jsdelivr.net/npm/mammoth@1.6.0/mammoth.browser.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700;900&family=JetBrains+Mono:wght@400;600&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --ink: #0d1117;
+  --ink2: #374151;
+  --ink3: #6b7280;
+  --paper: #ffffff;
+  --paper2: #f9fafb;
+  --paper3: #f3f4f6;
+  --border: #e5e7eb;
+  --border2: #d1d5db;
+  --green: #059669;
+  --green-l: #d1fae5;
+  --green-d: #065f46;
+  --blue: #2563eb;
+  --blue-l: #dbeafe;
+  --blue-d: #1e40af;
+  --amber: #d97706;
+  --amber-l: #fef3c7;
+  --amber-d: #92400e;
+  --red: #dc2626;
+  --red-l: #fee2e2;
+  --red-d: #991b1b;
+  --purple: #7c3aed;
+  --purple-l: #ede9fe;
+  --purple-d: #4c1d95;
+  --r: 10px;
+  --r2: 16px;
+  --shadow: 0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+  --shadow2: 0 4px 12px rgba(0,0,0,.10);
+}
+
+body {
+  font-family: 'Noto Sans JP', sans-serif;
+  background: #f0f2f5;
+  color: var(--ink);
+  min-height: 100vh;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* ── LAYOUT ── */
+.layout { display: flex; min-height: 100vh; }
+
+/* Sidebar */
+.sidebar {
+  width: 220px;
+  background: var(--ink);
+  color: #fff;
+  padding: 0;
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 2px 0 8px rgba(0,0,0,.15);
+}
+.sidebar-logo {
+  padding: 20px 16px;
+  border-bottom: 1px solid rgba(255,255,255,.1);
+}
+.sidebar-logo .app-name { font-size: 13px; font-weight: 700; color: #fff; line-height: 1.4; }
+.sidebar-logo .app-sub { font-size: 10px; color: rgba(255,255,255,.5); margin-top: 2px; }
+.sidebar-logo .version-badge {
+  display: inline-block;
+  margin-top: 6px;
+  font-size: 9px;
+  font-weight: 700;
+  background: var(--green);
+  color: #fff;
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.sidebar-section { padding: 12px 0 4px; }
+.sidebar-section-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  color: rgba(255,255,255,.35);
+  padding: 0 16px;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+}
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(255,255,255,.65);
+  cursor: pointer;
+  border-left: 3px solid transparent;
+  transition: all .15s;
+}
+.nav-item:hover { color: #fff; background: rgba(255,255,255,.06); }
+.nav-item.active { color: #fff; border-left-color: var(--green); background: rgba(255,255,255,.08); }
+.nav-item .nav-icon { font-size: 16px; width: 20px; text-align: center; }
+.nav-badge {
+  margin-left: auto;
+  background: var(--red);
+  color: #fff;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 8px;
+  min-width: 18px;
+  text-align: center;
+  display: none;
+}
+
+.sidebar-footer {
+  margin-top: auto;
+  padding: 12px 16px;
+  border-top: 1px solid rgba(255,255,255,.1);
+}
+.user-info { display: flex; align-items: center; gap: 8px; }
+.user-avatar {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: var(--green);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; color: #fff;
+  flex-shrink: 0;
+}
+.user-name { font-size: 11px; font-weight: 600; color: #fff; }
+.user-role { font-size: 10px; color: rgba(255,255,255,.45); }
+
+/* Main */
+.main-content {
+  margin-left: 220px;
+  flex: 1;
+  min-width: 0;
+}
+
+/* Top bar */
+.topbar {
+  background: var(--paper);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.topbar-title { font-size: 16px; font-weight: 700; }
+.topbar-right { display: flex; align-items: center; gap: 12px; }
+
+/* Law update badge */
+.law-update-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1.5px solid var(--amber);
+  background: var(--amber-l);
+  color: var(--amber-d);
+  cursor: pointer;
+  transition: all .15s;
+}
+.law-update-btn:hover { background: #fde68a; }
+.law-update-btn.fresh { border-color: var(--green); background: var(--green-l); color: var(--green-d); }
+.law-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--amber); animation: pulse 2s infinite; }
+.law-dot.fresh { background: var(--green); animation: none; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+/* Member bar */
+.member-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.member-avatar {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; font-weight: 700; color: #fff;
+  margin-left: -8px;
+  cursor: pointer;
+  transition: transform .15s;
+}
+.member-avatar:first-child { margin-left: 0; }
+.member-avatar:hover { transform: translateY(-2px); z-index: 1; }
+.member-count {
+  font-size: 11px;
+  color: var(--ink3);
+  margin-left: 4px;
+}
+
+/* Page */
+.page { display: none; padding: 24px; }
+.page.active { display: block; }
+
+/* Cards */
+.card {
+  background: var(--paper);
+  border: 1px solid var(--border);
+  border-radius: var(--r2);
+  padding: 20px;
+  margin-bottom: 14px;
+  box-shadow: var(--shadow);
+}
+.card-title {
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Grid */
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.full { grid-column: 1 / -1; }
+
+/* Form */
+.fg { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; }
+.fg label { font-size: 11px; font-weight: 600; color: var(--ink3); }
+.fg input, .fg select, .fg textarea,
+select, input[type=number], input[type=text], input[type=date], input[type=password] {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1.5px solid var(--border2);
+  border-radius: var(--r);
+  font-size: 13px;
+  font-family: inherit;
+  color: var(--ink);
+  background: var(--paper);
+  outline: none;
+  transition: border .15s;
+}
+.fg input:focus, .fg select:focus, .fg textarea:focus,
+select:focus, input:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(37,99,235,.1); }
+textarea { resize: vertical; line-height: 1.7; min-height: 160px; }
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 9px 18px;
+  border: 1.5px solid var(--border2);
+  border-radius: var(--r);
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all .15s;
+  background: var(--paper);
+  color: var(--ink);
+}
+.btn:hover { background: var(--paper3); }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+.btn-primary { background: var(--blue); border-color: var(--blue); color: #fff; }
+.btn-primary:hover:not(:disabled) { background: var(--blue-d); }
+.btn-green { background: var(--green); border-color: var(--green); color: #fff; }
+.btn-green:hover:not(:disabled) { background: var(--green-d); }
+.btn-amber { background: var(--amber); border-color: var(--amber); color: #fff; }
+.btn-amber:hover:not(:disabled) { background: var(--amber-d); }
+.btn-red { background: var(--red); border-color: var(--red); color: #fff; }
+.btn-red:hover:not(:disabled) { background: var(--red-d); }
+.btn-full { width: 100%; }
+.btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+
+/* Upload */
+.upload-zone {
+  border: 2px dashed var(--border2);
+  border-radius: var(--r2);
+  background: var(--paper2);
+  padding: 24px;
+  text-align: center;
+  cursor: pointer;
+  transition: all .2s;
+  position: relative;
+}
+.upload-zone:hover, .upload-zone.drag { border-color: var(--blue); background: var(--blue-l); }
+.upload-zone input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.upload-zone .uz-icon { font-size: 28px; margin-bottom: 8px; }
+.upload-zone .uz-title { font-size: 13px; font-weight: 600; color: var(--blue); }
+.upload-zone .uz-sub { font-size: 11px; color: var(--ink3); margin-top: 3px; }
+.upload-success {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 14px;
+  background: var(--green-l);
+  border: 1.5px solid #6ee7b7;
+  border-radius: var(--r);
+  font-size: 13px; font-weight: 600; color: var(--green-d);
+  margin-bottom: 10px;
+}
+
+/* Result box */
+.result-box {
+  background: var(--paper2);
+  border: 1.5px solid var(--border);
+  border-radius: var(--r);
+  padding: 14px;
+  font-size: 13px;
+  line-height: 1.8;
+  min-height: 160px;
+  white-space: pre-wrap;
+  color: var(--ink2);
+}
+
+/* Badges */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 700;
+}
+.badge-ok { background: var(--green-l); color: var(--green-d); }
+.badge-warn { background: var(--amber-l); color: var(--amber-d); }
+.badge-ng { background: var(--red-l); color: var(--red-d); }
+.badge-info { background: var(--blue-l); color: var(--blue-d); }
+.badge-purple { background: var(--purple-l); color: var(--purple-d); }
+
+/* Tags */
+.tag-group { display: flex; flex-wrap: wrap; gap: 6px; }
+.tag {
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1.5px solid var(--border2);
+  background: var(--paper);
+  color: var(--ink3);
+  cursor: pointer;
+  transition: all .15s;
+}
+.tag.selected { background: var(--blue-l); color: var(--blue-d); border-color: #93c5fd; }
+
+/* Alerts */
+.alert {
+  display: flex;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: var(--r);
+  font-size: 13px;
+  line-height: 1.6;
+  margin-bottom: 10px;
+  border: 1px solid;
+}
+.alert-ok { background: var(--green-l); border-color: #6ee7b7; color: var(--green-d); }
+.alert-warn { background: var(--amber-l); border-color: #fbbf24; color: var(--amber-d); }
+.alert-ng { background: var(--red-l); border-color: #fca5a5; color: var(--red-d); }
+.alert-info { background: var(--blue-l); border-color: #93c5fd; color: var(--blue-d); }
+
+/* Check items */
+.check-item { display:flex; align-items:flex-start; gap:10px; padding:10px 14px; border-radius:var(--r); margin-bottom:7px; font-size:13px; line-height:1.6; }
+.check-item.ok { background:var(--green-l); color:var(--green-d); }
+.check-item.warn { background:var(--amber-l); color:var(--amber-d); }
+.check-item.danger { background:var(--red-l); color:var(--red-d); }
+.check-item.info { background:var(--blue-l); color:var(--blue-d); }
+.check-icon { font-size:15px; flex-shrink:0; margin-top:2px; }
+
+/* Loading */
+.loading { display: flex; align-items: center; gap: 8px; padding: 14px 0; color: var(--ink3); font-size: 13px; }
+.dot { width: 7px; height: 7px; border-radius: 50%; background: var(--blue); animation: blink 1.2s infinite; }
+.dot:nth-child(2) { animation-delay: .2s; }
+.dot:nth-child(3) { animation-delay: .4s; }
+@keyframes blink { 0%,100%{opacity:.2} 50%{opacity:1} }
+
+/* Toast */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--ink);
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: var(--r);
+  font-size: 13px;
+  font-weight: 600;
+  opacity: 0;
+  transition: opacity .3s;
+  pointer-events: none;
+  z-index: 999;
+  white-space: nowrap;
+}
+.toast.show { opacity: 1; }
+
+/* Stats */
+.stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 16px; }
+.stat-card {
+  background: var(--paper);
+  border: 1px solid var(--border);
+  border-radius: var(--r2);
+  padding: 14px 16px;
+  box-shadow: var(--shadow);
+}
+.stat-label { font-size: 11px; color: var(--ink3); margin-bottom: 4px; }
+.stat-value { font-size: 24px; font-weight: 700; line-height: 1.2; }
+.stat-sub { font-size: 11px; color: var(--ink3); margin-top: 2px; }
+
+/* Law update modal */
+.modal-bg {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.45);
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+.modal-bg.open { display: flex; }
+.modal-box {
+  background: var(--paper);
+  border-radius: var(--r2);
+  padding: 24px;
+  width: min(620px, 100%);
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow2);
+}
+.modal-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+.modal-title { font-size: 16px; font-weight: 700; }
+.modal-close { font-size: 20px; cursor: pointer; color: var(--ink3); }
+
+/* Member panel */
+.member-list { display: flex; flex-direction: column; gap: 8px; }
+.member-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: var(--paper2);
+  border-radius: var(--r);
+  border: 1px solid var(--border);
+}
+.member-row-avatar {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700; color: #fff;
+}
+.member-info { flex: 1; }
+.member-name { font-size: 13px; font-weight: 600; }
+.member-role-tag { font-size: 11px; color: var(--ink3); }
+.member-status-dot { width: 8px; height: 8px; border-radius: 50%; }
+.member-status-dot.online { background: var(--green); }
+.member-status-dot.offline { background: var(--border2); }
+
+/* Progress bar */
+.progress-wrap { background: var(--paper3); border-radius: 99px; height: 6px; overflow: hidden; margin-bottom: 8px; }
+.progress-fill { height: 100%; border-radius: 99px; background: var(--blue); transition: width .4s; }
+
+/* Customer table */
+.tbl-wrap { overflow-x: auto; border-radius: var(--r2); border: 1px solid var(--border); }
+table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 600px; }
+thead th { padding: 10px 14px; text-align: left; font-weight: 600; font-size: 11px; color: var(--ink3); border-bottom: 2px solid var(--border); background: var(--paper2); white-space: nowrap; }
+tbody td { padding: 10px 14px; border-bottom: 1px solid var(--paper3); vertical-align: middle; }
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover td { background: var(--paper2); }
+
+/* Score circle */
+.score-circle {
+  width: 72px; height: 72px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; font-weight: 700;
+  border: 4px solid var(--border);
+  flex-shrink: 0;
+}
+
+/* Divider */
+.divider { display: flex; align-items: center; gap: 10px; color: var(--ink3); font-size: 12px; margin: 12px 0; }
+.divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+/* Step nav */
+.step-nav { display: flex; gap: 4px; margin-bottom: 20px; overflow-x: auto; }
+.step-btn {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  background: var(--paper3);
+  color: var(--ink3);
+  border: 1.5px solid var(--border);
+  cursor: pointer;
+  transition: all .15s;
+}
+.step-btn.active { background: var(--blue-l); color: var(--blue-d); border-color: #93c5fd; }
+.step-btn.done { background: var(--green-l); color: var(--green-d); border-color: #6ee7b7; }
+
+/* Law update status bar */
+.law-status-bar {
+  background: linear-gradient(135deg, var(--amber-l), #fff8e1);
+  border: 1px solid #fbbf24;
+  border-radius: var(--r);
+  padding: 10px 14px;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  color: var(--amber-d);
+}
+.law-status-bar.fresh { background: var(--green-l); border-color: #6ee7b7; color: var(--green-d); }
+
+/* Collaboration activity feed */
+.activity-feed { display: flex; flex-direction: column; gap: 6px; }
+.activity-item {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  font-size: 12px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--paper3);
+}
+.activity-item:last-child { border-bottom: none; }
+.activity-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
+.activity-text { flex: 1; color: var(--ink2); line-height: 1.5; }
+.activity-time { color: var(--ink3); white-space: nowrap; }
+
+/* Download section */
+.download-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+/* Result card */
+.result-card { border-radius: var(--r2); border: 1px solid var(--border); overflow: hidden; margin-bottom: 10px; }
+.result-header { padding: 12px 18px; font-size: 13px; font-weight: 700; }
+.result-header.green { background: var(--green-l); color: var(--green-d); }
+.result-header.blue { background: var(--blue-l); color: var(--blue-d); }
+.result-header.purple { background: var(--purple-l); color: var(--purple-d); }
+.result-body { padding: 14px 18px; font-size: 13px; line-height: 1.8; color: var(--ink2); white-space: pre-wrap; background: var(--paper); }
+
+/* API key section */
+.api-key-section {
+  background: var(--paper);
+  border: 1.5px solid #93c5fd;
+  border-radius: var(--r2);
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .sidebar { transform: translateX(-100%); }
+  .main-content { margin-left: 0; }
+  .stat-grid { grid-template-columns: 1fr 1fr; }
+  .grid2 { grid-template-columns: 1fr; }
+  .download-row { grid-template-columns: 1fr; }
+}
+
+/* Section header */
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.section-title { font-size: 18px; font-weight: 700; }
+.section-sub { font-size: 13px; color: var(--ink3); margin-top: 2px; }
+
+/* Sync indicator */
+.sync-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 20px;
+  background: var(--green-l);
+  color: var(--green-d);
+  border: 1px solid #6ee7b7;
+}
+.sync-badge.syncing { background: var(--blue-l); color: var(--blue-d); border-color: #93c5fd; }
+.sync-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); }
+.sync-dot.syncing { background: var(--blue); animation: pulse 1s infinite; }
+
+@media print {
+  .sidebar, .topbar, .btn-row, .download-row, .api-key-section, .step-nav { display: none !important; }
+  .main-content { margin-left: 0; }
+  .page { display: block !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="layout">
+<!-- ── SIDEBAR ── -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="app-name">労務支援<br>統合プラットフォーム</div>
+    <div class="app-sub">外国人雇用 + 助成金申請</div>
+    <div class="version-badge">v2.0 TEAM</div>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">ダッシュボード</div>
+    <div class="nav-item active" onclick="showPage('pg-home')" id="nav-pg-home">
+      <span class="nav-icon">🏠</span> ホーム
+    </div>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">AI機能</div>
+    <div class="nav-item" onclick="showPage('pg-translate')" id="nav-pg-translate">
+      <span class="nav-icon">🌐</span> 多言語AI翻訳
+    </div>
+    <div class="nav-item" onclick="showPage('pg-subsidy')" id="nav-pg-subsidy">
+      <span class="nav-icon">💰</span> 助成金診断
+    </div>
+    <div class="nav-item" onclick="showPage('pg-labor')" id="nav-pg-labor">
+      <span class="nav-icon">📋</span> 労務チェック
+    </div>
+    <div class="nav-item" onclick="showPage('pg-steps')" id="nav-pg-steps">
+      <span class="nav-icon">📈</span> 就労環境整備 STEP
+    </div>
+    <div class="nav-item" onclick="showPage('pg-career')" id="nav-pg-career">
+      <span class="nav-icon">🌿</span> キャリアアップ STEP
+    </div>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">チーム</div>
+    <div class="nav-item" onclick="showPage('pg-customers')" id="nav-pg-customers">
+      <span class="nav-icon">👥</span> 顧客管理
+      <span class="nav-badge" id="alert-badge">!</span>
+    </div>
+    <div class="nav-item" onclick="showPage('pg-collab')" id="nav-pg-collab">
+      <span class="nav-icon">🤝</span> 共同編集
+    </div>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">システム</div>
+    <div class="nav-item" onclick="showPage('pg-law-updates')" id="nav-pg-law-updates">
+      <span class="nav-icon">⚖️</span> 法改正情報
+      <span class="nav-badge" id="law-badge">新</span>
+    </div>
+    <div class="nav-item" onclick="showPage('pg-settings')" id="nav-pg-settings">
+      <span class="nav-icon">⚙️</span> 設定
+    </div>
+  </div>
+
+  <div class="sidebar-footer">
+    <div class="user-info" id="current-user-display">
+      <div class="user-avatar" id="ua-avatar" style="background:var(--green)">田</div>
+      <div>
+        <div class="user-name" id="ua-name">田中 花子</div>
+        <div class="user-role" id="ua-role">管理者</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- ── MAIN ── -->
+<div class="main-content">
+  <!-- Topbar -->
+  <div class="topbar">
+    <div class="topbar-title" id="topbar-title">ダッシュボード</div>
+    <div class="topbar-right">
+      <div class="member-bar">
+        <div id="online-members" class="member-bar"></div>
+        <span class="member-count" id="member-count-text"></span>
+      </div>
+      <button class="law-update-btn" id="law-update-btn" onclick="openLawModal()">
+        <div class="law-dot" id="law-dot"></div>
+        <span id="law-btn-text">法改正確認中...</span>
+      </button>
+      <div class="sync-badge" id="sync-indicator">
+        <div class="sync-dot"></div>
+        同期済み
+      </div>
+    </div>
+  </div>
+
+  <!-- ── HOME PAGE ── -->
+  <div class="page active" id="pg-home">
+    <div class="section-header">
+      <div>
+        <div class="section-title">ダッシュボード</div>
+        <div class="section-sub" id="home-date-sub">今日の状況を確認しましょう</div>
+      </div>
+    </div>
+
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="stat-label">管理顧客数</div>
+        <div class="stat-value" id="stat-customers" style="color:var(--blue)">0</div>
+        <div class="stat-sub">社</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">期限アラート</div>
+        <div class="stat-value" id="stat-alerts" style="color:var(--red)">0</div>
+        <div class="stat-sub">件（30日以内）</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">申請完了</div>
+        <div class="stat-value" id="stat-done" style="color:var(--green)">0</div>
+        <div class="stat-sub">社</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">チームメンバー</div>
+        <div class="stat-value" id="stat-members" style="color:var(--purple)">3</div>
+        <div class="stat-sub">名（<span id="stat-online">1</span>名オンライン）</div>
+      </div>
+    </div>
+
+    <!-- Law update status -->
+    <div class="law-status-bar" id="home-law-status">
+      <span style="font-size:18px">⚖️</span>
+      <div>
+        <strong>法改正情報を確認中...</strong><br>
+        最低賃金・在留資格制度の最新情報を定期チェックしています
+      </div>
+      <button class="btn btn-amber" style="margin-left:auto;white-space:nowrap" onclick="openLawModal()">詳細を確認</button>
+    </div>
+
+    <!-- Quick access -->
+    <div class="grid2">
+      <div class="card" style="cursor:pointer" onclick="showPage('pg-translate')">
+        <div style="font-size:28px;margin-bottom:8px">🌐</div>
+        <div style="font-size:15px;font-weight:700;margin-bottom:4px">多言語AI翻訳</div>
+        <div style="font-size:12px;color:var(--ink3)">就業規則・雇用契約書を外国語に翻訳</div>
+      </div>
+      <div class="card" style="cursor:pointer" onclick="showPage('pg-subsidy')">
+        <div style="font-size:28px;margin-bottom:8px">💰</div>
+        <div style="font-size:15px;font-weight:700;margin-bottom:4px">助成金診断</div>
+        <div style="font-size:12px;color:var(--ink3)">キャリアアップ・人材確保等支援助成金を診断</div>
+      </div>
+      <div class="card" style="cursor:pointer" onclick="showPage('pg-labor')">
+        <div style="font-size:28px;margin-bottom:8px">📋</div>
+        <div style="font-size:15px;font-weight:700;margin-bottom:4px">労務チェック</div>
+        <div style="font-size:12px;color:var(--ink3)">就業規則のコンプライアンスを自動診断</div>
+      </div>
+      <div class="card" style="cursor:pointer" onclick="showPage('pg-customers')">
+        <div style="font-size:28px;margin-bottom:8px">👥</div>
+        <div style="font-size:15px;font-weight:700;margin-bottom:4px">顧客管理</div>
+        <div style="font-size:12px;color:var(--ink3)">申請状況・期限をチームで一元管理</div>
+      </div>
+    </div>
+
+    <!-- Team activity -->
+    <div class="card">
+      <div class="card-title">🤝 チームの最近の活動</div>
+      <div class="activity-feed" id="activity-feed">
+        <div style="color:var(--ink3);font-size:13px;padding:10px 0">活動履歴を読み込み中...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── TRANSLATE PAGE ── -->
+  <div class="page" id="pg-translate">
+    <div class="section-header">
+      <div>
+        <div class="section-title">🌐 多言語AI翻訳</div>
+        <div class="section-sub">就業規則・雇用契約書を自動翻訳します</div>
+      </div>
+    </div>
+
+    <div class="api-key-section" id="api-key-section">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+        <span style="font-size:16px">🔑</span>
+        <span style="font-size:13px;font-weight:700;color:var(--blue-d)">Anthropic APIキー</span>
+        <span id="api-key-status-badge" class="badge badge-warn">未設定</span>
+      </div>
+      <div style="display:flex;gap:8px">
+        <input type="password" id="api-key-input" placeholder="sk-ant-api03-..." style="flex:1"
+          oninput="onApiKeyChange(this.value)">
+        <button class="btn btn-primary" id="api-key-save-btn" onclick="saveApiKey()" disabled style="white-space:nowrap">保存</button>
+      </div>
+      <div style="font-size:11px;color:var(--ink3);margin-top:6px">※ キーはブラウザ内のみで使用。サーバーには送信されません。</div>
+    </div>
+
+    <div class="card">
+      <div class="grid2" style="margin-bottom:14px">
+        <div class="fg">
+          <label>翻訳先の言語</label>
+          <select id="lang">
+            <option>ベトナム語</option>
+            <option>中国語（簡体字）</option>
+            <option>ミャンマー語</option>
+            <option>インドネシア語</option>
+            <option>タイ語</option>
+            <option>タガログ語（フィリピン）</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label>文書の種類</label>
+          <select id="doctype">
+            <option>就業規則</option>
+            <option>雇用契約書</option>
+            <option>キャリアアップ計画書</option>
+            <option>社内通達</option>
+            <option>労働条件通知書</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="section-header" style="margin-bottom:8px">
+        <span style="font-size:12px;font-weight:600;color:var(--ink3)">📎 ファイルから読み込む</span>
+      </div>
+      <div class="upload-zone" id="upload-zone"
+        ondragover="handleDrag(event,true)" ondragleave="handleDrag(event,false)" ondrop="handleDrop(event)">
+        <input type="file" id="file-input" accept=".docx,.pdf,.txt" onchange="handleFileSelect(event)">
+        <div class="uz-icon">📂</div>
+        <div class="uz-title">クリックまたはドラッグ＆ドロップ</div>
+        <div class="uz-sub">PDF / Word(.docx) / テキスト(.txt)</div>
+      </div>
+      <div class="upload-success" id="upload-success" style="display:none">
+        ✅ <span id="file-name-display"></span>
+        <button onclick="removeFile()" style="margin-left:auto;background:none;border:none;cursor:pointer;font-size:16px;color:var(--green-d)">✕</button>
+      </div>
+
+      <div class="divider">または直接入力</div>
+
+      <div class="grid2">
+        <div>
+          <div style="font-size:11px;font-weight:600;color:var(--ink3);margin-bottom:6px">📝 日本語原文</div>
+          <textarea id="src-text" placeholder="就業規則・雇用契約書を入力するか、ファイルをアップロードしてください">第1条（労働時間）
+所定労働時間は1日8時間、週40時間とする。
+
+第2条（時間外労働）
+時間外労働には法定の割増賃金を支払う。割増率は25%以上とする。
+
+第3条（年次有給休暇）
+継続勤務6ヶ月以上の労働者には10日の有給休暇を付与する。</textarea>
+        </div>
+        <div>
+          <div style="font-size:11px;font-weight:600;color:var(--ink3);margin-bottom:6px">✨ 翻訳・変換結果</div>
+          <div id="trans-result" class="result-box">
+            <span style="color:var(--ink3)">翻訳ボタンを押すと結果が表示されます</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-primary" id="btn-trans" onclick="doTranslate()">✨ AI翻訳を実行</button>
+        <button class="btn btn-green" id="btn-simple" onclick="doSimple()">📝 やさしい日本語化</button>
+        <button class="btn" onclick="saveTranslation()" id="btn-save-trans" disabled>💾 チームに保存</button>
+      </div>
+    </div>
+
+    <div class="card" id="download-section" style="display:none">
+      <div class="card-title">📥 翻訳結果のダウンロード</div>
+      <div class="download-row">
+        <button class="btn" onclick="downloadWord()">📄 Word保存</button>
+        <button class="btn" onclick="downloadPdf()">📕 PDF保存</button>
+        <button class="btn" onclick="printTrans()">🖨️ 印刷</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SUBSIDY PAGE ── -->
+  <div class="page" id="pg-subsidy">
+    <div class="section-header">
+      <div>
+        <div class="section-title">💰 助成金診断</div>
+        <div class="section-sub">企業情報を入力してAIが助成金の受給可能性を診断します</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📋 企業情報を入力</div>
+      <div class="grid2">
+        <div class="fg">
+          <label>業種</label>
+          <select id="sub-industry">
+            <option>介護・福祉</option><option>建設業</option>
+            <option>製造業</option><option>飲食・サービス</option><option>農業</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label>従業員数</label>
+          <select id="sub-employees">
+            <option>1〜30人</option><option>31〜100人</option><option>101人以上</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label>外国人労働者数</label>
+          <input type="number" id="sub-foreign" value="3" min="1" max="99">
+        </div>
+        <div class="fg">
+          <label>在留資格</label>
+          <select id="sub-visa">
+            <option>技能実習</option><option>特定技能1号</option>
+            <option>特定技能2号</option><option>技術・人文・国際</option>
+          </select>
+        </div>
+      </div>
+      <div class="fg">
+        <label style="margin-bottom:8px">検討していること（複数選択可）</label>
+        <div class="tag-group">
+          <span class="tag selected" onclick="this.classList.toggle('selected')">正規転換を検討</span>
+          <span class="tag" onclick="this.classList.toggle('selected')">処遇改善を検討</span>
+          <span class="tag" onclick="this.classList.toggle('selected')">多言語就業規則整備</span>
+          <span class="tag" onclick="this.classList.toggle('selected')">離職率の改善</span>
+          <span class="tag" onclick="this.classList.toggle('selected')">教育訓練の実施</span>
+        </div>
+      </div>
+      <button class="btn btn-primary btn-full" id="btn-diag" onclick="doDiagnose()">🔍 助成金を診断する</button>
+    </div>
+
+    <div id="diag-loading" style="display:none" class="loading card">
+      <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+      <span>AIが診断中です...</span>
+    </div>
+
+    <div id="diag-result" style="display:none">
+      <div class="result-card">
+        <div class="result-header green">✅ キャリアアップ助成金</div>
+        <div class="result-body" id="res-career"></div>
+      </div>
+      <div class="result-card">
+        <div class="result-header blue">💼 人材確保等支援助成金</div>
+        <div class="result-body" id="res-jinzai"></div>
+      </div>
+      <div class="result-card">
+        <div class="result-header purple">🎓 人材開発支援助成金</div>
+        <div class="result-body" id="res-jinzai2"></div>
+      </div>
+      <div style="text-align:center;font-size:12px;color:var(--ink3);margin-top:8px">
+        ※ 診断結果は参考情報です。申請前に必ず社労士または行政機関にご確認ください。
+      </div>
+      <div class="btn-row" style="justify-content:center">
+        <button class="btn btn-green" onclick="saveDiagResult()">💾 診断結果をチームに保存</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── LABOR CHECK PAGE ── -->
+  <div class="page" id="pg-labor">
+    <div class="section-header">
+      <div>
+        <div class="section-title">📋 労務コンプライアンスチェック</div>
+        <div class="section-sub">就業規則・雇用契約書の法令適合性をAIが診断します</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <!-- ファイルアップロード -->
+      <div style="margin-bottom:14px">
+        <div style="font-size:12px;font-weight:600;color:var(--ink3);margin-bottom:8px">📎 ファイルから読み込む（PDF・Word・Excel対応）</div>
+        <div class="upload-zone" id="lc-upload-zone"
+          ondragover="lcHandleDrag(event,true)" ondragleave="lcHandleDrag(event,false)" ondrop="lcHandleDrop(event)">
+          <input type="file" id="lc-file-input" accept=".pdf,.docx,.doc,.xlsx,.xls,.txt" onchange="lcHandleFileSelect(event)">
+          <div class="uz-icon">📂</div>
+          <div class="uz-title">クリックまたはドラッグ＆ドロップ</div>
+          <div class="uz-sub">PDF / Word (.docx) / Excel (.xlsx) / テキスト (.txt)</div>
+        </div>
+        <div class="upload-success" id="lc-upload-success" style="display:none">
+          ✅ <span id="lc-file-name"></span>を読み込みました
+          <button onclick="lcRemoveFile()" style="margin-left:auto;background:none;border:none;cursor:pointer;font-size:16px;color:var(--green-d)">✕</button>
+        </div>
+        <div id="lc-file-loading" style="display:none;align-items:center;gap:8px;padding:8px 0;font-size:13px;color:var(--ink3)">
+          <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+          <span id="lc-file-loading-msg">ファイルを読み込み中...</span>
+        </div>
+      </div>
+      <div class="divider">またはテキストを直接入力・貼り付け</div>
+      <div class="fg">
+        <label>就業規則・雇用契約書の内容</label>
+        <textarea id="check-input" rows="7" placeholder="第1条（労働時間）所定労働時間は1日8時間とする。月給200,000円。固定残業代として月30時間分を含む。休日は毎週日曜日のみ...">第1条（労働時間）所定労働時間は1日8時間、週40時間とする。
+第2条（賃金）月給200,000円とする。時間外手当は固定残業代として月30時間分を含む。
+第3条（休日）毎週日曜日を休日とする。祝日は出勤とする。
+第4条（時間外労働）業務の都合により時間外労働を命じることがある。</textarea>
+      </div>
+      <div class="grid2">
+        <div class="fg">
+          <label>都道府県（最低賃金チェック用）</label>
+          <select id="check-pref">
+            <optgroup label="関東">
+              <option value="東京都|1226">東京都（1,226円）</option>
+              <option value="神奈川県|1225">神奈川県（1,225円）</option>
+              <option value="埼玉県|1141">埼玉県（1,141円）</option>
+              <option value="千葉県|1139">千葉県（1,139円）</option>
+              <option value="茨城県|1068">茨城県（1,068円）</option>
+              <option value="栃木県|1070">栃木県（1,070円）</option>
+              <option value="群馬県|1048">群馬県（1,048円）</option>
+            </optgroup>
+            <optgroup label="近畿">
+              <option value="大阪府|1177">大阪府（1,177円）</option>
+              <option value="京都府|1124">京都府（1,124円）</option>
+              <option value="兵庫県|1115">兵庫県（1,115円）</option>
+              <option value="滋賀県|1084">滋賀県（1,084円）</option>
+              <option value="奈良県|1048">奈良県（1,048円）</option>
+              <option value="和歌山県|1044">和歌山県（1,044円）</option>
+            </optgroup>
+            <optgroup label="東海・中部">
+              <option value="愛知県|1140">愛知県（1,140円）</option>
+              <option value="静岡県|1097">静岡県（1,097円）</option>
+              <option value="三重県|1086">三重県（1,086円）</option>
+              <option value="岐阜県|1065">岐阜県（1,065円）</option>
+              <option value="新潟県|1048">新潟県（1,048円）</option>
+              <option value="富山県|1063">富山県（1,063円）</option>
+              <option value="石川県|1050">石川県（1,050円）</option>
+              <option value="福井県|1049">福井県（1,049円）</option>
+              <option value="山梨県|1055">山梨県（1,055円）</option>
+              <option value="長野県|1061">長野県（1,061円）</option>
+            </optgroup>
+            <optgroup label="北海道・東北">
+              <option value="北海道|1073">北海道（1,073円）</option>
+              <option value="青森県|1015">青森県（1,015円）</option>
+              <option value="岩手県|1014">岩手県（1,014円）</option>
+              <option value="宮城県|1037">宮城県（1,037円）</option>
+              <option value="秋田県|1013">秋田県（1,013円）</option>
+              <option value="山形県|1019">山形県（1,019円）</option>
+              <option value="福島県|1018">福島県（1,018円）</option>
+            </optgroup>
+            <optgroup label="中国・四国">
+              <option value="広島県|1084">広島県（1,084円）</option>
+              <option value="岡山県|1045">岡山県（1,045円）</option>
+              <option value="鳥取県|1020">鳥取県（1,020円）</option>
+              <option value="島根県|1024">島根県（1,024円）</option>
+              <option value="山口県|1042">山口県（1,042円）</option>
+              <option value="徳島県|1099">徳島県（1,099円）</option>
+              <option value="香川県|1033">香川県（1,033円）</option>
+              <option value="愛媛県|1021">愛媛県（1,021円）</option>
+              <option value="高知県|1023">高知県（1,023円）</option>
+            </optgroup>
+            <optgroup label="九州・沖縄">
+              <option value="福岡県|1055">福岡県（1,055円）</option>
+              <option value="佐賀県|1020">佐賀県（1,020円）</option>
+              <option value="長崎県|1016">長崎県（1,016円）</option>
+              <option value="熊本県|1034">熊本県（1,034円）</option>
+              <option value="大分県|1018">大分県（1,018円）</option>
+              <option value="宮崎県|1023">宮崎県（1,023円）</option>
+              <option value="鹿児島県|1016">鹿児島県（1,016円）</option>
+              <option value="沖縄県|1023">沖縄県（1,023円）</option>
+            </optgroup>
+          </select>
+          <div style="font-size:10px;color:var(--ink3);margin-top:3px">※ 2025年度（令和7年度）改定額・全国加重平均1,121円</div>
+        </div>
+        <div class="fg">
+          <label>月所定労働時間</label>
+          <input type="number" id="check-hours" value="160" min="100" max="250">
+          <div style="font-size:10px;color:var(--ink3);margin-top:3px">週40h≈160h / 週43.3h≈173h</div>
+        </div>
+      </div>
+      <button class="btn btn-primary btn-full" id="btn-check" onclick="doLaborCheck()">🔍 労務チェックを実行</button>
+    </div>
+
+    <div id="check-loading" style="display:none" class="loading card">
+      <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+      <span>AIが診断中です...</span>
+    </div>
+
+    <div id="check-result" style="display:none">
+      <div class="card">
+        <div class="card-title">📊 コンプライアンススコア</div>
+        <div style="display:flex;align-items:center;gap:16px">
+          <div class="score-circle" id="score-circle">-</div>
+          <div>
+            <div style="font-size:15px;font-weight:700;margin-bottom:4px" id="score-label"></div>
+            <div style="font-size:12px;color:var(--ink3);line-height:1.6" id="score-desc"></div>
+          </div>
+        </div>
+      </div>
+      <div class="card"><div class="card-title">📄 必要書類一覧</div><div id="docs-list"></div></div>
+      <div class="card"><div class="card-title">⚠️ 不足・要確認項目</div><div id="missing-list"></div></div>
+      <div class="card"><div class="card-title">🚨 労務リスク警告</div><div id="risk-list"></div></div>
+      <div class="card"><div class="card-title">📝 36協定チェック</div><div id="article36-result"></div></div>
+      <div class="card"><div class="card-title">💴 最低賃金チェック</div><div id="minwage-result"></div></div>
+      <div style="text-align:center;font-size:12px;color:var(--ink3);margin-bottom:12px">
+        ※ 本診断はAIによる参考情報です。最終判断は社労士または労働基準監督署にご確認ください。
+      </div>
+      <div class="btn-row" style="justify-content:center">
+        <button class="btn btn-green" onclick="saveLaborResult()">💾 チェック結果をチームに保存</button>
+        <button class="btn" onclick="printCheckResult()">🖨️ 印刷する</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── STEPS PAGE ── -->
+  <div class="page" id="pg-steps">
+    <div class="section-header">
+      <div>
+        <div class="section-title">📈 申請ステップ管理</div>
+        <div class="section-sub">人材確保等支援助成金 STEP1〜4を順番に進めましょう</div>
+      </div>
+      <div class="sync-badge" id="steps-sync">
+        <div class="sync-dot"></div>同期済み
+      </div>
+    </div>
+
+    <!-- ホーム -->
+    <div id="sp-home">
+      <div class="card" style="padding:14px 16px;margin-bottom:12px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+          <span style="font-size:13px;font-weight:600">全体の進捗</span>
+          <span style="font-size:13px;font-weight:700;color:var(--blue)" id="sp-pct-text">0%</span>
+        </div>
+        <div class="progress-wrap"><div class="progress-fill" id="sp-pct-bar" style="width:0%"></div></div>
+      </div>
+      <div id="sp-diag-banner"></div>
+      <div class="grid2" id="sp-cards"></div>
+      <div class="btn-row">
+        <button class="btn" onclick="spResetAll()">🔄 進捗をリセット</button>
+      </div>
+    </div>
+
+    <!-- STEP1: 受給診断 -->
+    <div id="sp-s1" style="display:none">
+      <div style="font-size:17px;font-weight:700;margin-bottom:4px">STEP 1 ─ 受給できるか診断
+        <span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:99px;background:var(--blue-l);color:var(--blue-d);margin-left:6px">AI</span>
+      </div>
+      <div style="font-size:13px;color:var(--ink3);margin-bottom:14px">8つの質問に答えてから「診断する」を押してください。</div>
+      <div class="grid3" style="margin-bottom:10px">
+        <div class="card" style="padding:10px 12px;text-align:center"><div style="font-size:10px;color:var(--ink3)">合計</div><div style="font-size:22px;font-weight:700">8</div></div>
+        <div class="card" style="padding:10px 12px;text-align:center"><div style="font-size:10px;color:var(--ink3)">回答済み</div><div style="font-size:22px;font-weight:700;color:var(--green)" id="sp-q-done">0</div></div>
+        <div class="card" style="padding:10px 12px;text-align:center"><div style="font-size:10px;color:var(--ink3)">残り</div><div style="font-size:22px;font-weight:700;color:var(--red)" id="sp-q-left">8</div></div>
+      </div>
+      <div class="progress-wrap"><div class="progress-fill" id="sp-q-bar" style="width:0%"></div></div>
+      <div id="sp-qlist"></div>
+      <button class="btn btn-primary btn-full" id="sp-dbtn" onclick="spDiagnose()" disabled style="margin-top:8px">診断する</button>
+      <div class="btn-row"><button class="btn" onclick="spGoHome()">← ホームへ</button></div>
+    </div>
+
+    <!-- STEP1 結果 -->
+    <div id="sp-s1r" style="display:none">
+      <div style="font-size:17px;font-weight:700;margin-bottom:10px" id="sp-r1t"></div>
+      <div id="sp-r1res"></div>
+      <div class="card" style="border-left:4px solid var(--blue)">
+        <div style="font-size:11px;font-weight:700;color:var(--blue);margin-bottom:6px">✨ AIによる分析</div>
+        <div id="sp-ai1"><div class="loading"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>
+      </div>
+      <div class="card"><div style="font-size:13px;font-weight:600;margin-bottom:8px">回答のまとめ</div><div id="sp-r1sum"></div></div>
+      <button class="btn btn-green btn-full" id="sp-r1next" onclick="spGoStep(2)" style="display:none;margin-bottom:8px">次へ：期限を計算する →</button>
+      <div class="btn-row">
+        <button class="btn" onclick="spResetS1()">🔄 やり直す</button>
+        <button class="btn" onclick="spGoHome()">← ホームへ</button>
+      </div>
+    </div>
+
+    <!-- STEP2: 期限計算 -->
+    <div id="sp-s2" style="display:none">
+      <div style="font-size:17px;font-weight:700;margin-bottom:4px">STEP 2 ─ 期限を自動計算する</div>
+      <div style="font-size:13px;color:var(--ink3);margin-bottom:14px">日付を入力すると申請スケジュールが自動表示されます。</div>
+      <div class="card">
+        <div style="font-size:13px;font-weight:600;margin-bottom:12px">📅 日付を入力</div>
+        <div class="grid2">
+          <div class="fg"><label>計画の開始予定日</label><input type="date" id="sp-d1" oninput="spCalcD()"></div>
+          <div class="fg"><label>計画の終了予定日</label><input type="date" id="sp-d2" oninput="spCalcD()"></div>
+          <div class="fg"><label>措置の実施完了予定日</label><input type="date" id="sp-d3" oninput="spCalcD()"></div>
+          <div class="fg">
+            <label>外国人労務責任者講習</label>
+            <select id="sp-d4" onchange="spCalcD()">
+              <option value="0">受講しない／未定</option>
+              <option value="1">受講する（受講済み）</option>
+            </select>
+          </div>
+        </div>
+        <div class="alert alert-info" style="margin-top:4px">計画の開始予定日だけ入力すれば申請期限が確認できます。</div>
+      </div>
+      <div id="sp-sched-result"></div>
+      <button class="btn btn-green btn-full" onclick="spCompleteStep(2)" style="margin-top:8px">確認完了 → STEP 3 書類確認へ</button>
+      <div class="btn-row"><button class="btn" onclick="spGoHome()">← ホームへ</button></div>
+    </div>
+
+    <!-- STEP3: 書類チェック -->
+    <div id="sp-s3" style="display:none">
+      <div style="font-size:17px;font-weight:700;margin-bottom:4px">STEP 3 ─ 提出書類チェックリスト</div>
+      <div style="font-size:13px;color:var(--ink3);margin-bottom:14px">書類を確認してチェックを入れてください。</div>
+      <!-- タブ -->
+      <div style="display:flex;gap:4px;margin-bottom:12px">
+        <button class="btn btn-primary" id="sp-tb-plan" onclick="spSwitchDocTab('plan')" style="flex:1">① 計画申請</button>
+        <button class="btn" id="sp-tb-apply" onclick="spSwitchDocTab('apply')" style="flex:1">② 支給申請</button>
+      </div>
+      <div id="sp-doc-done-banner"></div>
+      <div class="grid3" style="margin-bottom:10px">
+        <div class="card" style="padding:10px 12px;text-align:center"><div style="font-size:10px;color:var(--ink3)">合計</div><div style="font-size:22px;font-weight:700" id="sp-doc-total">0</div></div>
+        <div class="card" style="padding:10px 12px;text-align:center"><div style="font-size:10px;color:var(--ink3)">確認済み</div><div style="font-size:22px;font-weight:700;color:var(--green)" id="sp-doc-done">0</div></div>
+        <div class="card" style="padding:10px 12px;text-align:center"><div style="font-size:10px;color:var(--ink3)">残り</div><div style="font-size:22px;font-weight:700;color:var(--red)" id="sp-doc-left">0</div></div>
+      </div>
+      <div class="progress-wrap"><div class="progress-fill" id="sp-doc-bar" style="width:0%"></div></div>
+      <div id="sp-doclist"></div>
+      <div class="card" style="border-left:4px solid var(--blue);margin-top:10px">
+        <div style="font-size:11px;font-weight:700;color:var(--blue);margin-bottom:6px">✨ AIによる書類アドバイス</div>
+        <div id="sp-ai3"><div class="loading"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>
+      </div>
+      <button class="btn btn-green btn-full" onclick="spCompleteStep(3)" style="margin-top:8px">確認完了 → STEP 4 申請フローへ</button>
+      <div class="btn-row"><button class="btn" onclick="spGoHome()">← ホームへ</button></div>
+    </div>
+
+    <!-- STEP4: 申請フロー -->
+    <div id="sp-s4" style="display:none">
+      <div style="font-size:17px;font-weight:700;margin-bottom:4px">STEP 4 ─ 申請フローガイダンス</div>
+      <div style="font-size:13px;color:var(--ink3);margin-bottom:14px">各ステップをタップして詳細を確認。完了したらチェックを入れましょう。</div>
+      <div id="sp-s4-complete-banner"></div>
+      <div class="grid3" style="margin-bottom:10px">
+        <div class="card" style="padding:10px 12px;text-align:center"><div style="font-size:10px;color:var(--ink3)">総ステップ</div><div style="font-size:22px;font-weight:700">7</div></div>
+        <div class="card" style="padding:10px 12px;text-align:center"><div style="font-size:10px;color:var(--ink3)">完了</div><div style="font-size:22px;font-weight:700;color:var(--green)" id="sp-f4d">0</div></div>
+        <div class="card" style="padding:10px 12px;text-align:center"><div style="font-size:10px;color:var(--ink3)">残り</div><div style="font-size:22px;font-weight:700;color:var(--red)" id="sp-f4l">7</div></div>
+      </div>
+      <div class="progress-wrap"><div class="progress-fill" id="sp-f4bar" style="width:0%"></div></div>
+      <div id="sp-flowlist"></div>
+      <div class="card" style="border-left:4px solid var(--blue);margin-top:10px">
+        <div style="font-size:11px;font-weight:700;color:var(--blue);margin-bottom:6px">✨ AIによる全体アドバイス</div>
+        <div id="sp-ai4"><div class="loading"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>
+      </div>
+      <div class="card">
+        <div style="font-size:13px;font-weight:600;margin-bottom:10px">📋 申請全体のポイント</div>
+        <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--paper3);font-size:12px"><span style="color:var(--ink3)">支給額</span><span style="font-weight:600;color:var(--blue)">1措置につき20万円（最大80万円）</span></div>
+        <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--paper3);font-size:12px"><span style="color:var(--ink3)">計画期間</span><span style="font-weight:600">3か月以上1年以内</span></div>
+        <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--paper3);font-size:12px"><span style="color:var(--ink3)">離職率の目標</span><span style="font-weight:600">15%以下（2〜10人は離職1人以下）</span></div>
+        <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--paper3);font-size:12px"><span style="color:var(--ink3)">書類保管</span><span style="font-weight:600">支給決定日の翌日から5年間</span></div>
+        <div style="display:flex;justify-content:space-between;padding:5px 0;font-size:12px"><span style="color:var(--ink3)">提出先</span><span style="font-weight:600">本社管轄の都道府県労働局またはハローワーク</span></div>
+      </div>
+      <div class="btn-row">
+        <button class="btn" onclick="spGoHome()">← ホームへ</button>
+        <button class="btn" onclick="spResetFlow()">🔄 フロー進捗リセット</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── CAREER-UP PAGE ── -->
+  <div class="page" id="pg-career">
+    <div class="section-header">
+      <div>
+        <div class="section-title">🌿 キャリアアップ助成金 STEP1〜6</div>
+        <div class="section-sub">正規雇用転換コース（正社員転換支援・対象者管理）</div>
+      </div>
+    </div>
+
+    <!-- 会社情報バー -->
+    <div style="background:linear-gradient(135deg,#0A3D2B,#1D9E75);border-radius:var(--r2);padding:12px 16px;margin-bottom:14px;color:#fff">
+      <div style="font-size:12px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between">
+        <span>🏢 会社情報</span>
+        <span id="cu-sc2" style="font-size:10px;padding:2px 8px;border-radius:10px;background:rgba(255,255,255,.2);opacity:0;transition:opacity .4s">保存済み ✓</span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+        <div><label style="font-size:10px;opacity:.75;display:block;margin-bottom:2px">会社名</label>
+          <input id="cu-gc" type="text" placeholder="例：○○株式会社" oninput="cuD.company=this.value;cuAS()"
+            style="width:100%;font-size:12px;padding:5px 8px;border-radius:6px;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.15);color:#fff;outline:none"></div>
+        <div><label style="font-size:10px;opacity:.75;display:block;margin-bottom:2px">計画届番号</label>
+          <input id="cu-gd" type="text" placeholder="例：27-1234567" oninput="cuD.plan=this.value;cuAS()"
+            style="width:100%;font-size:12px;padding:5px 8px;border-radius:6px;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.15);color:#fff;outline:none"></div>
+        <div><label style="font-size:10px;opacity:.75;display:block;margin-bottom:2px">都道府県</label>
+          <input id="cu-gp" type="text" placeholder="例：大阪府" oninput="cuD.pref=this.value;cuAS()"
+            style="width:100%;font-size:12px;padding:5px 8px;border-radius:6px;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.15);color:#fff;outline:none"></div>
+      </div>
+    </div>
+
+    <!-- 対象者タブ -->
+    <div style="background:var(--paper);border:1px solid var(--border);border-radius:var(--r2);padding:10px 12px;margin-bottom:12px">
+      <div style="font-size:10px;color:var(--ink3);font-weight:600;margin-bottom:6px;letter-spacing:.05em">対象者</div>
+      <div id="cu-person-tabs" style="display:flex;gap:6px;flex-wrap:wrap;align-items:center"></div>
+    </div>
+
+    <!-- STEPナビ -->
+    <div id="cu-prog" style="display:flex;gap:3px;overflow-x:auto;margin-bottom:14px;padding-bottom:4px"></div>
+
+    <!-- STEPコンテンツ -->
+    <div id="cu-content"></div>
+  </div>
+
+  <!-- ── CUSTOMERS PAGE ── -->
+  <div class="page" id="pg-customers">
+    <div class="section-header">
+      <div>
+        <div class="section-title">👥 顧客管理</div>
+        <div class="section-sub">申請状況・期限をチームで一元管理</div>
+      </div>
+      <button class="btn btn-green" onclick="openAddCustomer()">+ 顧客を追加</button>
+    </div>
+
+    <div class="card" style="padding:14px">
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <input type="text" id="c-search" placeholder="🔍 顧客名・担当者名で検索..." style="flex:1;min-width:160px" oninput="renderCustomers()">
+        <select id="c-status-filter" onchange="renderCustomers()" style="width:auto">
+          <option value="">すべてのステータス</option>
+          <option>未着手</option><option>計画申請中</option><option>措置実施中</option><option>支給申請中</option><option>完了</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="tbl-wrap" style="margin-bottom:14px">
+      <table>
+        <thead>
+          <tr>
+            <th>顧客名</th><th>担当者</th><th>ステータス</th>
+            <th>計画申請期限</th><th>従業員数</th><th>操作</th>
+          </tr>
+        </thead>
+        <tbody id="c-tbody"></tbody>
+      </table>
+    </div>
+    <div id="c-empty" style="text-align:center;padding:2rem;color:var(--ink3);display:none">
+      顧客がまだ登録されていません
+    </div>
+  </div>
+
+  <!-- ── COLLAB PAGE ── -->
+  <div class="page" id="pg-collab">
+    <div class="section-header">
+      <div>
+        <div class="section-title">🤝 共同編集・進捗共有</div>
+        <div class="section-sub">チームメンバーとリアルタイムで進捗を共有します</div>
+      </div>
+    </div>
+
+    <div class="alert alert-info" style="margin-bottom:16px">
+      <span style="font-size:18px">ℹ️</span>
+      <div>共有データは暗号化された上でセキュアに保存されます。チームメンバー全員がリアルタイムで最新の進捗を確認できます。</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">👤 現在のメンバー</div>
+      <div class="member-list" id="member-list"></div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="openInviteModal()">+ メンバーを招待</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📝 共有メモ・コメント</div>
+      <div class="fg">
+        <label>チームへのメモを追加</label>
+        <textarea id="shared-memo" rows="3" placeholder="チーム全員に共有したいメモを入力..."></textarea>
+      </div>
+      <button class="btn btn-primary" onclick="addSharedMemo()">📤 共有する</button>
+      <div style="margin-top:14px">
+        <div style="font-size:12px;font-weight:600;color:var(--ink3);margin-bottom:8px">最近の共有メモ</div>
+        <div id="shared-memos-list" class="activity-feed"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📊 チーム全体の進捗サマリー</div>
+      <div id="team-progress-summary"></div>
+    </div>
+  </div>
+
+  <!-- ── LAW UPDATES PAGE ── -->
+  <div class="page" id="pg-law-updates">
+    <div class="section-header">
+      <div>
+        <div class="section-title">⚖️ 法改正・制度変更情報</div>
+        <div class="section-sub">助成金制度・労働法規の最新情報をAIが自動確認します</div>
+      </div>
+      <button class="btn btn-amber" id="btn-refresh-law" onclick="fetchLawUpdates()">🔄 最新情報を取得</button>
+    </div>
+
+    <div class="card" id="law-status-card">
+      <div class="card-title">📅 最終確認日時</div>
+      <div id="law-last-updated" style="font-size:13px;color:var(--ink3)">確認中...</div>
+    </div>
+
+    <div id="law-updates-content">
+      <div class="loading" style="padding:24px 0">
+        <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+        <span>法改正情報を取得中...</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SETTINGS PAGE ── -->
+  <div class="page" id="pg-settings">
+    <div class="section-header">
+      <div>
+        <div class="section-title">⚙️ 設定</div>
+        <div class="section-sub">アカウントとシステムの設定</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🔑 Anthropic APIキー設定</div>
+      <div class="fg">
+        <label>APIキー</label>
+        <input type="password" id="settings-api-key" placeholder="sk-ant-api03-...">
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="saveApiKeyFromSettings()">保存</button>
+      </div>
+      <div style="font-size:11px;color:var(--ink3);margin-top:8px">※ キーはこのブラウザ内のみで使用されます</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">👤 プロフィール設定</div>
+      <div class="grid2">
+        <div class="fg">
+          <label>名前</label>
+          <input type="text" id="profile-name" placeholder="田中 花子">
+        </div>
+        <div class="fg">
+          <label>役割</label>
+          <select id="profile-role">
+            <option>管理者</option><option>社労士</option><option>担当者</option><option>閲覧のみ</option>
+          </select>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-green" onclick="saveProfile()">プロフィールを保存</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🔔 通知設定</div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <label style="display:flex;align-items:center;gap:10px;font-size:13px;cursor:pointer">
+          <input type="checkbox" id="notif-deadline" checked style="width:auto">
+          期限アラート通知（30日前）
+        </label>
+        <label style="display:flex;align-items:center;gap:10px;font-size:13px;cursor:pointer">
+          <input type="checkbox" id="notif-law" checked style="width:auto">
+          法改正情報の自動取得（週1回）
+        </label>
+        <label style="display:flex;align-items:center;gap:10px;font-size:13px;cursor:pointer">
+          <input type="checkbox" id="notif-collab" checked style="width:auto">
+          チームメンバーの更新通知
+        </label>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-green" onclick="saveNotifSettings()">通知設定を保存</button>
+      </div>
+    </div>
+
+    <div class="card" style="border-color:var(--red-l)">
+      <div class="card-title" style="color:var(--red)">🗑️ データ管理</div>
+      <div style="font-size:13px;color:var(--ink3);margin-bottom:12px">全データを削除します。この操作は取り消せません。</div>
+      <button class="btn btn-red" onclick="clearAllData()">すべてのデータを削除</button>
+    </div>
+  </div>
+
+</div><!-- /main-content -->
+</div><!-- /layout -->
+
+<!-- ── MODALS ── -->
+<!-- Law update modal -->
+<div class="modal-bg" id="law-modal">
+  <div class="modal-box" style="max-width:680px">
+    <div class="modal-top">
+      <div class="modal-title">⚖️ 法改正・制度変更情報</div>
+      <span class="modal-close" onclick="closeLawModal()">✕</span>
+    </div>
+    <div id="law-modal-content">
+      <div class="loading"><div class="dot"></div><div class="dot"></div><div class="dot"></div><span>最新情報を取得中...</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- Customer add modal -->
+<div class="modal-bg" id="customer-modal">
+  <div class="modal-box">
+    <div class="modal-top">
+      <div class="modal-title" id="cust-modal-title">顧客を追加</div>
+      <span class="modal-close" onclick="closeCustomerModal()">✕</span>
+    </div>
+    <div class="grid2">
+      <div class="fg"><label>顧客名★</label><input type="text" id="m-name" placeholder="○○株式会社"></div>
+      <div class="fg"><label>担当者名★</label><input type="text" id="m-staff" placeholder="山田 太郎"></div>
+      <div class="fg"><label>従業員数</label><input type="number" id="m-fgn" placeholder="3" min="1"></div>
+      <div class="fg">
+        <label>業種</label>
+        <select id="m-ind">
+          <option value="">選択</option>
+          <option>飲食業</option><option>製造業</option><option>建設業</option>
+          <option>小売業</option><option>農業</option><option>サービス業</option><option>その他</option>
+        </select>
+      </div>
+      <div class="fg">
+        <label>ステータス</label>
+        <select id="m-st">
+          <option>未着手</option><option>計画申請中</option>
+          <option>措置実施中</option><option>支給申請中</option><option>完了</option>
+        </select>
+      </div>
+      <div class="fg"><label>担当者（チーム）</label>
+        <input type="text" id="m-assignee" placeholder="担当者名を入力" list="assignee-list" autocomplete="off">
+        <datalist id="assignee-list"></datalist>
+        <div style="font-size:10px;color:var(--ink3);margin-top:3px">直接入力またはチームメンバーから選択</div>
+      </div>
+      <div class="fg"><label>計画申請期限</label><input type="date" id="m-pldl"></div>
+      <div class="fg"><label>支給申請期限</label><input type="date" id="m-apdl"></div>
+      <div class="fg full"><label>メモ</label><textarea id="m-memo" rows="2" style="min-height:60px"></textarea></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="saveCustomer()">保存する</button>
+      <button class="btn" onclick="closeCustomerModal()">キャンセル</button>
+    </div>
+  </div>
+</div>
+
+<!-- Invite modal -->
+<div class="modal-bg" id="invite-modal">
+  <div class="modal-box" style="max-width:480px">
+    <div class="modal-top">
+      <div class="modal-title">👤 メンバーを招待</div>
+      <span class="modal-close" onclick="document.getElementById('invite-modal').classList.remove('open')">✕</span>
+    </div>
+    <div class="fg"><label>名前</label><input type="text" id="inv-name" placeholder="招待するメンバーの名前"></div>
+    <div class="fg">
+      <label>役割</label>
+      <select id="inv-role">
+        <option>社労士</option><option>担当者</option><option>閲覧のみ</option>
+      </select>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="addMember()">追加する</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc =
+  'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
+
+/* ═══════════════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════════════ */
+let _apiKey = '';
+let translatedText = '', translatedLang = '', translatedDoctype = '';
+let editCustId = null;
+let lawUpdateData = null;
+let lawLastFetched = null;
+const LAW_CACHE_MS = 7 * 24 * 60 * 60 * 1000; // 1 week
+
+// Persistent state via window.storage (Artifact Storage API)
+let APP_STATE = {
+  customers: [],
+  sharedMemos: [],
+  activityLog: [],
+  members: [
+    { id: 'u1', name: '田中 花子', role: '管理者', color: '#059669', online: true },
+    { id: 'u2', name: '鈴木 一郎', role: '社労士', color: '#2563eb', online: false },
+    { id: 'u3', name: '佐藤 美咲', role: '担当者', color: '#7c3aed', online: true }
+  ],
+  currentUser: { id: 'u1', name: '田中 花子', role: '管理者' },
+  steps: { s1: false, s2: false, s3: false, s4: false, s5: false, s6: false },
+  lawData: null,
+  lawFetched: null,
+  settings: { notifDeadline: true, notifLaw: true, notifCollab: true }
+};
+
+/* ═══════════════════════════════════════════════════
+   STORAGE (Persistent)
+═══════════════════════════════════════════════════ */
+async function saveState() {
+  setSyncStatus('syncing');
+  try {
+    if (window.storage) {
+      await window.storage.set('app_state_v2', JSON.stringify(APP_STATE), true);
+    } else {
+      localStorage.setItem('labor_platform_v2', JSON.stringify(APP_STATE));
+    }
+    setTimeout(() => setSyncStatus('synced'), 600);
+  } catch(e) {
+    localStorage.setItem('labor_platform_v2', JSON.stringify(APP_STATE));
+    setTimeout(() => setSyncStatus('synced'), 300);
+  }
+}
+
+async function loadState() {
+  try {
+    let raw = null;
+    if (window.storage) {
+      try {
+        const result = await window.storage.get('app_state_v2', true);
+        if (result) raw = result.value;
+      } catch(e) {}
+    }
+    if (!raw) {
+      raw = localStorage.getItem('labor_platform_v2');
+    }
+    if (raw) {
+      const saved = JSON.parse(raw);
+      // Merge: preserve member structure if missing
+      if (saved.customers) APP_STATE.customers = saved.customers;
+      if (saved.sharedMemos) APP_STATE.sharedMemos = saved.sharedMemos;
+      if (saved.activityLog) APP_STATE.activityLog = saved.activityLog;
+      if (saved.members && saved.members.length > 0) APP_STATE.members = saved.members;
+      if (saved.currentUser) APP_STATE.currentUser = saved.currentUser;
+      if (saved.steps) APP_STATE.steps = saved.steps;
+      if (saved.lawData) { APP_STATE.lawData = saved.lawData; lawUpdateData = saved.lawData; }
+      if (saved.lawFetched) { APP_STATE.lawFetched = saved.lawFetched; lawLastFetched = new Date(saved.lawFetched); }
+      if (saved.settings) APP_STATE.settings = { ...APP_STATE.settings, ...saved.settings };
+    }
+  } catch(e) {}
+
+  // Load API key from local storage (not shared)
+  try { _apiKey = localStorage.getItem('_apiKey_v2') || ''; } catch(e) {}
+}
+
+function saveApiKeyLocal() {
+  try { localStorage.setItem('_apiKey_v2', _apiKey); } catch(e) {}
+}
+
+function setSyncStatus(status) {
+  const el = document.getElementById('sync-indicator');
+  const dot = el ? el.querySelector('.sync-dot') : null;
+  if (status === 'syncing') {
+    el.textContent = '';
+    const d = document.createElement('div');
+    d.className = 'sync-dot syncing';
+    el.appendChild(d);
+    el.appendChild(document.createTextNode(' 同期中...'));
+    el.classList.add('syncing');
+  } else {
+    el.innerHTML = '<div class="sync-dot"></div> 同期済み';
+    el.classList.remove('syncing');
+  }
+}
+
+/* ═══════════════════════════════════════════════════
+   NAVIGATION
+═══════════════════════════════════════════════════ */
+const PAGE_TITLES = {
+  'pg-home': 'ダッシュボード',
+  'pg-translate': '多言語AI翻訳',
+  'pg-subsidy': '助成金診断',
+  'pg-labor': '労務チェック',
+  'pg-steps': '就労環境整備 申請ステップ',
+  'pg-career': 'キャリアアップ助成金 STEP1〜6',
+  'pg-customers': '顧客管理',
+  'pg-collab': '共同編集',
+  'pg-law-updates': '法改正情報',
+  'pg-settings': '設定'
+};
+
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const page = document.getElementById(id);
+  if (page) page.classList.add('active');
+  const nav = document.getElementById('nav-' + id);
+  if (nav) nav.classList.add('active');
+  const title = document.getElementById('topbar-title');
+  if (title) title.textContent = PAGE_TITLES[id] || '';
+
+  if (id === 'pg-home') renderHome();
+  if (id === 'pg-customers') renderCustomers();
+  if (id === 'pg-collab') renderCollab();
+  if (id === 'pg-law-updates') renderLawPage();
+  if (id === 'pg-steps') renderSteps();
+  if (id === 'pg-career') initCareerPage();
+}
+
+/* ═══════════════════════════════════════════════════
+   API KEY
+═══════════════════════════════════════════════════ */
+function onApiKeyChange(val) {
+  document.getElementById('api-key-save-btn').disabled = !val.startsWith('sk-ant-');
+}
+function saveApiKey() {
+  const val = document.getElementById('api-key-input').value.trim();
+  if (!val.startsWith('sk-ant-')) { alert('正しいAPIキーを入力してください（sk-ant- で始まる文字列）'); return; }
+  _apiKey = val;
+  saveApiKeyLocal();
+  const badge = document.getElementById('api-key-status-badge');
+  if (badge) { badge.textContent = '設定済み'; badge.className = 'badge badge-ok'; }
+  const settingsKey = document.getElementById('settings-api-key');
+  if (settingsKey) settingsKey.value = val;
+  showToast('✅ APIキーを設定しました');
+}
+function saveApiKeyFromSettings() {
+  const val = document.getElementById('settings-api-key').value.trim();
+  if (!val) return;
+  const apiInput = document.getElementById('api-key-input');
+  if (apiInput) apiInput.value = val;
+  saveApiKey();
+}
+
+/* ═══════════════════════════════════════════════════
+   CLAUDE API
+═══════════════════════════════════════════════════ */
+async function callClaude(system, userMsg, maxTokens = 4096) {
+  if (!_apiKey) throw new Error('APIキーが設定されていません。設定ページでAPIキーを入力してください。');
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': _apiKey,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true'
+    },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-6',
+      max_tokens: maxTokens,
+      system,
+      messages: [{ role: 'user', content: userMsg }]
+    })
+  });
+  const data = await res.json();
+  if (!res.ok || data.error) throw new Error(data.error?.message || `APIエラー (${res.status})`);
+  if (!data.content?.[0]?.text) throw new Error('レスポンスが空です');
+  return data.content[0].text;
+}
+
+/* ═══════════════════════════════════════════════════
+   FILE UPLOAD
+═══════════════════════════════════════════════════ */
+function handleDrag(e, over) {
+  e.preventDefault();
+  document.getElementById('upload-zone').classList.toggle('drag', over);
+}
+function handleDrop(e) { e.preventDefault(); handleDrag(e, false); processFile(e.dataTransfer.files[0]); }
+function handleFileSelect(e) { processFile(e.target.files[0]); }
+function removeFile() {
+  document.getElementById('upload-success').style.display = 'none';
+  document.getElementById('upload-zone').style.display = 'block';
+  document.getElementById('file-input').value = '';
+  document.getElementById('src-text').value = '';
+}
+function showUploadSuccess(name) {
+  document.getElementById('file-name-display').textContent = name;
+  document.getElementById('upload-success').style.display = 'flex';
+  document.getElementById('upload-zone').style.display = 'none';
+}
+function processFile(file) {
+  if (!file) return;
+  const ext = file.name.split('.').pop().toLowerCase();
+  if (ext === 'docx') {
+    const reader = new FileReader();
+    reader.onload = e => {
+      mammoth.extractRawText({ arrayBuffer: e.target.result })
+        .then(r => { document.getElementById('src-text').value = r.value; showUploadSuccess(file.name); })
+        .catch(err => alert('Wordファイルの読み込みに失敗しました: ' + err.message));
+    };
+    reader.readAsArrayBuffer(file);
+  } else if (ext === 'pdf') {
+    readPdfFile(file);
+  } else if (ext === 'txt') {
+    const reader = new FileReader();
+    reader.onload = e => { document.getElementById('src-text').value = e.target.result; showUploadSuccess(file.name); };
+    reader.readAsText(file, 'UTF-8');
+  } else {
+    alert('PDF・Word(.docx)・テキスト(.txt)に対応しています');
+  }
+}
+async function readPdfFile(file) {
+  try {
+    const pdf = await pdfjsLib.getDocument({ data: await file.arrayBuffer() }).promise;
+    let text = '';
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const page = await pdf.getPage(i);
+      const content = await page.getTextContent();
+      text += content.items.map(item => item.str).join(' ') + '\n\n';
+    }
+    document.getElementById('src-text').value = text.trim();
+    showUploadSuccess(file.name);
+  } catch(e) { alert('PDFの読み込みに失敗しました: ' + e.message); }
+}
+
+/* ═══════════════════════════════════════════════════
+   TRANSLATION
+═══════════════════════════════════════════════════ */
+function splitIntoChunks(text, maxChars = 1500) {
+  const separator = /(?=第\d+章|第\d+条|第\s*\d+\s*条|【[^】]+】|\n\n\n)/;
+  const segments = text.split(separator).filter(s => s.trim());
+  const chunks = [];
+  let current = '';
+  for (const seg of segments) {
+    if ((current + seg).length > maxChars && current.length > 0) {
+      chunks.push(current.trim()); current = seg;
+    } else { current += (current ? '\n\n' : '') + seg; }
+  }
+  if (current.trim()) chunks.push(current.trim());
+  return chunks.length > 0 ? chunks : [text];
+}
+
+async function doTranslate() {
+  const text = document.getElementById('src-text').value.trim();
+  translatedLang = document.getElementById('lang').value;
+  translatedDoctype = document.getElementById('doctype').value;
+  if (!text) { alert('原文を入力またはファイルをアップロードしてください'); return; }
+  setTransBtn(true);
+  const system = `あなたは外国人労務専門の翻訳AIです。${translatedDoctype}を正確に翻訳してください。条番号・見出し・段落構造を保持し、法律用語は適切に訳してください。`;
+  try {
+    const chunks = splitIntoChunks(text);
+    let result = '';
+    for (let i = 0; i < chunks.length; i++) {
+      showTransProgress(i+1, chunks.length);
+      const part = await callClaude(
+        system + (chunks.length > 1 ? `\n\n【重要】これは全文の第${i+1}/${chunks.length}パートです。条番号・構造を保持してください。` : ''),
+        `以下の${translatedDoctype}を${translatedLang}に翻訳してください:\n\n${chunks[i]}`
+      );
+      result += (result ? '\n\n' : '') + part;
+    }
+    translatedText = result;
+    document.getElementById('trans-result').textContent = result;
+    document.getElementById('download-section').style.display = 'block';
+    document.getElementById('btn-save-trans').disabled = false;
+    addActivity('翻訳', `${translatedDoctype}（${translatedLang}）を翻訳しました`);
+    showToast('✅ 翻訳が完了しました');
+  } catch(e) {
+    document.getElementById('trans-result').textContent = 'エラー: ' + e.message;
+  } finally { setTransBtn(false); }
+}
+
+async function doSimple() {
+  const text = document.getElementById('src-text').value.trim();
+  translatedLang = 'やさしい日本語';
+  translatedDoctype = document.getElementById('doctype').value;
+  if (!text) { alert('原文を入力してください'); return; }
+  setTransBtn(true);
+  const system = '「やさしい日本語」の専門家として、難しい法律用語を日本語学習者（N4レベル）が理解できる平易な表現に変換してください。短い文に分け、ひらがなを多用し、難しい語には()でよみがなを補ってください。';
+  try {
+    const chunks = splitIntoChunks(text);
+    let result = '';
+    for (let i = 0; i < chunks.length; i++) {
+      showTransProgress(i+1, chunks.length);
+      const part = await callClaude(system, `以下を「やさしい日本語」に変換してください:\n\n${chunks[i]}`);
+      result += (result ? '\n\n' : '') + part;
+    }
+    translatedText = result;
+    document.getElementById('trans-result').textContent = result;
+    document.getElementById('download-section').style.display = 'block';
+    document.getElementById('btn-save-trans').disabled = false;
+    showToast('✅ やさしい日本語化が完了しました');
+  } catch(e) {
+    document.getElementById('trans-result').textContent = 'エラー: ' + e.message;
+  } finally { setTransBtn(false); }
+}
+
+function showTransProgress(cur, total) {
+  const pct = Math.round(cur/total*100);
+  const html = `<div class="loading"><div class="dot"></div><div class="dot"></div><div class="dot"></div><span>翻訳中... (${cur}/${total}パート)</span></div>
+    ${total > 1 ? `<div class="progress-wrap" style="margin-top:8px"><div class="progress-fill" style="width:${pct}%"></div></div>` : ''}`;
+  document.getElementById('trans-result').innerHTML = html;
+}
+
+function setTransBtn(disabled) {
+  document.getElementById('btn-trans').disabled = disabled;
+  document.getElementById('btn-simple').disabled = disabled;
+}
+
+async function saveTranslation() {
+  if (!translatedText) return;
+  addActivity('保存', `${translatedDoctype}（${translatedLang}）の翻訳をチームに保存しました`);
+  await saveState();
+  showToast('💾 翻訳結果をチームに保存しました');
+}
+
+/* ── DOWNLOAD ── */
+async function downloadWord() {
+  if (!translatedText) return;
+  const { Document, Packer, Paragraph, TextRun, HeadingLevel } = docx;
+  const lines = translatedText.split('\n');
+  const children = [];
+  children.push(new Paragraph({ heading: HeadingLevel.HEADING_1, children: [new TextRun({ text: `${translatedDoctype}（${translatedLang}）`, bold: true, size: 32 })] }));
+  for (const line of lines) {
+    const t = line.trim();
+    if (!t) { children.push(new Paragraph({ text: '' })); continue; }
+    const isH = /^(第\d+条|Article\s*\d+|Điều\s*\d+|第\d+章)/.test(t);
+    children.push(new Paragraph({ heading: isH ? HeadingLevel.HEADING_2 : undefined, children: [new TextRun({ text: t, bold: isH, size: isH ? 26 : 22 })] }));
+  }
+  const d = new Document({ sections: [{ children }] });
+  const blob = await Packer.toBlob(d);
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = `${translatedDoctype}_${translatedLang}.docx`; a.click();
+  URL.revokeObjectURL(url);
+  showToast('📄 Wordファイルをダウンロードしました');
+}
+
+async function downloadPdf() {
+  if (!translatedText) return;
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+  const pageW = doc.internal.pageSize.getWidth(), margin = 20, maxW = pageW - margin * 2;
+  let y = margin;
+  doc.setFontSize(16); doc.setFont('helvetica', 'bold');
+  const titleLines = doc.splitTextToSize(`${translatedDoctype} (${translatedLang})`, maxW);
+  doc.text(titleLines, margin, y); y += titleLines.length * 8 + 6;
+  doc.setDrawColor(200, 200, 200); doc.line(margin, y, pageW - margin, y); y += 6;
+  for (const line of translatedText.split('\n')) {
+    const t = line.trim();
+    const isH = /^(第\d+条|Article\s*\d+|Điều\s*\d+|第\d+章)/.test(t);
+    doc.setFontSize(isH ? 12 : 10);
+    doc.setFont('helvetica', isH ? 'bold' : 'normal');
+    const wrapped = doc.splitTextToSize(t || ' ', maxW);
+    const lineH = isH ? 7 : 5.5;
+    if (y + wrapped.length * lineH > doc.internal.pageSize.getHeight() - margin) { doc.addPage(); y = margin; }
+    doc.text(wrapped, margin, y); y += wrapped.length * lineH + (isH ? 3 : 1);
+  }
+  doc.save(`${translatedDoctype}_${translatedLang}.pdf`);
+  showToast('📕 PDFファイルをダウンロードしました');
+}
+
+function printTrans() {
+  window.print();
+}
+
+/* ═══════════════════════════════════════════════════
+   SUBSIDY DIAGNOSIS
+═══════════════════════════════════════════════════ */
+async function doDiagnose() {
+  const industry = document.getElementById('sub-industry').value;
+  const employees = document.getElementById('sub-employees').value;
+  const foreignCount = document.getElementById('sub-foreign').value;
+  const visa = document.getElementById('sub-visa').value;
+  const selected = [...document.querySelectorAll('#pg-subsidy .tag.selected')].map(t => t.textContent);
+  const context = `業種:${industry} / 従業員:${employees} / 外国人労働者:${foreignCount}人 / 在留資格:${visa} / 検討事項:${selected.join('・') || 'なし'}`;
+
+  document.getElementById('diag-result').style.display = 'none';
+  document.getElementById('diag-loading').style.display = 'flex';
+  document.getElementById('btn-diag').disabled = true;
+
+  try {
+    const [r1, r2, r3] = await Promise.all([
+      callClaude('あなたは助成金専門の社労士AIです。キャリアアップ助成金について、企業情報をもとに適用可能性・受給額目安・必要な手続きのポイントを200字程度で説明してください。',
+        `この企業のキャリアアップ助成金の適用可能性を診断してください。\n${context}`),
+      callClaude('あなたは助成金専門の社労士AIです。人材確保等支援助成金について、企業情報をもとに適用可能性・受給額目安・必要な手続きのポイントを200字程度で説明してください。',
+        `この企業の人材確保等支援助成金の適用可能性を診断してください。\n${context}`),
+      callClaude('あなたは助成金専門の社労士AIです。人材開発支援助成金について、企業情報をもとに適用可能性・受給額目安・必要な手続きのポイントを200字程度で説明してください。',
+        `この企業の人材開発支援助成金の適用可能性を診断してください。\n${context}`)
+    ]);
+    document.getElementById('res-career').textContent = r1;
+    document.getElementById('res-jinzai').textContent = r2;
+    document.getElementById('res-jinzai2').textContent = r3;
+    document.getElementById('diag-result').style.display = 'block';
+    addActivity('診断', `助成金診断を実行しました（${industry} / ${employees}）`);
+  } catch(e) {
+    document.getElementById('res-career').textContent = 'エラー: ' + e.message;
+    document.getElementById('diag-result').style.display = 'block';
+  } finally {
+    document.getElementById('diag-loading').style.display = 'none';
+    document.getElementById('btn-diag').disabled = false;
+  }
+}
+
+async function saveDiagResult() {
+  addActivity('保存', '助成金診断結果をチームに保存しました');
+  await saveState();
+  showToast('💾 診断結果をチームに保存しました');
+}
+
+/* ═══════════════════════════════════════════════════
+   LABOR CHECK ファイル読み込み
+═══════════════════════════════════════════════════ */
+function lcHandleDrag(e, over) {
+  e.preventDefault();
+  document.getElementById('lc-upload-zone').classList.toggle('drag', over);
+}
+function lcHandleDrop(e) { e.preventDefault(); lcHandleDrag(e, false); lcProcessFile(e.dataTransfer.files[0]); }
+function lcHandleFileSelect(e) { lcProcessFile(e.target.files[0]); }
+function lcRemoveFile() {
+  document.getElementById('lc-upload-success').style.display = 'none';
+  document.getElementById('lc-upload-zone').style.display = 'block';
+  document.getElementById('lc-file-input').value = '';
+}
+function lcShowSuccess(name) {
+  document.getElementById('lc-file-name').textContent = name;
+  document.getElementById('lc-upload-success').style.display = 'flex';
+  document.getElementById('lc-upload-zone').style.display = 'none';
+}
+function lcSetLoading(show, msg) {
+  const el = document.getElementById('lc-file-loading');
+  if (el) el.style.display = show ? 'flex' : 'none';
+  const msgEl = document.getElementById('lc-file-loading-msg');
+  if (msgEl && msg) msgEl.textContent = msg;
+}
+async function lcProcessFile(file) {
+  if (!file) return;
+  const ext = file.name.split('.').pop().toLowerCase();
+  lcSetLoading(true, 'ファイルを読み込み中...');
+  try {
+    let text = '';
+    if (ext === 'txt') {
+      text = await file.text();
+    } else if (ext === 'pdf') {
+      lcSetLoading(true, 'PDFを解析中...');
+      const ab = await file.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({ data: ab }).promise;
+      for (let i = 1; i <= pdf.numPages; i++) {
+        const page = await pdf.getPage(i);
+        const content = await page.getTextContent();
+        text += content.items.map(item => item.str).join(' ') + '\n';
+      }
+    } else if (ext === 'docx' || ext === 'doc') {
+      lcSetLoading(true, 'Wordファイルを解析中...');
+      const ab = await file.arrayBuffer();
+      const result = await mammoth.extractRawText({ arrayBuffer: ab });
+      text = result.value;
+    } else if (ext === 'xlsx' || ext === 'xls') {
+      lcSetLoading(true, 'Excelファイルを解析中...');
+      const ab = await file.arrayBuffer();
+      const wb = XLSX.read(ab, { type: 'array' });
+      const lines = [];
+      wb.SheetNames.forEach(sn => {
+        const ws = wb.Sheets[sn];
+        const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+        if (rows.length > 0) {
+          lines.push(`【シート：${sn}】`);
+          rows.forEach(row => { const l = row.filter(c => c !== '').join('\t'); if (l.trim()) lines.push(l); });
+        }
+      });
+      text = lines.join('\n');
+    } else {
+      showToast('PDF・Word・Excel・テキストに対応しています'); lcSetLoading(false); return;
+    }
+    if (!text.trim()) { showToast('ファイルからテキストを抽出できませんでした'); lcSetLoading(false); return; }
+    document.getElementById('check-input').value = text.trim();
+    lcShowSuccess(file.name);
+    showToast('✅ ' + file.name + ' を読み込みました');
+  } catch(e) {
+    showToast('読み込み失敗: ' + e.message);
+  } finally { lcSetLoading(false); }
+}
+
+/* ═══════════════════════════════════════════════════
+   担当者 datalist
+═══════════════════════════════════════════════════ */
+function updateAssigneeDatalist() {
+  const dl = document.getElementById('assignee-list');
+  if (!dl) return;
+  dl.innerHTML = APP_STATE.members.map(m =>
+    `<option value="${m.name}">${m.name}（${m.role}）</option>`).join('');
+}
+function openAddCustomer_orig() {}
+
+/* ═══════════════════════════════════════════════════
+   LABOR CHECK
+═══════════════════════════════════════════════════ */
+async function doLaborCheck() {
+  const text = document.getElementById('check-input').value.trim();
+  if (!text) { showToast('就業規則の内容を入力またはファイルをアップロードしてください'); return; }
+  const prefVal = document.getElementById('check-pref').value;
+  const [pref, minWage] = prefVal.split('|');
+  const hours = document.getElementById('check-hours').value;
+
+  document.getElementById('check-result').style.display = 'none';
+  document.getElementById('check-loading').style.display = 'flex';
+  document.getElementById('btn-check').disabled = true;
+
+  try {
+    const prompt = `以下の就業規則・雇用契約書を労務コンプライアンスの観点から診断してください。
+都道府県: ${pref} / 最低賃金: ${minWage}円（2025年10月改定） / 月所定労働時間: ${hours}時間
+
+【就業規則内容】
+${text}
+
+以下のJSON形式のみで回答してください（他のテキスト不要）:
+{
+  "score": 数値(0-100),
+  "score_label": "評価（例：要改善・普通・良好・優秀）",
+  "score_desc": "スコアの説明（50字以内）",
+  "docs": [{"name": "書類名", "have": true or false, "note": "補足（20字以内）"}],
+  "missing": [{"text": "不足・要確認項目の説明"}],
+  "risks": [{"level": "danger" or "warn" or "ok", "text": "リスクの説明"}],
+  "article36": {"status": "ok" or "warn" or "danger", "text": "36協定に関する診断コメント"},
+  "minwage": {"status": "ok" or "warn" or "danger", "text": "最低賃金に関する診断コメント"}
+}
+docsには就業規則・雇用契約書・労働条件通知書・36協定届・賃金台帳・出勤簿・健康診断記録を含めること。`;
+
+    const raw = await callClaude('あなたは日本の労働法・労務管理の専門家AIです。就業規則を分析し、コンプライアンスリスクを正確に診断します。必ずJSONのみで回答してください。', prompt);
+    let data;
+    try { data = JSON.parse(raw.replace(/```json|```/g, '').trim()); }
+    catch(e) { showToast('診断結果の解析に失敗しました。再試行してください。'); return; }
+
+    const score = data.score || 0;
+    const circle = document.getElementById('score-circle');
+    circle.textContent = score;
+    if (score >= 80) { circle.style.cssText = 'width:72px;height:72px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;border:4px solid #059669;color:#065f46;background:#d1fae5;flex-shrink:0'; }
+    else if (score >= 60) { circle.style.cssText = 'width:72px;height:72px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;border:4px solid #d97706;color:#92400e;background:#fef3c7;flex-shrink:0'; }
+    else { circle.style.cssText = 'width:72px;height:72px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;border:4px solid #dc2626;color:#991b1b;background:#fee2e2;flex-shrink:0'; }
+    document.getElementById('score-label').textContent = data.score_label || '';
+    document.getElementById('score-desc').textContent = data.score_desc || '';
+
+    document.getElementById('docs-list').innerHTML = (data.docs || []).map(d =>
+      `<div class="check-item ${d.have ? 'ok' : 'danger'}">
+        <span class="check-icon">${d.have ? '✅' : '❌'}</span>
+        <span style="font-weight:600;flex:1">${d.name}</span>
+        <span style="font-size:12px;opacity:.8">${d.note || ''}</span>
+      </div>`).join('');
+
+    const ml = document.getElementById('missing-list');
+    ml.innerHTML = data.missing && data.missing.length > 0
+      ? data.missing.map(m => `<div class="check-item warn"><span class="check-icon">⚠️</span><span>${m.text}</span></div>`).join('')
+      : '<div class="check-item ok"><span class="check-icon">✅</span><span>不足項目はありません</span></div>';
+
+    document.getElementById('risk-list').innerHTML = (data.risks || []).map(r =>
+      `<div class="check-item ${r.level === 'danger' ? 'danger' : r.level === 'warn' ? 'warn' : 'ok'}">
+        <span class="check-icon">${r.level === 'danger' ? '🚨' : r.level === 'warn' ? '⚠️' : '✅'}</span>
+        <span>${r.text}</span>
+      </div>`).join('') || '<div class="check-item ok"><span class="check-icon">✅</span><span>重大なリスクは検出されませんでした</span></div>';
+
+    const a36 = data.article36 || {};
+    document.getElementById('article36-result').innerHTML =
+      `<div class="check-item ${a36.status === 'ok' ? 'ok' : a36.status === 'danger' ? 'danger' : 'warn'}">
+        <span class="check-icon">${a36.status === 'ok' ? '✅' : a36.status === 'danger' ? '🚨' : '⚠️'}</span>
+        <span>${a36.text || ''}</span>
+      </div>`;
+
+    const mw = data.minwage || {};
+    document.getElementById('minwage-result').innerHTML =
+      `<div class="check-item ${mw.status === 'ok' ? 'ok' : mw.status === 'danger' ? 'danger' : 'warn'}">
+        <span class="check-icon">${mw.status === 'ok' ? '✅' : mw.status === 'danger' ? '🚨' : '⚠️'}</span>
+        <span>${mw.text || ''}</span>
+      </div>`;
+
+    document.getElementById('check-result').style.display = 'block';
+    addActivity('チェック', `労務チェックを実行しました（スコア: ${score}点）`);
+    showToast('✅ 労務チェックが完了しました');
+  } catch(e) {
+    showToast('エラー: ' + e.message);
+  } finally {
+    document.getElementById('check-loading').style.display = 'none';
+    document.getElementById('btn-check').disabled = false;
+  }
+}
+
+async function saveLaborResult() {
+  addActivity('保存', '労務チェック結果をチームに保存しました');
+  await saveState();
+  showToast('💾 チェック結果をチームに保存しました');
+}
+
+function printCheckResult() { window.print(); }
+
+/* ═══════════════════════════════════════════════════
+   STEPS MANAGEMENT（完全版）
+═══════════════════════════════════════════════════ */
+
+// ── State shortcuts ──
+function spState() { return APP_STATE.spState || (APP_STATE.spState = { res:'', qa:{}, ck:{plan:{},apply:{}}, fd:{}, s1:false, s2:false, s3:false, s4:false }); }
+function spSave() { saveState(); }
+
+// ── Navigation ──
+function renderSteps() { spGoHome(); }
+
+function spShowOnly(id) {
+  ['sp-home','sp-s1','sp-s1r','sp-s2','sp-s3','sp-s4'].forEach(sid => {
+    const el = document.getElementById(sid);
+    if (el) el.style.display = sid === id ? 'block' : 'none';
+  });
+}
+
+function spGoHome() {
+  spShowOnly('sp-home');
+  spRenderHome();
+}
+
+function spGoStep(n) {
+  if (n === 1) { spShowOnly('sp-s1'); spRenderQ(); }
+  else if (n === 2) { spShowOnly('sp-s2'); spRestoreDates(); }
+  else if (n === 3) {
+    spShowOnly('sp-s3');
+    spSwitchDocTab('plan');
+    spLoadAI3('plan');
+  }
+  else if (n === 4) {
+    spShowOnly('sp-s4');
+    spRenderFlow();
+    spLoadAI4();
+  }
+}
+
+async function spCompleteStep(n) {
+  spState()['s' + n] = true;
+  addActivity('進捗', `STEP${n}を完了しました`);
+  await spSave();
+  spGoStep(n + 1);
+}
+
+// ── Home ──
+function spRenderHome() {
+  const st = spState();
+  const steps = [
+    { n:1, icon:'🔍', label:'受給できるか診断', desc:'8問に答えるだけ', done:st.s1, unlock:true },
+    { n:2, icon:'📅', label:'期限を計算する', desc:'日付を入れると自動表示', done:st.s2, unlock:st.s1 && st.res==='ok' },
+    { n:3, icon:'📄', label:'書類を確認する', desc:'提出書類のチェックリスト', done:st.s3, unlock:st.s2 },
+    { n:4, icon:'📋', label:'申請フローを見る', desc:'7ステップで申請完了', done:st.s4, unlock:st.s3 }
+  ];
+  const done = steps.filter(s => s.done).length;
+  const pct = Math.round(done / 4 * 100);
+  document.getElementById('sp-pct-text').textContent = pct + '%';
+  document.getElementById('sp-pct-bar').style.width = pct + '%';
+
+  // 診断バナー
+  const banner = document.getElementById('sp-diag-banner');
+  if (st.res) {
+    const cfg = { ok:['alert-ok','✅ 受給の可能性あり'], warn:['alert-warn','⚠️ 要確認の項目があります'], ng:['alert-ng','❌ 現時点では対象外の可能性があります'] };
+    const [cls, msg] = cfg[st.res] || ['alert-info', ''];
+    banner.innerHTML = `<div class="alert ${cls}" style="margin-bottom:12px">${msg}</div>`;
+  } else { banner.innerHTML = ''; }
+
+  // カード
+  document.getElementById('sp-cards').innerHTML = steps.map(s => {
+    const locked = !s.unlock && !s.done;
+    const borderColor = s.done ? 'var(--green)' : s.unlock ? 'var(--blue)' : 'var(--border)';
+    const statusLabel = s.done ? '✓ 完了' : s.unlock ? '進行中' : '🔒 ロック中';
+    const statusColor = s.done ? 'badge-ok' : s.unlock ? 'badge-info' : '';
+    const clickAttr = (s.unlock || s.done) ? `onclick="spGoStep(${s.n})"` : '';
+    return `<div class="card" style="border-left:4px solid ${borderColor};cursor:${locked?'default':'pointer'};opacity:${locked?0.5:1}" ${clickAttr}>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <span style="font-size:10px;color:var(--ink3)">STEP ${s.n}</span>
+        <span class="badge ${statusColor}" style="${!statusColor?'color:var(--ink3)':''}">${statusLabel}</span>
+      </div>
+      <div style="font-size:22px;margin-bottom:4px">${s.icon}</div>
+      <div style="font-size:14px;font-weight:700">${s.label}</div>
+      <div style="font-size:12px;color:var(--ink3);margin-top:3px">${s.desc}</div>
+    </div>`;
+  }).join('');
+}
+
+async function spResetAll() {
+  if (!confirm('申請ステップの進捗をリセットしますか？')) return;
+  APP_STATE.spState = { res:'', qa:{}, ck:{plan:{},apply:{}}, fd:{}, s1:false, s2:false, s3:false, s4:false };
+  await spSave();
+  spGoHome();
+  showToast('🔄 進捗をリセットしました');
+}
+
+// ── STEP1: 8問診断 ──
+const SP_QS = [
+  { id:'q1', t:'お店・会社は雇用保険に加入していますか？', n:'従業員が1人でもいれば原則加入が必要です。', yL:'はい、加入しています', nL:'いいえ / わからない', yC:'ok', nC:'ng' },
+  { id:'q2', t:'外国人スタッフを雇ったとき、ハローワークへ「外国人雇用状況の届出」をしましたか？', n:'雇い入れた翌月10日までに届出が必要です。', yL:'はい、届出しました', nL:'していない / わからない', yC:'ok', nC:'ng' },
+  { id:'q3', t:'その外国人スタッフは雇用保険に加入していますか？', n:'週20時間以上・31日以上の雇用見込みがあれば加入できます。', yL:'はい、加入しています', nL:'していない / わからない', yC:'ok', nC:'ng' },
+  { id:'q4', t:'この助成金を過去に受け取ったことはありますか？', n:'はじめての場合は「いいえ」を選んでください。', yL:'受け取ったことがある', nL:'はじめてです', yC:'warn', nC:'ok' },
+  { id:'q4b', t:'最後に受け取ってから3年以上たっていますか？', n:'Q4で「はじめて」を選んだ方は「はい」を選んでください。', yL:'3年以上たっている', nL:'3年未満です', yC:'ok', nC:'ng' },
+  { id:'q5', t:'計画開始予定日の6か月前から今日の間に、外国人スタッフを会社都合や退職勧奨で辞めさせたことはありますか？', n:'本人が自分から辞めた場合は問題ありません。', yL:'あります', nL:'ありません', yC:'ng', nC:'ok' },
+  { id:'q6', t:'「外国人担当者の選任」と「就業規則などの多言語化」の両方を実施できますか？', n:'この2つはセットで必須です。担当者は兼任でも問題ありません。', yL:'両方できます', nL:'どちらか難しい', yC:'ok', nC:'ng' },
+  { id:'q7', t:'「相談窓口の整備」「一時帰国のための有給休暇」「社内マニュアル等の多言語化」のうち1つ以上実施できますか？', n:'3つのうちどれか1つでも実施できれば問題ありません。', yL:'1つ以上できます', nL:'どれも難しい', yC:'ok', nC:'ng' }
+];
+const SP_QLS = { q1:'雇用保険加入', q2:'外国人雇用届出', q3:'外国人の雇用保険加入', q4:'過去の受給歴', q4b:'3年経過確認', q5:'会社都合の退職', q6:'担当者選任・多言語化', q7:'追加措置の実施' };
+
+function spRenderQ() {
+  const qa = spState().qa;
+  let done = 0;
+  let html = '';
+  SP_QS.forEach(q => {
+    const va = qa[q.id];
+    if (va) done++;
+    const yBg = va === 'yes' ? (q.yC === 'ok' ? 'var(--green-l)' : q.yC === 'ng' ? 'var(--red-l)' : 'var(--amber-l)') : 'var(--paper2)';
+    const nBg = va === 'no' ? (q.nC === 'ok' ? 'var(--green-l)' : q.nC === 'ng' ? 'var(--red-l)' : 'var(--amber-l)') : 'var(--paper2)';
+    html += `<div class="card" style="margin-bottom:10px">
+      <div style="font-size:14px;font-weight:600;line-height:1.6;margin-bottom:6px">${q.t}</div>
+      <div style="font-size:12px;color:var(--ink3);background:var(--paper2);border-radius:var(--r);padding:6px 9px;margin-bottom:10px;line-height:1.6">${q.n}</div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <div onclick="spPickQ('${q.id}','yes')" style="display:flex;align-items:center;gap:8px;padding:10px 12px;border:1.5px solid ${va==='yes'?'var(--green)':'var(--border2)'};border-radius:var(--r);cursor:pointer;background:${yBg};font-size:13px">
+          <span style="font-size:16px">${va==='yes'?'✅':'○'}</span> ${q.yL}
+        </div>
+        <div onclick="spPickQ('${q.id}','no')" style="display:flex;align-items:center;gap:8px;padding:10px 12px;border:1.5px solid ${va==='no'?'var(--red)':'var(--border2)'};border-radius:var(--r);cursor:pointer;background:${nBg};font-size:13px">
+          <span style="font-size:16px">${va==='no'?'❌':'○'}</span> ${q.nL}
+        </div>
+      </div>
+    </div>`;
+  });
+  document.getElementById('sp-qlist').innerHTML = html;
+  document.getElementById('sp-q-done').textContent = done;
+  document.getElementById('sp-q-left').textContent = 8 - done;
+  document.getElementById('sp-q-bar').style.width = Math.round(done / 8 * 100) + '%';
+  document.getElementById('sp-dbtn').disabled = done < 8;
+}
+
+function spPickQ(id, v) {
+  spState().qa[id] = v;
+  spSave();
+  spRenderQ();
+}
+
+function spDiagnose() {
+  const a = spState().qa;
+  let r = 'ok';
+  if (a.q1==='no' || a.q2==='no' || a.q3==='no' || (a.q4==='yes' && a.q4b==='no')) r = 'ng';
+  else if (a.q5==='yes' || a.q6==='no' || a.q7==='no') r = 'warn';
+  spState().res = r; spState().s1 = true; spSave();
+  spShowOnly('sp-s1r');
+
+  const titles = { ok:'受給できる可能性があります！', ng:'現時点では対象外の可能性があります', warn:'要確認の項目があります' };
+  document.getElementById('sp-r1t').textContent = titles[r];
+
+  const cfg = { ok:['alert-ok','✅ 受給の可能性あり'], ng:['alert-ng','❌ 現時点では対象外'], warn:['alert-warn','⚠️ 要確認'] };
+  const [cls, lbl] = cfg[r];
+  document.getElementById('sp-r1res').innerHTML = `<div class="alert ${cls}" style="margin-bottom:12px;font-weight:600">${lbl}</div>`;
+
+  // 回答まとめ
+  const sumHtml = Object.keys(a).map(k => {
+    const v = a[k];
+    const isOk = (v==='yes' && k!=='q5') || (v==='no' && k==='q5');
+    return `<div style="display:flex;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid var(--paper3);font-size:12px">
+      <span>${isOk ? '✅' : '❌'}</span>
+      <span style="color:${isOk?'var(--green-d)':'var(--red-d)'}">${SP_QLS[k]||k}：${v==='yes'?'はい':'いいえ'}</span>
+    </div>`;
+  }).join('');
+  document.getElementById('sp-r1sum').innerHTML = sumHtml;
+  document.getElementById('sp-r1next').style.display = r === 'ok' ? 'block' : 'none';
+
+  // AI分析
+  if (_apiKey) {
+    const lines = Object.keys(a).map(k => `・${SP_QLS[k]||k}：${a[k]==='yes'?'はい':'いいえ'}`).join('\n');
+    const vt = r==='ok'?'受給できる可能性あり':r==='ng'?'現時点では対象外':'要確認';
+    spCallAI(`あなたは中小企業の経営者に寄り添う助成金アドバイザーです。診断結果：${vt}\n回答：\n${lines}\n従業員10人以下の零細企業の経営者に向けて、200字で①結果をやさしく伝える②次のアクション1〜2点③励まし、を書いてください。専門用語なし。`, 'sp-ai1');
+  } else {
+    document.getElementById('sp-ai1').innerHTML = '<div style="font-size:12px;color:var(--ink3)">APIキーを設定するとAIによる詳細分析が表示されます。</div>';
+  }
+}
+
+function spResetS1() {
+  spState().qa = {}; spState().s1 = false; spState().res = '';
+  spSave(); spGoStep(1);
+}
+
+// ── STEP2: 期限計算 ──
+function spFmtD(d) {
+  if (!d || isNaN(d.getTime())) return '—';
+  return d.getFullYear() + '/' + (d.getMonth()+1) + '/' + d.getDate();
+}
+function spAddDays(d, n) { const r = new Date(d); r.setDate(r.getDate()+n); return r; }
+function spAddMonths(d, m) { const r = new Date(d); r.setMonth(r.getMonth()+m); return r; }
+function spDaysDiff(a, b) { return Math.floor((b - a) / (1000*60*60*24)); }
+
+function spRestoreDates() {
+  const st = spState();
+  if (st.d1) { const el = document.getElementById('sp-d1'); if(el) el.value = st.d1; }
+  if (st.d2) { const el = document.getElementById('sp-d2'); if(el) el.value = st.d2; }
+  if (st.d3) { const el = document.getElementById('sp-d3'); if(el) el.value = st.d3; }
+  if (st.d4) { const el = document.getElementById('sp-d4'); if(el) el.value = st.d4; }
+  spCalcD();
+}
+
+function spCalcD() {
+  const sv = document.getElementById('sp-d1')?.value;
+  const ev = document.getElementById('sp-d2')?.value;
+  const iv = document.getElementById('sp-d3')?.value;
+  const tr = document.getElementById('sp-d4')?.value === '1';
+  // 保存
+  const st = spState();
+  st.d1 = sv; st.d2 = ev; st.d3 = iv; st.d4 = tr ? '1' : '0';
+  spSave();
+
+  const el = document.getElementById('sp-sched-result');
+  if (!sv) { el.innerHTML = ''; return; }
+
+  const ds = new Date(sv), now = new Date();
+  const late = spAddDays(ds, -30);
+  const early = spAddMonths(ds, -6);
+  const dl = spDaysDiff(now, late);
+
+  const alertCls = dl<0?'alert-ng':dl<14?'alert-ng':dl<30?'alert-warn':'alert-ok';
+  const alertMsg = dl<0?'計画申請の提出期限が過ぎています。':
+    dl<14?`期限まであと${dl}日です。今すぐ準備を！`:
+    dl<30?`期限まであと${dl}日です。早めに準備しましょう。`:
+    `期限まであと${dl}日あります。余裕を持って準備しましょう。`;
+
+  const items = [
+    { label:'計画申請の提出期限', range:`${spFmtD(early)}〜${spFmtD(late)}`, urgent: dl<14 }
+  ];
+  if (ev) {
+    const de = new Date(ev);
+    items.push({ label:'計画期間の終了日', range:`${spFmtD(ds)}〜${spFmtD(de)}`, urgent:false });
+  }
+  if (iv) {
+    const di = new Date(iv);
+    const rs = spAddDays(di, 1);
+    const re = spAddMonths(rs, 6);
+    const ae = spAddMonths(re, 2);
+    const da = spDaysDiff(now, ae);
+    items.push({ label:'措置の実施完了予定日', range:spFmtD(di), urgent:false });
+    items.push({ label:'離職率計算期間の終了', range:`${spFmtD(rs)}〜${spFmtD(re)}`, urgent:false });
+    items.push({ label:'支給申請の期限（最終日）', range:`${spFmtD(spAddDays(re,1))}〜${spFmtD(ae)}`, urgent:da<30 });
+    if (tr) {
+      const ee = spAddMonths(di, 2);
+      items.push({ label:'早期申請期限（講習受講者）', range:`${spFmtD(spAddDays(di,1))}〜${spFmtD(ee)}`, urgent:false });
+    }
+  }
+
+  el.innerHTML = `<div class="card">
+    <div style="font-size:13px;font-weight:600;margin-bottom:10px">📅 申請スケジュール</div>
+    <div class="alert ${alertCls}" style="margin-bottom:12px">${alertMsg}</div>
+    ${items.map(it => `<div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--paper3);font-size:13px">
+      <span style="color:var(--ink3)">${it.label}</span>
+      <span style="font-weight:600;color:${it.urgent?'var(--red)':'var(--ink)'}">${it.range}</span>
+    </div>`).join('')}
+  </div>`;
+}
+
+// ── STEP3: 書類チェックリスト ──
+const SP_DOCS = {
+  plan:[
+    { name:'必ず必要な書類', badge:'必須', badgeCls:'badge-ng', items:[
+      { l:'就労環境整備計画書（様式第ａ-1号）', n:'ハローワークまたは労働局で入手できます' },
+      { l:'担当者の選任・就業規則多言語化の概要票（別紙１）', n:'' },
+      { l:'相談窓口・帰国休暇・マニュアル多言語化の概要票（別紙２）', n:'' },
+      { l:'事業所の外国人スタッフ名簿（別紙３）', n:'雇用保険被保険者番号が必要です' },
+      { l:'事業所確認票（様式第ａ-２号）', n:'' },
+      { l:'多言語化する予定の就業規則等（外国人スタッフ1名分）', n:'' }
+    ]},
+    { name:'当てはまる場合のみ必要', badge:'条件付', badgeCls:'badge-warn', items:[
+      { l:'相談窓口または帰国休暇を追加する場合：変更予定の就業規則（案）', n:'' },
+      { l:'外部業者に委託する場合：見積書（1社分でOK）', n:'' },
+      { l:'社内マニュアル等を多言語化する場合：対象マニュアルの写し', n:'' },
+      { l:'外国人雇用労務責任者講習を受けた（または受ける予定）：受講証明書または予定書類', n:'' }
+    ]}
+  ],
+  apply:[
+    { name:'必ず必要な書類', badge:'必須', badgeCls:'badge-ng', items:[
+      { l:'支給申請書（様式第ａ-６号）', n:'' },
+      { l:'事業所確認票（様式第ａ-２号）', n:'' },
+      { l:'外国人スタッフ名簿（別紙３）', n:'' },
+      { l:'離職した外国人スタッフがいる場合：離職理由がわかる書類', n:'' },
+      { l:'担当者の選任・就業規則多言語化の概要票（別紙１）', n:'' },
+      { l:'相談窓口・帰国休暇・マニュアル多言語化の概要票（別紙２）', n:'' },
+      { l:'外国人スタッフの出勤簿等', n:'' },
+      { l:'担当者による面談結果一覧表（別紙３）', n:'' },
+      { l:'多言語化した就業規則等', n:'' },
+      { l:'措置の実施を証明する書類（措置の種類ごと）', n:'' },
+      { l:'支給要件確認申立書（共通要領様式第１号）', n:'' }
+    ]},
+    { name:'当てはまる場合のみ必要', badge:'条件付', badgeCls:'badge-warn', items:[
+      { l:'外部業者に委託した場合：領収書（写し）等の支払証明', n:'' },
+      { l:'外国人雇用労務責任者講習を受けた場合：受講証明書（写し）', n:'' },
+      { l:'在留期間満了で帰国した外国人スタッフがいる場合：在留資格を証明する書面', n:'' }
+    ]}
+  ]
+};
+
+let spCurrentDocTab = 'plan';
+let spAI3Loaded = { plan: false, apply: false };
+
+function spSwitchDocTab(t) {
+  spCurrentDocTab = t;
+  const planBtn = document.getElementById('sp-tb-plan');
+  const applyBtn = document.getElementById('sp-tb-apply');
+  if (planBtn) { planBtn.className = t === 'plan' ? 'btn btn-primary' : 'btn'; planBtn.style.flex = '1'; }
+  if (applyBtn) { applyBtn.className = t === 'apply' ? 'btn btn-primary' : 'btn'; applyBtn.style.flex = '1'; }
+  spRenderDocs();
+  spLoadAI3(t);
+}
+
+function spRenderDocs() {
+  const gs = SP_DOCS[spCurrentDocTab];
+  const st = spState().ck[spCurrentDocTab] || {};
+  let total = 0, done = 0, html = '';
+  gs.forEach((g, gi) => {
+    let gdone = 0, ih = '';
+    g.items.forEach((item, ii) => {
+      const key = gi + '-' + ii;
+      const ck = st[key] || false;
+      total++; if (ck) { done++; gdone++; }
+      ih += `<div onclick="spTogCk('${spCurrentDocTab}','${key}')" style="display:flex;align-items:flex-start;gap:8px;padding:9px 12px;border-bottom:1px solid var(--paper3);cursor:pointer;${ck?'background:var(--green-l);':''}">
+        <div style="width:16px;height:16px;border-radius:3px;border:1.5px solid ${ck?'var(--green)':'var(--border2)'};background:${ck?'var(--green)':'#fff'};display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px">
+          ${ck?'<span style="color:#fff;font-size:10px;font-weight:700">✓</span>':''}
+        </div>
+        <div>
+          <div style="font-size:13px;${ck?'text-decoration:line-through;color:var(--ink3);':''}">${item.l}</div>
+          ${item.n?`<div style="font-size:11px;color:var(--ink3);margin-top:2px">${item.n}</div>`:''}
+        </div>
+      </div>`;
+    });
+    html += `<div style="border:1px solid var(--border);border-radius:var(--r2);overflow:hidden;margin-bottom:10px">
+      <div style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--paper2);border-bottom:1px solid var(--border)">
+        <span class="badge ${g.badgeCls}">${g.badge}</span>
+        <span style="font-size:13px;font-weight:600;flex:1">${g.name}</span>
+        <span style="font-size:11px;color:var(--ink3)">${gdone}/${g.items.length}</span>
+      </div>${ih}
+    </div>`;
+  });
+  const pct = total > 0 ? Math.round(done / total * 100) : 0;
+  document.getElementById('sp-doc-total').textContent = total;
+  document.getElementById('sp-doc-done').textContent = done;
+  document.getElementById('sp-doc-left').textContent = total - done;
+  document.getElementById('sp-doc-bar').style.width = pct + '%';
+  document.getElementById('sp-doclist').innerHTML = html;
+  document.getElementById('sp-doc-done-banner').innerHTML = pct === 100
+    ? '<div class="alert alert-ok" style="margin-bottom:10px">✅ すべての書類を確認しました！</div>' : '';
+}
+
+function spTogCk(tab, key) {
+  if (!spState().ck[tab]) spState().ck[tab] = {};
+  spState().ck[tab][key] = !spState().ck[tab][key];
+  spSave(); spRenderDocs();
+}
+
+function spLoadAI3(tab) {
+  if (!_apiKey || spAI3Loaded[tab]) return;
+  spAI3Loaded[tab] = true;
+  spCallAI(`あなたは助成金アドバイザーです。「人材確保等支援助成金」の${tab==='plan'?'計画申請':'支給申請'}書類準備について、従業員10人以下の零細企業向けに150字で①忘れがちな書類②準備のコツ③励まし、を書いてください。専門用語なし。`, 'sp-ai3');
+}
+
+// ── STEP4: 申請フロー ──
+const SP_FLOWS = [
+  { t:'計画書を作って提出する', tm:'計画開始日の1か月前〜6か月前',
+    d:'「就労環境整備計画書」を記入して、本社管轄の都道府県労働局（またはハローワーク）に提出します。',
+    pts:[{c:'warn',tx:'郵送の場合は期限内に届いている必要があります。余裕を持って送りましょう。'},{c:'ok',tx:'事前にハローワークで相談しながら作ると安心です。'}] },
+  { t:'計画が認定される', tm:'提出後、都道府県労働局が審査',
+    d:'提出した計画書の内容が審査され、問題なければ「認定通知書」が届きます。',
+    pts:[{c:'warn',tx:'計画開始日が近いのに連絡がない場合は労働局に電話で確認しましょう。'},{c:'info',tx:'認定後に計画内容を変更したい場合は変更書の提出が必要です。'}] },
+  { t:'3種類の措置を導入する', tm:'就労環境整備計画期間内',
+    d:'①外国人担当者の選任 ②就業規則等の多言語化 ③相談窓口・帰国休暇・マニュアル多言語化のいずれか1つ、の3種類すべてを導入します。',
+    pts:[{c:'ok',tx:'外部業者への委託費用も助成対象になります（計画提出後に依頼したものに限る）。'},{c:'warn',tx:'計画提出前に業者へ依頼したり費用を払ったりすると対象外になります。'}] },
+  { t:'措置を実際に実施する', tm:'計画期間内に完了',
+    d:'導入した措置を外国人スタッフに対して実際に行います。面談・就業規則の周知など、日付と内容を必ず記録しておきましょう。',
+    pts:[{c:'ok',tx:'この「実施日」の翌日から離職率の計算期間（6か月間）が始まります。'},{c:'warn',tx:'外国人スタッフ全員に実施することが必要です。名簿で管理しましょう。'}] },
+  { t:'離職率を確認する', tm:'措置の実施日翌日から6か月間',
+    d:'措置の実施日の翌日から6か月間が「離職率の計算期間」です。この期間中の外国人スタッフの離職率が15%以下であることが必要です。',
+    pts:[{c:'ok',tx:'2〜10人の場合は「離職者が1人以下」という基準が適用されます。'},{c:'ok',tx:'定年退職・本人都合・在留期間満了による帰国は離職者数に含めません。'}] },
+  { t:'支給申請を提出する', tm:'離職率計算期間終了後2か月以内',
+    d:'書類一式をまとめて本社管轄の都道府県労働局へ提出します。',
+    pts:[{c:'warn',tx:'申請期限を過ぎると受け付けてもらえません。期限はカレンダーに記録しておきましょう。'},{c:'info',tx:'早期申請でも支給決定は計画期間終了後になります。'}] },
+  { t:'助成金が支給される', tm:'審査完了後に支給',
+    d:'審査が完了すると助成金が支給されます。1措置につき20万円、最大80万円です。',
+    pts:[{c:'info',tx:'審査は厳正に行われ、時間がかかる場合があります。'},{c:'warn',tx:'支給申請書等の書類は支給決定日の翌日から5年間保管が必要です。'}] }
+];
+
+let spFlowOpen = null;
+let spAI4Loaded = false;
+
+function spRenderFlow() {
+  const fd = spState().fd || {};
+  const done = Object.keys(fd).filter(k => fd[k]).length;
+  const total = 7;
+  const pct = Math.round(done / total * 100);
+  document.getElementById('sp-f4d').textContent = done;
+  document.getElementById('sp-f4l').textContent = total - done;
+  document.getElementById('sp-f4bar').style.width = pct + '%';
+  document.getElementById('sp-s4-complete-banner').innerHTML = done === total
+    ? '<div class="alert alert-ok" style="margin-bottom:12px">🏆 すべてのステップが完了しました！お疲れさまでした。</div>' : '';
+
+  let firstUndone = false;
+  const html = SP_FLOWS.map((f, i) => {
+    const isDone = fd[i] || false;
+    const isNow = !isDone && !firstUndone;
+    if (isNow) firstUndone = true;
+    const isOpen = spFlowOpen === i;
+    const borderColor = isDone ? 'var(--green)' : isNow ? 'var(--blue)' : 'var(--border)';
+    const numBg = isDone ? 'var(--green)' : isNow ? 'var(--blue)' : 'var(--paper3)';
+    const numColor = (isDone || isNow) ? '#fff' : 'var(--ink3)';
+    return `<div style="border:1px solid ${borderColor};border-radius:var(--r2);overflow:hidden;margin-bottom:8px;${isDone?'background:var(--green-l)':''}">
+      <div onclick="spToggleFlow(${i})" style="display:flex;align-items:center;gap:10px;padding:12px;cursor:pointer">
+        <div style="width:28px;height:28px;border-radius:50%;background:${numBg};color:${numColor};display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0">
+          ${isDone ? '✓' : i+1}
+        </div>
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:600">STEP ${i+1}　${f.t}</div>
+          <div style="font-size:11px;color:${isNow?'var(--blue-d)':'var(--ink3)'};font-weight:${isNow?'600':'400'}">${f.tm}</div>
+        </div>
+        <span style="color:var(--ink3);font-size:13px">${isOpen ? '▲' : '▼'}</span>
+      </div>
+      ${isOpen ? `<div style="border-top:1px solid var(--border);padding:12px;background:var(--paper2)">
+        <div style="font-size:13px;line-height:1.7;margin-bottom:10px">${f.d}</div>
+        <div style="display:flex;flex-direction:column;gap:5px;margin-bottom:10px">
+          ${f.pts.map(pt => `<div style="display:flex;align-items:flex-start;gap:6px;font-size:12px;color:var(--ink2)">
+            <span>${pt.c==='ok'?'✅':pt.c==='warn'?'⚠️':'ℹ️'}</span><span>${pt.tx}</span>
+          </div>`).join('')}
+        </div>
+        <button onclick="spMarkFlow(${i})" style="display:flex;align-items:center;gap:5px;padding:7px 12px;font-size:12px;font-weight:600;border:1.5px solid ${isDone?'var(--green)':'var(--border2)'};border-radius:var(--r);background:${isDone?'var(--green-l)':'var(--paper)'};color:${isDone?'var(--green-d)':'var(--ink2)'};cursor:pointer">
+          ${isDone ? '✅ 完了済み' : '○ このステップを完了にする'}
+        </button>
+      </div>` : ''}
+    </div>`;
+  }).join('');
+  document.getElementById('sp-flowlist').innerHTML = html;
+  if (done === total) { spState().s4 = true; spSave(); }
+}
+
+function spToggleFlow(i) {
+  spFlowOpen = spFlowOpen === i ? null : i;
+  spRenderFlow();
+}
+
+function spMarkFlow(i) {
+  if (!spState().fd) spState().fd = {};
+  spState().fd[i] = !spState().fd[i];
+  spSave(); spRenderFlow();
+}
+
+function spResetFlow() {
+  spState().fd = {}; spFlowOpen = null;
+  spSave(); spRenderFlow();
+}
+
+function spLoadAI4() {
+  if (!_apiKey || spAI4Loaded) return;
+  spAI4Loaded = true;
+  spCallAI('あなたは助成金アドバイザーです。「人材確保等支援助成金」の申請全体について、従業員10人以下の零細企業向けに150字で①最重要ポイント②失敗しやすい点と対策③励まし、で書いてください。専門用語なし。', 'sp-ai4');
+}
+
+// ── AI呼び出し（STEP用）──
+function spCallAI(prompt, targetId) {
+  const el = document.getElementById(targetId);
+  if (!el) return;
+  el.innerHTML = '<div class="loading"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>';
+  if (!_apiKey) { el.innerHTML = '<div style="font-size:12px;color:var(--ink3)">APIキーを設定するとAIコメントが表示されます。</div>'; return; }
+  fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-api-key': _apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
+    body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 600, messages: [{ role: 'user', content: prompt }] })
+  }).then(r => r.json()).then(d => {
+    if (d.error) throw new Error(d.error.message);
+    const text = (d.content||[]).find(c => c.type==='text')?.text || '';
+    el.innerHTML = `<div style="font-size:13px;line-height:1.8;white-space:pre-wrap">${text}</div>`;
+  }).catch(() => {
+    el.innerHTML = '<div style="font-size:12px;color:var(--ink3)">コメントを取得できませんでした。</div>';
+  });
+}
+
+/* ═══════════════════════════════════════════════════
+   CUSTOMERS
+═══════════════════════════════════════════════════ */
+function renderCustomers() {
+  const search = document.getElementById('c-search').value.toLowerCase();
+  const statusFilter = document.getElementById('c-status-filter').value;
+  let list = APP_STATE.customers;
+  if (search) list = list.filter(c => c.name.toLowerCase().includes(search) || (c.staff || '').toLowerCase().includes(search));
+  if (statusFilter) list = list.filter(c => c.status === statusFilter);
+
+  const tbody = document.getElementById('c-tbody');
+  const empty = document.getElementById('c-empty');
+  if (list.length === 0) {
+    tbody.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+  const today = new Date();
+  tbody.innerHTML = list.map(c => {
+    const statusColor = { '未着手': 'badge-info', '計画申請中': 'badge-warn', '措置実施中': 'badge-warn', '支給申請中': 'badge-purple', '完了': 'badge-ok' }[c.status] || 'badge-info';
+    let deadlineHtml = '-';
+    if (c.planDeadline) {
+      const diff = Math.ceil((new Date(c.planDeadline) - today) / 86400000);
+      const cls = diff <= 7 ? 'badge-ng' : diff <= 30 ? 'badge-warn' : 'badge-ok';
+      deadlineHtml = `<span class="badge ${cls}">${c.planDeadline}${diff <= 30 ? ` (${diff}日)` : ''}</span>`;
+    }
+    return `<tr>
+      <td><strong>${c.name}</strong></td>
+      <td>${c.staff || '-'}</td>
+      <td><span class="badge ${statusColor}">${c.status}</span></td>
+      <td>${deadlineHtml}</td>
+      <td>${c.foreignCount || '-'}人</td>
+      <td>
+        <div style="display:flex;gap:4px">
+          <button class="btn" style="padding:4px 8px;font-size:11px" onclick="editCustomer('${c.id}')">編集</button>
+          <button class="btn btn-red" style="padding:4px 8px;font-size:11px" onclick="deleteCustomer('${c.id}')">削除</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+
+  updateStats();
+}
+
+function openAddCustomer() {
+  editCustId = null;
+  document.getElementById('cust-modal-title').textContent = '顧客を追加';
+  ['m-name','m-staff','m-memo'].forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
+  ['m-fgn'].forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
+  ['m-pldl','m-apdl'].forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
+  document.getElementById('m-ind').value = '';
+  document.getElementById('m-st').value = '未着手';
+  const ma = document.getElementById('m-assignee');
+  if (ma) ma.value = APP_STATE.currentUser.name;
+  updateAssigneeDatalist();
+  document.getElementById('customer-modal').classList.add('open');
+}
+
+function editCustomer(id) {
+  const c = APP_STATE.customers.find(x => x.id === id);
+  if (!c) return;
+  editCustId = id;
+  document.getElementById('cust-modal-title').textContent = '顧客を編集';
+  document.getElementById('m-name').value = c.name || '';
+  document.getElementById('m-staff').value = c.staff || '';
+  document.getElementById('m-fgn').value = c.foreignCount || '';
+  document.getElementById('m-ind').value = c.industry || '';
+  document.getElementById('m-st').value = c.status || '未着手';
+  const ma = document.getElementById('m-assignee');
+  if (ma) ma.value = c.assignee || '';
+  document.getElementById('m-pldl').value = c.planDeadline || '';
+  document.getElementById('m-apdl').value = c.applyDeadline || '';
+  document.getElementById('m-memo').value = c.memo || '';
+  updateAssigneeDatalist();
+  document.getElementById('customer-modal').classList.add('open');
+}
+
+async function saveCustomer() {
+  const name = document.getElementById('m-name').value.trim();
+  if (!name) { showToast('顧客名を入力してください'); return; }
+  const ma = document.getElementById('m-assignee');
+  const data = {
+    id: editCustId || 'c' + Date.now(),
+    name,
+    staff: document.getElementById('m-staff').value.trim(),
+    foreignCount: document.getElementById('m-fgn').value,
+    industry: document.getElementById('m-ind').value,
+    status: document.getElementById('m-st').value,
+    assignee: ma ? ma.value.trim() : '',
+    planDeadline: document.getElementById('m-pldl').value,
+    applyDeadline: document.getElementById('m-apdl').value,
+    memo: document.getElementById('m-memo').value.trim(),
+    updatedAt: new Date().toISOString(),
+    updatedBy: APP_STATE.currentUser.name
+  };
+  if (editCustId) {
+    const idx = APP_STATE.customers.findIndex(c => c.id === editCustId);
+    if (idx >= 0) APP_STATE.customers[idx] = data;
+  } else {
+    data.createdAt = new Date().toISOString();
+    APP_STATE.customers.unshift(data);
+  }
+  addActivity('顧客', `「${name}」を${editCustId ? '更新' : '追加'}しました`);
+  await saveState();
+  closeCustomerModal();
+  renderCustomers();
+  showToast(`✅ 「${name}」を${editCustId ? '更新' : '追加'}しました`);
+}
+
+async function deleteCustomer(id) {
+  const c = APP_STATE.customers.find(x => x.id === id);
+  if (!c) return;
+  if (!confirm(`「${c.name}」を削除しますか？`)) return;
+  APP_STATE.customers = APP_STATE.customers.filter(x => x.id !== id);
+  addActivity('顧客', `「${c.name}」を削除しました`);
+  await saveState();
+  renderCustomers();
+  showToast('削除しました');
+}
+
+function closeCustomerModal() {
+  document.getElementById('customer-modal').classList.remove('open');
+}
+
+/* ═══════════════════════════════════════════════════
+   COLLABORATION
+═══════════════════════════════════════════════════ */
+function renderCollab() {
+  renderMemberList();
+  renderSharedMemos();
+  renderTeamProgress();
+}
+
+function renderMemberList() {
+  const container = document.getElementById('member-list');
+  container.innerHTML = APP_STATE.members.map(m =>
+    `<div class="member-row">
+      <div class="member-row-avatar" style="background:${m.color}">${m.name.charAt(0)}</div>
+      <div class="member-info">
+        <div class="member-name">${m.name}</div>
+        <div class="member-role-tag">${m.role}</div>
+      </div>
+      <div class="member-status-dot ${m.online ? 'online' : 'offline'}" title="${m.online ? 'オンライン' : 'オフライン'}"></div>
+      <span style="font-size:11px;color:var(--ink3)">${m.online ? 'オンライン' : 'オフライン'}</span>
+      ${m.id !== APP_STATE.currentUser.id ? `<button class="btn btn-red" style="padding:4px 8px;font-size:11px;margin-left:8px" onclick="removeMember('${m.id}')">削除</button>` : ''}
+    </div>`).join('');
+}
+
+function renderSharedMemos() {
+  const container = document.getElementById('shared-memos-list');
+  if (!APP_STATE.sharedMemos || APP_STATE.sharedMemos.length === 0) {
+    container.innerHTML = '<div style="color:var(--ink3);font-size:13px;padding:8px 0">まだ共有メモがありません</div>';
+    return;
+  }
+  container.innerHTML = APP_STATE.sharedMemos.slice().reverse().slice(0, 10).map(m =>
+    `<div class="activity-item">
+      <div class="activity-dot" style="background:${APP_STATE.members.find(x=>x.name===m.author)?.color || '#6b7280'}"></div>
+      <div class="activity-text">
+        <strong>${m.author}</strong>: ${m.text}
+      </div>
+      <div class="activity-time">${formatTime(m.at)}</div>
+    </div>`).join('');
+}
+
+function renderTeamProgress() {
+  const st = spState();
+  const done = [st.s1,st.s2,st.s3,st.s4].filter(Boolean).length;
+  const total = 4;
+  const pct = Math.round(done/total*100);
+  const custDone = APP_STATE.customers.filter(c => c.status === '完了').length;
+  document.getElementById('team-progress-summary').innerHTML = `
+    <div style="margin-bottom:16px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+        <span style="font-size:13px;font-weight:600">申請ステップ進捗</span>
+        <span style="font-size:13px;font-weight:700;color:var(--blue)">${done}/${total} (${pct}%)</span>
+      </div>
+      <div class="progress-wrap"><div class="progress-fill" style="width:${pct}%"></div></div>
+    </div>
+    <div class="grid3">
+      <div style="text-align:center;padding:12px;background:var(--paper2);border-radius:var(--r)">
+        <div style="font-size:22px;font-weight:700;color:var(--blue)">${APP_STATE.customers.length}</div>
+        <div style="font-size:11px;color:var(--ink3)">管理顧客数</div>
+      </div>
+      <div style="text-align:center;padding:12px;background:var(--paper2);border-radius:var(--r)">
+        <div style="font-size:22px;font-weight:700;color:var(--green)">${custDone}</div>
+        <div style="font-size:11px;color:var(--ink3)">申請完了</div>
+      </div>
+      <div style="text-align:center;padding:12px;background:var(--paper2);border-radius:var(--r)">
+        <div style="font-size:22px;font-weight:700;color:var(--purple)">${APP_STATE.members.length}</div>
+        <div style="font-size:11px;color:var(--ink3)">チームメンバー</div>
+      </div>
+    </div>`;
+}
+
+async function addSharedMemo() {
+  const text = document.getElementById('shared-memo').value.trim();
+  if (!text) return;
+  if (!APP_STATE.sharedMemos) APP_STATE.sharedMemos = [];
+  APP_STATE.sharedMemos.push({
+    text,
+    author: APP_STATE.currentUser.name,
+    at: new Date().toISOString()
+  });
+  document.getElementById('shared-memo').value = '';
+  addActivity('メモ', `共有メモを追加しました`);
+  await saveState();
+  renderSharedMemos();
+  showToast('📤 メモを共有しました');
+}
+
+function openInviteModal() {
+  document.getElementById('invite-modal').classList.add('open');
+}
+
+async function addMember() {
+  const name = document.getElementById('inv-name').value.trim();
+  const role = document.getElementById('inv-role').value;
+  if (!name) return;
+  const colors = ['#059669','#2563eb','#7c3aed','#d97706','#dc2626','#0891b2'];
+  const color = colors[APP_STATE.members.length % colors.length];
+  APP_STATE.members.push({ id: 'm' + Date.now(), name, role, color, online: false });
+  addActivity('メンバー', `${name}（${role}）をチームに追加しました`);
+  await saveState();
+  document.getElementById('inv-name').value = '';
+  document.getElementById('invite-modal').classList.remove('open');
+  renderCollab();
+  updateTopbarMembers();
+  showToast(`✅ ${name}をチームに追加しました`);
+}
+
+async function removeMember(id) {
+  const m = APP_STATE.members.find(x => x.id === id);
+  if (!m || !confirm(`${m.name}をチームから削除しますか？`)) return;
+  APP_STATE.members = APP_STATE.members.filter(x => x.id !== id);
+  addActivity('メンバー', `${m.name}をチームから削除しました`);
+  await saveState();
+  renderCollab();
+  updateTopbarMembers();
+  showToast('削除しました');
+}
+
+/* ═══════════════════════════════════════════════════
+   LAW UPDATES (AI-powered)
+═══════════════════════════════════════════════════ */
+async function fetchLawUpdates() {
+  // Check if cached data is still fresh (1 week)
+  const now = new Date();
+  if (lawLastFetched && (now - lawLastFetched) < LAW_CACHE_MS && lawUpdateData) {
+    renderLawPage(true);
+    return;
+  }
+
+  document.getElementById('law-updates-content').innerHTML =
+    `<div class="loading" style="padding:24px 0"><div class="dot"></div><div class="dot"></div><div class="dot"></div><span>法改正情報をAIが分析中...</span></div>`;
+  document.getElementById('law-last-updated').textContent = '取得中...';
+  document.getElementById('btn-refresh-law').disabled = true;
+
+  try {
+    const result = await callClaude(
+      `あなたは日本の労働法・助成金制度の専門家です。2025年〜2026年の最新の法改正・制度変更情報を以下のJSON形式でまとめてください。必ずJSONのみで回答してください。`,
+      `2025年から2026年にかけての労働関連法・助成金制度の主要な変更点をまとめてください。
+以下のJSON形式のみで回答してください:
+{
+  "fetchedAt": "現在の日付（YYYY-MM-DD形式）",
+  "updates": [
+    {
+      "category": "カテゴリ（最低賃金/助成金/在留資格/労働基準法/その他）",
+      "title": "変更内容のタイトル（30字以内）",
+      "effectiveDate": "施行日または予定日",
+      "importance": "high/medium/low",
+      "summary": "変更内容の要約（100字以内）",
+      "impact": "企業への影響（50字以内）"
+    }
+  ],
+  "minWageByPref": [
+    {"pref": "都道府県名", "amount": 金額数値, "effectiveDate": "2025-10-01"}
+  ]
+}`
+    );
+
+    const data = JSON.parse(result.replace(/```json|```/g, '').trim());
+    lawUpdateData = data;
+    lawLastFetched = new Date();
+    APP_STATE.lawData = data;
+    APP_STATE.lawFetched = lawLastFetched.toISOString();
+    await saveState();
+
+    updateLawBadge(true);
+    renderLawPage();
+    showToast('✅ 法改正情報を更新しました');
+  } catch(e) {
+    // Show cached or static fallback
+    showStaticLawUpdates();
+  } finally {
+    document.getElementById('btn-refresh-law').disabled = false;
+  }
+}
+
+function showStaticLawUpdates() {
+  const staticData = {
+    fetchedAt: new Date().toISOString().split('T')[0],
+    updates: [
+      { category: '最低賃金', title: '全国最低賃金引き上げ（2025年10月）', effectiveDate: '2025-10-01', importance: 'high', summary: '全国加重平均が1,055円以上に引き上げられました。各都道府県の地域別最低賃金も同時改定。', impact: '賃金テーブルの見直しが必要' },
+      { category: '助成金', title: 'キャリアアップ助成金 制度改正', effectiveDate: '2025-04-01', importance: 'high', summary: '正規雇用転換コースの支給額・要件が一部変更。1措置あたり最大80万円（大企業40万円）。', impact: '申請書類・要件確認が必要' },
+      { category: '在留資格', title: '特定技能制度の拡充', effectiveDate: '2024-04-01', importance: 'medium', summary: '特定技能2号の対象分野が拡大。建設業・造船業等で家族帯同が可能に。', impact: '雇用計画の見直し検討を' },
+      { category: '労働基準法', title: '時間外労働の上限規制（建設・運送等）', effectiveDate: '2024-04-01', importance: 'high', summary: '建設業・物品運送業にも時間外労働の上限規制が適用開始。月45時間、年360時間が原則上限。', impact: '36協定・就業規則の見直しが必要' },
+      { category: '助成金', title: '人材確保等支援助成金 雇用管理改善コース', effectiveDate: '2025-04-01', importance: 'medium', summary: '離職率低下を目的とした雇用管理改善に取り組む事業主を支援。最大160万円。', impact: '外国人雇用企業で活用可能' }
+    ]
+  };
+  lawUpdateData = staticData;
+  lawLastFetched = new Date();
+  APP_STATE.lawData = staticData;
+  APP_STATE.lawFetched = lawLastFetched.toISOString();
+  updateLawBadge(false);
+  renderLawPage();
+}
+
+function renderLawPage(fromCache = false) {
+  const data = lawUpdateData || APP_STATE.lawData;
+  if (!data) { fetchLawUpdates(); return; }
+
+  const updated = lawLastFetched ? lawLastFetched.toLocaleString('ja-JP') : '不明';
+  document.getElementById('law-last-updated').innerHTML =
+    `<div style="display:flex;align-items:center;gap:8px">
+      <span>最終確認: <strong>${updated}</strong></span>
+      ${fromCache ? '<span class="badge badge-ok">キャッシュ済み</span>' : '<span class="badge badge-info">取得完了</span>'}
+    </div>`;
+
+  const importanceColor = { high: 'ng', medium: 'warn', low: 'ok' };
+  const importanceLabel = { high: '重要', medium: '注意', low: '参考' };
+  const catIcon = { 最低賃金: '💴', 助成金: '💰', 在留資格: '🛂', 労働基準法: '📋', その他: '📌' };
+
+  const updates = data.updates || [];
+  document.getElementById('law-updates-content').innerHTML = updates.map(u =>
+    `<div class="card" style="border-left:4px solid ${u.importance === 'high' ? 'var(--red)' : u.importance === 'medium' ? 'var(--amber)' : 'var(--green)'}">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+        <span style="font-size:20px">${catIcon[u.category] || '📌'}</span>
+        <div style="flex:1">
+          <div style="font-size:14px;font-weight:700">${u.title}</div>
+          <div style="font-size:11px;color:var(--ink3);margin-top:2px">施行日: ${u.effectiveDate} ・ ${u.category}</div>
+        </div>
+        <span class="badge badge-${importanceColor[u.importance]}">${importanceLabel[u.importance]}</span>
+      </div>
+      <div style="font-size:13px;color:var(--ink2);line-height:1.7;margin-bottom:8px">${u.summary}</div>
+      <div style="font-size:12px;background:var(--amber-l);border:1px solid #fbbf24;border-radius:var(--r);padding:6px 10px;color:var(--amber-d)">
+        💡 企業への影響: ${u.impact}
+      </div>
+    </div>`).join('');
+}
+
+function updateLawBadge(withAI) {
+  const btn = document.getElementById('law-update-btn');
+  const dot = document.getElementById('law-dot');
+  const text = document.getElementById('law-btn-text');
+  if (withAI) {
+    btn.classList.add('fresh');
+    dot.classList.add('fresh');
+    text.textContent = '法改正情報 更新済み';
+  } else {
+    text.textContent = '法改正情報 確認済み';
+  }
+  const badge = document.getElementById('law-badge');
+  if (badge) badge.style.display = 'none';
+
+  const homeStatus = document.getElementById('home-law-status');
+  if (homeStatus) {
+    homeStatus.className = 'law-status-bar fresh';
+    homeStatus.innerHTML = `
+      <span style="font-size:18px">✅</span>
+      <div>
+        <strong>法改正情報を確認しました</strong><br>
+        最終確認: ${lawLastFetched ? lawLastFetched.toLocaleString('ja-JP') : ''}
+      </div>
+      <button class="btn btn-green" style="margin-left:auto;white-space:nowrap" onclick="showPage('pg-law-updates')">詳細を確認</button>`;
+  }
+}
+
+function openLawModal() {
+  document.getElementById('law-modal').classList.add('open');
+  const content = document.getElementById('law-modal-content');
+  if (lawUpdateData) {
+    const updates = lawUpdateData.updates || [];
+    content.innerHTML = updates.slice(0, 5).map(u =>
+      `<div class="alert ${u.importance === 'high' ? 'alert-ng' : u.importance === 'medium' ? 'alert-warn' : 'alert-ok'}" style="margin-bottom:8px">
+        <div>
+          <strong>${u.title}</strong><br>
+          <span style="font-size:12px">${u.summary}</span>
+        </div>
+      </div>`).join('') + `<button class="btn btn-primary btn-full" style="margin-top:12px" onclick="closeLawModal();showPage('pg-law-updates')">すべての法改正情報を確認</button>`;
+  } else {
+    fetchLawUpdates().then(() => {
+      const updates = (lawUpdateData || {}).updates || [];
+      content.innerHTML = updates.slice(0, 5).map(u =>
+        `<div class="alert ${u.importance === 'high' ? 'alert-ng' : 'alert-warn'}" style="margin-bottom:8px">
+          <div><strong>${u.title}</strong><br><span style="font-size:12px">${u.summary}</span></div>
+        </div>`).join('') + `<button class="btn btn-primary btn-full" style="margin-top:12px" onclick="closeLawModal();showPage('pg-law-updates')">すべて確認</button>`;
+    });
+  }
+}
+
+function closeLawModal() {
+  document.getElementById('law-modal').classList.remove('open');
+}
+
+/* ═══════════════════════════════════════════════════
+   HOME
+═══════════════════════════════════════════════════ */
+function renderHome() {
+  // Date
+  const now = new Date();
+  document.getElementById('home-date-sub').textContent =
+    `${now.getFullYear()}年${now.getMonth()+1}月${now.getDate()}日（${['日','月','火','水','木','金','土'][now.getDay()]}）`;
+
+  updateStats();
+  updateTopbarMembers();
+  renderActivityFeed();
+}
+
+function updateStats() {
+  const customers = APP_STATE.customers;
+  const today = new Date();
+  const alerts = customers.filter(c => {
+    if (!c.planDeadline) return false;
+    const diff = Math.ceil((new Date(c.planDeadline) - today) / 86400000);
+    return diff >= 0 && diff <= 30;
+  });
+  const done = customers.filter(c => c.status === '完了');
+  const online = APP_STATE.members.filter(m => m.online);
+
+  document.getElementById('stat-customers').textContent = customers.length;
+  document.getElementById('stat-alerts').textContent = alerts.length;
+  document.getElementById('stat-done').textContent = done.length;
+  document.getElementById('stat-members').textContent = APP_STATE.members.length;
+  document.getElementById('stat-online').textContent = online.length;
+
+  const alertBadge = document.getElementById('alert-badge');
+  if (alertBadge) {
+    alertBadge.style.display = alerts.length > 0 ? 'inline' : 'none';
+    alertBadge.textContent = alerts.length;
+  }
+}
+
+function updateTopbarMembers() {
+  const container = document.getElementById('online-members');
+  const online = APP_STATE.members.filter(m => m.online).slice(0, 4);
+  container.innerHTML = online.map(m =>
+    `<div class="member-avatar" style="background:${m.color}" title="${m.name}">${m.name.charAt(0)}</div>`).join('');
+  const countEl = document.getElementById('member-count-text');
+  if (countEl) countEl.textContent = online.length > 0 ? `${online.length}名オンライン` : '';
+}
+
+function renderActivityFeed() {
+  const feed = document.getElementById('activity-feed');
+  const log = (APP_STATE.activityLog || []).slice().reverse().slice(0, 8);
+  if (log.length === 0) {
+    feed.innerHTML = '<div style="color:var(--ink3);font-size:13px;padding:8px 0">活動履歴がありません</div>';
+    return;
+  }
+  const colors = { '翻訳': '#2563eb', '診断': '#059669', 'チェック': '#7c3aed', '保存': '#059669', '顧客': '#d97706', 'メモ': '#0891b2', '進捗': '#059669', 'メンバー': '#7c3aed' };
+  feed.innerHTML = log.map(a =>
+    `<div class="activity-item">
+      <div class="activity-dot" style="background:${colors[a.type] || '#6b7280'}"></div>
+      <div class="activity-text"><strong>${a.user}</strong>が${a.text}</div>
+      <div class="activity-time">${formatTime(a.at)}</div>
+    </div>`).join('');
+}
+
+function addActivity(type, text) {
+  if (!APP_STATE.activityLog) APP_STATE.activityLog = [];
+  APP_STATE.activityLog.push({
+    type,
+    text,
+    user: APP_STATE.currentUser.name,
+    at: new Date().toISOString()
+  });
+  if (APP_STATE.activityLog.length > 50) APP_STATE.activityLog = APP_STATE.activityLog.slice(-50);
+  renderActivityFeed();
+}
+
+/* ═══════════════════════════════════════════════════
+   SETTINGS
+═══════════════════════════════════════════════════ */
+async function saveProfile() {
+  const name = document.getElementById('profile-name').value.trim();
+  const role = document.getElementById('profile-role').value;
+  if (!name) return;
+  APP_STATE.currentUser.name = name;
+  APP_STATE.currentUser.role = role;
+  const userMember = APP_STATE.members.find(m => m.id === APP_STATE.currentUser.id);
+  if (userMember) { userMember.name = name; userMember.role = role; }
+  document.getElementById('ua-name').textContent = name;
+  document.getElementById('ua-role').textContent = role;
+  document.getElementById('ua-avatar').textContent = name.charAt(0);
+  await saveState();
+  showToast('✅ プロフィールを保存しました');
+}
+
+async function saveNotifSettings() {
+  APP_STATE.settings.notifDeadline = document.getElementById('notif-deadline').checked;
+  APP_STATE.settings.notifLaw = document.getElementById('notif-law').checked;
+  APP_STATE.settings.notifCollab = document.getElementById('notif-collab').checked;
+  await saveState();
+  showToast('✅ 通知設定を保存しました');
+}
+
+async function clearAllData() {
+  if (!confirm('すべてのデータを削除します。この操作は取り消せません。本当によろしいですか？')) return;
+  APP_STATE.customers = [];
+  APP_STATE.sharedMemos = [];
+  APP_STATE.activityLog = [];
+  APP_STATE.steps = { s1:false,s2:false,s3:false,s4:false,s5:false,s6:false };
+  await saveState();
+  localStorage.removeItem('labor_platform_v2');
+  showToast('すべてのデータを削除しました');
+  renderHome();
+}
+
+/* ═══════════════════════════════════════════════════
+   UTILITIES
+═══════════════════════════════════════════════════ */
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+function formatTime(isoStr) {
+  if (!isoStr) return '';
+  const d = new Date(isoStr);
+  const now = new Date();
+  const diffMs = now - d;
+  const diffMin = Math.floor(diffMs / 60000);
+  if (diffMin < 1) return 'たった今';
+  if (diffMin < 60) return `${diffMin}分前`;
+  if (diffMin < 1440) return `${Math.floor(diffMin/60)}時間前`;
+  return `${d.getMonth()+1}/${d.getDate()}`;
+}
+
+/* ═══════════════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════════════ */
+async function init() {
+  await loadState();
+
+  // Restore API key UI
+  if (_apiKey) {
+    const inp = document.getElementById('api-key-input');
+    if (inp) inp.value = _apiKey;
+    const badge = document.getElementById('api-key-status-badge');
+    if (badge) { badge.textContent = '設定済み'; badge.className = 'badge badge-ok'; }
+    const settingsKey = document.getElementById('settings-api-key');
+    if (settingsKey) settingsKey.value = _apiKey;
+  }
+
+  // Profile
+  const pname = document.getElementById('profile-name');
+  if (pname) pname.value = APP_STATE.currentUser.name;
+  const prole = document.getElementById('profile-role');
+  if (prole) prole.value = APP_STATE.currentUser.role;
+  document.getElementById('ua-name').textContent = APP_STATE.currentUser.name;
+  document.getElementById('ua-role').textContent = APP_STATE.currentUser.role;
+  document.getElementById('ua-avatar').textContent = APP_STATE.currentUser.name.charAt(0);
+
+  // Notification settings
+  if (APP_STATE.settings) {
+    ['notif-deadline','notif-law','notif-collab'].forEach(id => {
+      const key = id.replace('notif-', 'notif').replace('-', '');
+      const map = { 'notifdeadline': 'notifDeadline', 'notiflaw': 'notifLaw', 'notifcollab': 'notifCollab' };
+      const el = document.getElementById(id);
+      if (el && APP_STATE.settings[map[key] || key] !== undefined) el.checked = APP_STATE.settings[map[key] || key];
+    });
+  }
+
+  renderHome();
+
+  // Auto-fetch law updates if stale or missing
+  const now = new Date();
+  const needsFetch = !lawLastFetched || (now - lawLastFetched) > LAW_CACHE_MS;
+  if (needsFetch && _apiKey) {
+    setTimeout(() => fetchLawUpdates(), 2000);
+  } else if (APP_STATE.lawData) {
+    updateLawBadge(true);
+    renderLawPage(true);
+  } else {
+    // Show static fallback
+    setTimeout(() => showStaticLawUpdates(), 1000);
+  }
+
+  // Simulate periodic sync check
+  setInterval(() => {
+    // In a real app, this would poll shared storage for updates
+  }, 30000);
+}
+
+
+/* ═══════════════════════════════════════════════════
+   キャリアアップ助成金 STEP1〜6 （統合版）
+═══════════════════════════════════════════════════ */
+const CU_KEY = 'cu_v2_platform';
+const CU_MS_KEYS = ['plan','conv','jirei','ins','six','wage6','apply','decision','payment'];
+const CU_SN = ['','簡易診断','詳細診断','申請準備','書類監査','資料管理','申請後フォロー','総合'];
+const CU_SC = {
+  1:['#E1F5EE','#1D9E75','#0F6E56'], 2:['#E6F1FB','#185FA5','#0C447C'],
+  3:['#EEEDFE','#533AB7','#3C3489'], 4:['#EAF3DE','#3B6D11','#27500A'],
+  5:['#FBEAF0','#993556','#72243E'], 6:['#FEF3C7','#D97706','#92400E'],
+  7:['#FAEEDA','#BA7517','#92400e']
+};
+const CU_DOCS = [
+  {id:'就業規則',p:'最優先'},{id:'出勤簿（6か月）',p:'最優先'},
+  {id:'賃金台帳（6か月）',p:'最優先'},{id:'雇用契約書（転換後）',p:'最優先'},
+  {id:'労働条件通知書',p:'最優先'},{id:'転換辞令',p:'最優先'},
+  {id:'36協定',p:'高'},{id:'賃金規程',p:'高'},
+  {id:'登記簿謄本',p:'高'},{id:'社会保険加入記録',p:'高'},
+  {id:'雇用保険資格取得確認',p:'高'},{id:'転換前後比較資料',p:'通常'}
+];
+const CU_DST = ['未提出','提出済','修正依頼中','再提出待ち','確認完了'];
+const CU_DSTB = ['#f7f7f7','#E1F5EE','#FAEEDA','#FBEAF0','#E6F1FB'];
+const CU_DSTCO = ['#555','#0F6E56','#854F0B','#72243E','#185FA5'];
+
+function cuDefPerson(name){ return {
+  name: name||'対象者',
+  done:[],
+  s1:{emp_type:[],six_months:'',shi:'',emp_ins:'',now_sal:'',new_sal:'',
+      rules:'',conv_rule:'',risk_dismiss:'',risk_fraud:'',result:'',emp_ins_no:'',labor_ins_no:''},
+  s2:{weekly_h:'',base_before:'',base_after:'',fixed_ot:'',
+      ins_missing:'',arrear:'',dismiss:'',result:'',score:0,
+      raise_pattern:'',raise_month:'',bonus_count:'',bonus_months:''},
+  s3:{conv_date:'',jirei:'',contract_update:'',mukiroyou:'',avg_ot:'',
+      rc1:'',rc2:'',rc3:'',rc4:'',result:'',retirement_age:'',rehire:'',
+      wage_before_base:'',wage_before_fixot:'',wage_before_other:'',
+      wage_after_base:'',wage_after_fixot:'',wage_after_other:'',wage_result:''},
+  s4:{monthly_h:'',base:'',actual_ot:'',fixed_ot_h:'',ot_paid:'',
+      night_h:'',holiday_h:'',anomalies:[],result:''},
+  s5:{statuses:{},notes:{},result:''},
+  s6:{m:{
+    plan:{done:false,date:'',receipt:''},conv:{done:false,date:''},
+    jirei:{done:false,date:''},ins:{done:false,date:''},
+    six:{done:false,date:''},wage6:{done:false,date:''},
+    apply:{done:false,date:'',receipt:''},
+    decision:{done:false,date:'',amount:''},
+    payment:{done:false,date:'',amount:''}
+  },result:''}
+};}
+
+function cuDefD(){ return { company:'', plan:'', pref:'', persons:[cuDefPerson('対象者1')], curPerson:0 }; }
+
+let cuD = cuDefD(), cuCur = 1;
+function cuP(){ return cuD.persons[cuD.curPerson]; }
+
+function cuLoadD(){
+  try {
+    const s = localStorage.getItem(CU_KEY);
+    if (s) {
+      cuD = JSON.parse(s);
+      if (!cuD.persons) cuD = cuDefD();
+      cuD.persons.forEach(p => {
+        if (!p.s4.anomalies) p.s4.anomalies = [];
+        if (!p.s5.statuses) p.s5.statuses = {};
+        if (!p.s6 || !p.s6.m) p.s6 = cuDefPerson('').s6;
+      });
+      if (cuD.curPerson >= cuD.persons.length) cuD.curPerson = 0;
+    }
+  } catch(e) {}
+}
+
+let _cuST = null;
+function cuAS(){
+  const sc = document.getElementById('cu-sc2');
+  clearTimeout(_cuST);
+  _cuST = setTimeout(() => {
+    try { localStorage.setItem(CU_KEY, JSON.stringify(cuD)); } catch(e) {}
+    if (sc) { sc.style.opacity='1'; setTimeout(()=>sc.style.opacity='0',2000); }
+  }, 600);
+}
+
+function cuEscH(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function cuIsDone(n){ return cuP().done.includes(n); }
+function cuMDone(n){ if (!cuP().done.includes(n)) cuP().done.push(n); }
+
+// 対象者タブ
+function cuRPersonTabs(){
+  const tabs = document.getElementById('cu-person-tabs');
+  if (!tabs) return;
+  let h = '';
+  cuD.persons.forEach((p, i) => {
+    const r = p.s1.result;
+    const stlColor = r==='可能性高'?'var(--green-d)':r==='要確認'?'var(--amber-d)':r?'var(--red-d)':'var(--ink3)';
+    const isCur = i === cuD.curPerson;
+    h += `<div onclick="cuSwitchPerson(${i})" style="display:flex;align-items:center;gap:5px;padding:6px 12px;border-radius:8px;font-size:12px;font-weight:500;border:1.5px solid ${isCur?'var(--green)':'var(--border)'};background:${isCur?'var(--green-l)':'var(--paper2)'};color:${isCur?'var(--green-d)':'var(--ink2)'};cursor:pointer">
+      ${cuEscH(p.name)}
+      ${r?`<span style="font-size:10px;font-weight:700;color:${stlColor}">${r}</span>`:''}
+      ${cuD.persons.length>1?`<span onclick="event.stopPropagation();cuDelPerson(${i})" style="color:var(--ink3);margin-left:2px;font-size:13px;cursor:pointer">✕</span>`:''}
+    </div>`;
+  });
+  if (cuD.persons.length < 5) {
+    h += `<button onclick="cuAddPerson()" style="padding:6px 10px;border-radius:8px;font-size:12px;border:1.5px dashed var(--border2);background:none;color:var(--ink3);cursor:pointer">＋ 追加</button>`;
+  }
+  tabs.innerHTML = h;
+}
+
+function cuSwitchPerson(i){ cuD.curPerson = i; cuAS(); cuRPersonTabs(); cuRProg(); cuRender(); }
+function cuAddPerson(){ if(cuD.persons.length>=5)return; cuD.persons.push(cuDefPerson('対象者'+(cuD.persons.length+1))); cuD.curPerson=cuD.persons.length-1; cuAS(); cuRPersonTabs(); cuRProg(); cuRender(); }
+function cuDelPerson(i){ if(cuD.persons.length<=1)return; if(!confirm(`「${cuD.persons[i].name}」を削除しますか？`))return; cuD.persons.splice(i,1); if(cuD.curPerson>=cuD.persons.length)cuD.curPerson=cuD.persons.length-1; cuAS(); cuRPersonTabs(); cuRProg(); cuRender(); }
+
+// STEP進捗バー
+function cuRProg(){
+  const prog = document.getElementById('cu-prog');
+  if (!prog) return;
+  let h = '';
+  for (let i = 1; i <= 7; i++){
+    const dn = cuIsDone(i), iC = cuCur===i, c = CU_SC[i]||CU_SC[1];
+    const bg = dn ? c[1] : iC ? c[0] : '#f7f7f7';
+    const bc = dn ? c[1] : iC ? c[1] : '#eee';
+    const fc = dn ? '#fff' : iC ? c[2] : '#666';
+    const lbl = i===7 ? '総合' : CU_SN[i];
+    h += `<div onclick="cuGo(${i})" style="display:flex;flex-direction:column;align-items:center;cursor:pointer;min-width:52px">
+      <div style="width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;background:${bg};border:2px solid ${bc};color:${fc};transition:all .15s">${dn?'✓':i}</div>
+      <div style="font-size:9px;margin-top:3px;text-align:center;white-space:pre;color:${dn?c[1]:iC?c[2]:'#666'};font-weight:${dn||iC?'600':'400'}">${lbl}</div>
+    </div>
+    ${i<7?`<div style="flex:1;height:2px;background:${dn?c[1]:'#eee'};margin-top:15px;min-width:8px;max-width:20px"></div>`:''}`;
+  }
+  prog.innerHTML = h;
+}
+
+function cuGo(n){ cuCur = n; cuRProg(); cuRender(); }
+function cuRender(){
+  const content = document.getElementById('cu-content');
+  if (!content) return;
+  const fns = [null, cuP1, cuP2, cuP3, cuP4, cuP5, cuP6, cuP7];
+  content.innerHTML = fns[cuCur] ? fns[cuCur]() : '';
+  if (cuCur===1) cuCS1();
+  if (cuCur===2) cuCS2();
+  if (cuCur===3) cuCWage();
+  if (cuCur===5) cuRDocs();
+}
+
+// Helpers
+function cuRbH(lbl, gk, vals, step){
+  const pts = gk.split('.'); let o = cuP(); for(let i=0;i<pts.length-1;i++) o=o[pts[i]];
+  const cv = o[pts[pts.length-1]]; const c = CU_SC[step]||CU_SC[1];
+  return `<div style="margin-bottom:10px"><label style="font-size:11px;font-weight:600;color:var(--ink3);display:block;margin-bottom:5px">${lbl}</label><div style="display:flex;gap:5px;flex-wrap:wrap">`
+    + vals.map(([v,dng]) => `<div onclick="cuSG('${gk}','${v}',this,${step})" style="padding:6px 12px;border-radius:8px;border:1.5px solid ${cv===v?(dng?'var(--red)':c[1]):'var(--border2)'};background:${cv===v?(dng?'var(--red-l)':c[0]):'var(--paper)'};color:${cv===v?(dng?'var(--red-d)':c[2]):'var(--ink2)'};font-size:12px;font-weight:${cv===v?'600':'400'};cursor:pointer">${v}</div>`).join('')
+    + '</div></div>';
+}
+function cuSG(path, v, el, step){
+  const p = path.split('.'); let o = cuP(); for(let i=0;i<p.length-1;i++) o=o[p[i]]; o[p[p.length-1]] = v;
+  el.parentElement.querySelectorAll('div[onclick]').forEach(b => { b.style.background=b.style.borderColor=b.style.color=b.style.fontWeight=''; b.style.border='1.5px solid var(--border2)'; b.style.color='var(--ink2)'; b.style.background='var(--paper)'; });
+  const c=CU_SC[step]||CU_SC[1]; el.style.background=c[0]; el.style.borderColor=c[1]; el.style.color=c[2]; el.style.fontWeight='600';
+  cuAS();
+  if(path.startsWith('s1.'))cuCS1();
+  if(path.startsWith('s2.'))cuCS2();
+  if(path.startsWith('s3.'))cuCWage();
+}
+function cuChip(lbl, val, ok){
+  if (!val) return '';
+  const cls = ok==='ok'?'badge-ok':ok==='warn'?'badge-warn':ok==='ng'?'badge-ng':'badge-info';
+  return `<span class="badge ${cls}">✓ ${lbl}：${val}</span> `;
+}
+function cuFmt(v){ return Math.round(parseFloat(v)||0).toLocaleString('ja-JP')+'円'; }
+function cuAddM(jp, months){
+  if (!jp) return '';
+  try {
+    let y,m,d;
+    const r1=jp.match(/令和(\d+)年(\d+)月(\d+)日/);
+    const r2=jp.match(/(\d{4})年(\d+)月(\d+)日/);
+    if(r1){y=2018+parseInt(r1[1]);m=parseInt(r1[2])-1;d=parseInt(r1[3]);}
+    else if(r2){y=parseInt(r2[1]);m=parseInt(r2[2])-1;d=parseInt(r2[3]);}
+    else return '（形式不明：令和X年X月X日）';
+    const dt=new Date(y,m,d); dt.setMonth(dt.getMonth()+months);
+    return '令和'+(dt.getFullYear()-2018)+'年'+(dt.getMonth()+1)+'月'+dt.getDate()+'日';
+  } catch(e){ return '（計算エラー）'; }
+}
+function cuDUntil(jp){
+  if (!jp) return null;
+  try {
+    let y,m,d;
+    const r1=jp.match(/令和(\d+)年(\d+)月(\d+)日/);
+    const r2=jp.match(/(\d{4})年(\d+)月(\d+)日/);
+    if(r1){y=2018+parseInt(r1[1]);m=parseInt(r1[2])-1;d=parseInt(r1[3]);}
+    else if(r2){y=parseInt(r2[1]);m=parseInt(r2[2])-1;d=parseInt(r2[3]);}
+    else return null;
+    return Math.ceil((new Date(y,m,d)-new Date())/86400000);
+  } catch(e){ return null; }
+}
+function cuDlChip(jp){
+  const d=cuDUntil(jp); if(d===null)return'';
+  const cls=d<0?'badge-ng':d<=30?'badge-warn':'badge-ok';
+  return `<span class="badge ${cls}">${d<0?Math.abs(d)+'日超過':d===0?'本日期限':'あと'+d+'日'}</span>`;
+}
+function cuAin(){ return '<div style="background:var(--amber-l);border:1px solid #fbbf24;border-radius:var(--r);padding:6px 10px;font-size:11px;color:var(--amber-d);margin-bottom:10px">⚠ AI判定は参考情報です。最終判断は担当社労士が行ってください。（令和7年度要件）</div>'; }
+function cuCard(content){ return `<div class="card" style="margin-bottom:12px">${content}</div>`; }
+function cuNav(cur){ return `<div style="display:flex;gap:8px;margin-top:14px;justify-content:space-between">${cur>1?`<button class="btn" onclick="cuGo(${cur-1})">← STEP${cur-1}</button>`:'<div></div>'}<button class="btn btn-primary" onclick="cuMDone(${cur});cuAS();cuGo(${cur+1<8?cur+1:7})">STEP${cur<7?cur+1:'完了へ'} →</button></div>`; }
+
+// ── STEP1: 簡易診断 ──
+function cuP1(){
+  const s=cuP().s1, c=CU_SC[1];
+  const empTypes=['契約社員','パート','アルバイト','派遣社員'];
+  return cuCard(`
+    <div class="card-title" style="color:${c[2]}">STEP 1 ─ AI簡易診断</div>
+    ${cuAin()}
+    <div style="margin-bottom:10px">
+      <label style="font-size:11px;font-weight:600;color:var(--ink3);display:block;margin-bottom:5px">対象者氏名</label>
+      <input type="text" value="${cuEscH(s.name||cuP().name||'')}" placeholder="例：山田 花子" oninput="cuP().s1.name=this.value;cuP().name=this.value;cuAS();cuRPersonTabs()"
+        style="width:100%;font-size:14px;padding:8px 10px;border:1.5px solid ${c[1]};border-radius:var(--r);font-weight:500">
+    </div>
+    <div style="margin-bottom:10px">
+      <label style="font-size:11px;font-weight:600;color:var(--ink3);display:block;margin-bottom:5px">雇用形態（複数可）</label>
+      <div style="display:flex;gap:5px;flex-wrap:wrap">
+        ${empTypes.map(t=>`<div onclick="cuTA('s1.emp_type','${t}',this,1)" style="padding:6px 12px;border-radius:8px;border:1.5px solid ${s.emp_type.includes(t)?c[1]:'var(--border2)'};background:${s.emp_type.includes(t)?c[0]:'var(--paper)'};color:${s.emp_type.includes(t)?c[2]:'var(--ink2)'};font-size:12px;font-weight:${s.emp_type.includes(t)?'600':'400'};cursor:pointer">${t}</div>`).join('')}
+      </div>
+    </div>
+    ${cuRbH('勤続6か月以上','s1.six_months',[['はい'],['いいえ'],['まもなく']],1)}
+    <div class="grid2">
+      ${cuRbH('社会保険','s1.shi',[['加入済'],['未加入']],1)}
+      ${cuRbH('雇用保険','s1.emp_ins',[['加入済'],['未加入']],1)}
+    </div>
+    <div class="grid2" style="margin-bottom:10px">
+      <div class="fg"><label>現在の月給（円）</label><input type="number" value="${s.now_sal}" placeholder="例：200000" oninput="cuP().s1.now_sal=this.value;cuAS();cuCS1()" style="border-radius:var(--r)"></div>
+      <div class="fg"><label>転換後予定月給（円）</label><input type="number" value="${s.new_sal}" placeholder="例：230000" oninput="cuP().s1.new_sal=this.value;cuAS();cuCS1()" style="border-radius:var(--r)"></div>
+    </div>
+    <div id="cu-s1rc"></div>
+    <div class="grid2">
+      ${cuRbH('就業規則','s1.rules',[['あり'],['なし'],['作成予定']],1)}
+      ${cuRbH('正社員転換制度','s1.conv_rule',[['あり'],['なし'],['整備予定']],1)}
+    </div>
+    <div class="grid2">
+      ${cuRbH('解雇予定','s1.risk_dismiss',[['なし'],['あり']],1)}
+      ${cuRbH('不正受給歴','s1.risk_fraud',[['なし'],['あり']],1)}
+    </div>
+    <div class="grid2" style="margin-bottom:10px">
+      <div class="fg"><label>雇用保険適用事業所番号</label><input type="text" value="${s.emp_ins_no||''}" placeholder="例：27-654321-0" oninput="cuP().s1.emp_ins_no=this.value;cuAS()"></div>
+      <div class="fg"><label>労働保険番号（労災）</label><input type="text" value="${s.labor_ins_no||''}" placeholder="例：27-1-654321-000" oninput="cuP().s1.labor_ins_no=this.value;cuAS()"></div>
+    </div>
+    <div id="cu-s1res"></div>
+  `) + cuNav(1);
+}
+function cuTA(path, v, el, step){
+  const p=path.split('.'); let o=cuP(); for(let i=0;i<p.length-1;i++) o=o[p[i]];
+  const arr=o[p[p.length-1]]; const idx=arr.indexOf(v); const c=CU_SC[step]||CU_SC[1];
+  if(idx===-1){ arr.push(v); el.style.background=c[0]; el.style.borderColor=c[1]; el.style.color=c[2]; el.style.fontWeight='600'; }
+  else { arr.splice(idx,1); el.style.background='var(--paper)'; el.style.borderColor='var(--border2)'; el.style.color='var(--ink2)'; el.style.fontWeight='400'; }
+  cuAS();
+}
+function cuCS1(){
+  const s=cuP().s1;
+  const n=parseFloat(s.now_sal||0), w=parseFloat(s.new_sal||0);
+  const rc=document.getElementById('cu-s1rc');
+  if(rc&&n>0&&w>0){
+    const d=w-n, pct=(d/n*100).toFixed(1);
+    rc.innerHTML=`<div class="${d>0?'alert alert-ok':'alert alert-ng'}" style="margin-bottom:10px">増額：${d>=0?'+':''}${cuFmt(d)}（${pct}%）— ${d>0?'要件クリア ✓':'増額が必要 ✗'}</div>`;
+  } else if(rc) rc.innerHTML='';
+  const ok=[s.six_months==='はい',s.emp_ins==='加入済',s.shi==='加入済',['あり','整備予定'].includes(s.conv_rule),s.risk_dismiss!=='あり',s.risk_fraud!=='あり',w>n&&n>0].filter(Boolean).length;
+  const r=ok>=6?'可能性高':ok>=4?'要確認':'対象外'; cuP().s1.result=r; cuRPersonTabs();
+  const el=document.getElementById('cu-s1res');
+  if(el) el.innerHTML=`<div class="${r==='可能性高'?'alert alert-ok':r==='要確認'?'alert alert-warn':'alert alert-ng'}">🤖 簡易判定：<strong>${r}</strong>（${ok}/7充足）<small style="opacity:.7;margin-left:4px">※参考情報</small></div>`;
+}
+
+// ── STEP2: 詳細診断 ──
+function cuP2(){
+  const s=cuP().s2, s1=cuP().s1, c=CU_SC[2];
+  return cuCard(`
+    <div class="card-title" style="color:${c[2]}">STEP 2 ─ 詳細診断 <small style="font-size:11px;font-weight:400;color:var(--ink3)">対象者：${cuEscH(cuP().name)}</small></div>
+    <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px;padding:8px 10px;background:var(--paper2);border-radius:var(--r)">
+      ${cuChip('S1判定',s1.result,s1.result==='可能性高'?'ok':s1.result==='要確認'?'warn':'ng')}
+    </div>
+    ${cuAin()}
+    <div class="grid2" style="margin-bottom:10px">
+      <div class="fg"><label>週所定労働時間（時間）</label><input type="number" value="${s.weekly_h}" placeholder="例：40" oninput="cuP().s2.weekly_h=this.value;cuAS();cuCS2()"></div>
+      <div class="fg"><label>固定残業代（円）</label><input type="number" value="${s.fixed_ot}" placeholder="例：30000" oninput="cuP().s2.fixed_ot=this.value;cuAS();cuCS2()"></div>
+    </div>
+    <div id="cu-s2ww"></div>
+    <div class="grid2" style="margin-bottom:10px">
+      <div class="fg"><label>転換前基本給（円）</label><input type="number" value="${s.base_before||s1.now_sal}" placeholder="例：200000" oninput="cuP().s2.base_before=this.value;cuAS();cuCS2()"></div>
+      <div class="fg"><label>転換後基本給（円）</label><input type="number" value="${s.base_after||s1.new_sal}" placeholder="例：230000" oninput="cuP().s2.base_after=this.value;cuAS();cuCS2()"></div>
+    </div>
+    <div id="cu-s2calc"></div>
+    <div class="grid2">
+      ${cuRbH('社会保険未加入者','s2.ins_missing',[['いない'],['いる']],2)}
+      ${cuRbH('労働保険滞納','s2.arrear',[['なし'],['あり']],2)}
+    </div>
+    ${cuRbH('直近解雇歴（6か月以内）','s2.dismiss',[['なし'],['あり']],2)}
+    <div id="cu-s2res"></div>
+  `) + cuNav(2);
+}
+function cuCS2(){
+  const bb=parseFloat(document.querySelector('#cu-content input[oninput*="base_before"]')?.value||cuP().s2.base_before||cuP().s1.now_sal||0);
+  const ba=parseFloat(document.querySelector('#cu-content input[oninput*="base_after"]')?.value||cuP().s2.base_after||cuP().s1.new_sal||0);
+  const fo=parseFloat(cuP().s2.fixed_ot||0);
+  const wh=parseFloat(cuP().s2.weekly_h||0);
+  const ww=document.getElementById('cu-s2ww'), calc=document.getElementById('cu-s2calc');
+  if(ww) ww.innerHTML=wh>0&&wh<20?'<div class="alert alert-warn" style="margin-bottom:8px">⚠ 週20時間未満は雇用保険対象外の可能性があります</div>':'';
+  if(bb>0&&calc){
+    const h=bb/160, ot=h*1.25, mw=(bb+fo)/160, d=ba-bb, pct=bb>0?d/bb*100:0;
+    cuP().s2.base_before=String(bb); cuP().s2.base_after=String(ba);
+    calc.innerHTML=`<div style="background:var(--paper2);border-radius:var(--r);padding:10px 12px;margin-bottom:10px;font-size:12px">
+      <div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid var(--paper3)"><span style="color:var(--ink3)">増額率</span><span style="font-weight:600;color:${d>0?'var(--green)':'var(--red)'}">${d>=0?'+':''}${pct.toFixed(1)}%（${d>=0?'+':''}${cuFmt(d)}）</span></div>
+      <div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid var(--paper3)"><span style="color:var(--ink3)">基礎時給（概算）</span><span>${Math.round(h).toLocaleString()}円/時</span></div>
+      <div style="display:flex;justify-content:space-between;padding:3px 0"><span style="color:var(--ink3)">時給換算（最低賃金判定）</span><span style="color:${mw<1100?'var(--red)':'inherit'}">${Math.round(mw).toLocaleString()}円/時 ${mw<1100?'⚠ 要確認':'✓'}</span></div>
+    </div>`;
+  } else if(calc) calc.innerHTML='';
+  const s=cuP().s2;
+  const ok=[ba>bb, s.ins_missing!=='いる', s.arrear!=='あり', s.dismiss!=='あり', wh>=20||!wh].filter(Boolean).length;
+  const sc=Math.round(ok/5*100); cuP().s2.score=sc;
+  cuP().s2.result=sc>=80?'申請可能':sc>=60?'要整備':'申請困難';
+  const el=document.getElementById('cu-s2res');
+  if(el) el.innerHTML=`<div class="${cuP().s2.result==='申請可能'?'alert alert-ok':cuP().s2.result==='要整備'?'alert alert-warn':'alert alert-ng'}">🤖 詳細診断：<strong>${cuP().s2.result}</strong>（${sc}点）</div>`;
+}
+
+// ── STEP3: 申請準備 ──
+function cuP3(){
+  const s=cuP().s3, c=CU_SC[3];
+  return cuCard(`
+    <div class="card-title" style="color:${c[2]}">STEP 3 ─ 申請準備 <small style="font-size:11px;font-weight:400;color:var(--ink3)">対象者：${cuEscH(cuP().name)}</small></div>
+    <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px;padding:8px 10px;background:var(--paper2);border-radius:var(--r)">
+      ${cuChip('S2判定',cuP().s2.result,cuP().s2.result==='申請可能'?'ok':cuP().s2.result==='要整備'?'warn':'ng')}
+    </div>
+    ${cuAin()}
+    <div class="grid2" style="margin-bottom:10px">
+      <div class="fg"><label>転換日（予定）★STEP6に自動連携</label><input type="text" value="${s.conv_date}" placeholder="例：令和7年7月1日" oninput="cuP().s3.conv_date=this.value;cuAS()"></div>
+      <div class="fg"><label>月平均残業時間（転換前・過去6か月）</label><input type="number" value="${s.avg_ot}" placeholder="例：15" oninput="cuP().s3.avg_ot=this.value;cuAS();cuCOTW()"></div>
+    </div>
+    <div id="cu-s3otw"></div>
+    <div class="grid2">
+      ${cuRbH('転換辞令','s3.jirei',[['あり'],['作成予定'],['なし']],3)}
+      ${cuRbH('無期雇用確認','s3.mukiroyou',[['確認済'],['未確認']],3)}
+    </div>
+    <div style="font-size:12px;font-weight:700;color:var(--purple-d);margin:.75rem 0 .4rem;padding-left:8px;border-left:3px solid var(--purple)">▌ 賃金比較表（3%以上の増額が必要）</div>
+    <div class="alert alert-info" style="font-size:11px;margin-bottom:10px">基本給＋各種手当＋固定残業代の合計額で3%以上の増額が必要です（通勤手当・賞与は除く）</div>
+    <div style="font-size:11px;font-weight:600;color:var(--ink3);margin-bottom:5px;padding:3px 8px;background:var(--paper3);border-radius:4px">■ 転換前6か月の月平均賃金</div>
+    <div class="grid2" style="margin-bottom:6px">
+      <div class="fg"><label>基本給（円）</label><input type="number" id="cu-s3wb" value="${s.wage_before_base||(cuP().s2.base_before||cuP().s1.now_sal||'')}" placeholder="例：200000" oninput="cuP().s3.wage_before_base=this.value;cuAS();cuCWage()"></div>
+      <div class="fg"><label>固定残業代（円）</label><input type="number" value="${s.wage_before_fixot||''}" placeholder="例：30000" oninput="cuP().s3.wage_before_fixot=this.value;cuAS();cuCWage()"></div>
+    </div>
+    <div class="fg" style="margin-bottom:10px"><label>各種手当（職務手当等・通勤・賞与除く）</label><input type="number" value="${s.wage_before_other||''}" placeholder="例：20000" oninput="cuP().s3.wage_before_other=this.value;cuAS();cuCWage()"></div>
+    <div style="font-size:11px;font-weight:600;color:var(--ink3);margin-bottom:5px;padding:3px 8px;background:var(--paper3);border-radius:4px">■ 転換後6か月の月平均賃金</div>
+    <div class="grid2" style="margin-bottom:6px">
+      <div class="fg"><label>基本給（円）</label><input type="number" id="cu-s3wa" value="${s.wage_after_base||(cuP().s2.base_after||cuP().s1.new_sal||'')}" placeholder="例：230000" oninput="cuP().s3.wage_after_base=this.value;cuAS();cuCWage()"></div>
+      <div class="fg"><label>固定残業代（円）</label><input type="number" value="${s.wage_after_fixot||''}" placeholder="例：30000" oninput="cuP().s3.wage_after_fixot=this.value;cuAS();cuCWage()"></div>
+    </div>
+    <div class="fg" style="margin-bottom:10px"><label>各種手当（職務手当等・通勤・賞与除く）</label><input type="number" value="${s.wage_after_other||''}" placeholder="例：20000" oninput="cuP().s3.wage_after_other=this.value;cuAS();cuCWage()"></div>
+    <div id="cu-s3wage-result" style="margin-bottom:10px"></div>
+    <div class="alert alert-ng" style="font-size:12px;margin-bottom:10px">⛨ 以下のいずれか「あり/該当」は申請不可になります</div>
+    <div class="grid2">
+      ${cuRbH('6か月以内解雇','s3.rc1',[['なし'],['あり']],3)}
+      ${cuRbH('最低賃金違反','s3.rc2',[['なし'],['あり']],3)}
+    </div>
+    <div class="grid2">
+      ${cuRbH('違法残業','s3.rc3',[['なし'],['あり']],3)}
+      ${cuRbH('風俗営業','s3.rc4',[['なし'],['該当']],3)}
+    </div>
+    <div id="cu-s3res"></div>
+  `) + cuNav(3);
+}
+function cuCOTW(){
+  const h=parseFloat(cuP().s3.avg_ot||0);
+  const w=document.getElementById('cu-s3otw');
+  if(w) w.innerHTML=h>80?'<div class="alert alert-ng" style="margin-bottom:8px">🔴 月80時間超は過労死ラインです</div>':h>45?'<div class="alert alert-warn" style="margin-bottom:8px">⚠ 月45時間超は36協定特別条項の要確認です</div>':'';
+}
+function cuCWage(){
+  const wb=parseFloat(document.getElementById('cu-s3wb')?.value||cuP().s3.wage_before_base||0);
+  const wbf=parseFloat(cuP().s3.wage_before_fixot||0), wbo=parseFloat(cuP().s3.wage_before_other||0);
+  const wa=parseFloat(document.getElementById('cu-s3wa')?.value||cuP().s3.wage_after_base||0);
+  const waf=parseFloat(cuP().s3.wage_after_fixot||0), wao=parseFloat(cuP().s3.wage_after_other||0);
+  const el=document.getElementById('cu-s3wage-result');
+  if(!el)return;
+  if(wb<=0&&wa<=0){el.innerHTML='';return;}
+  const totalB=wb+wbf+wbo, totalA=wa+waf+wao;
+  const diff=totalA-totalB, pct=totalB>0?diff/totalB*100:0;
+  const ok=pct>=3;
+  cuP().s3.wage_result=ok?'要件クリア（+'+pct.toFixed(1)+'%）':'要件未達（'+pct.toFixed(1)+'%）';
+  el.innerHTML=`<div style="background:var(--paper2);border-radius:var(--r);padding:10px 12px;border:1px solid ${ok?'var(--green)':'var(--red)'}">
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;text-align:center;font-size:11px;margin-bottom:8px">
+      <div style="background:var(--paper3);border-radius:6px;padding:6px 4px"><div style="color:var(--ink3)">転換前合計</div><div style="font-weight:600">${cuFmt(totalB)}</div></div>
+      <div style="background:var(--paper3);border-radius:6px;padding:6px 4px"><div style="color:var(--ink3)">転換後合計</div><div style="font-weight:600">${cuFmt(totalA)}</div></div>
+      <div style="background:${ok?'var(--green-l)':'var(--red-l)'};border-radius:6px;padding:6px 4px;border:1px solid ${ok?'var(--green)':'var(--red)'}"><div style="color:${ok?'var(--green-d)':'var(--red-d)'}">増額率</div><div style="font-weight:700;color:${ok?'var(--green-d)':'var(--red-d)'}">${diff>=0?'+':''}${pct.toFixed(1)}%</div></div>
+    </div>
+    <div class="${ok?'alert alert-ok':'alert alert-ng'}" style="font-size:12px">${ok?'✓ 増額要件クリア（3%以上）':'✗ 要件未達 — あと'+(3-pct).toFixed(1)+'%の増額が必要です'}</div>
+  </div>`;
+  // s3 result
+  const s=cuP().s3;
+  const risks=[s.rc1,s.rc2,s.rc3,s.rc4].filter(v=>v==='あり'||v==='該当').length;
+  cuP().s3.result=risks>0?'申請非推奨':s.jirei==='あり'&&s.mukiroyou==='確認済'&&ok?'申請可能':'修正後可能';
+  const rel=document.getElementById('cu-s3res');
+  if(rel){ const r=cuP().s3.result; rel.innerHTML=`<div class="${r==='申請可能'?'alert alert-ok':r.includes('非推奨')?'alert alert-ng':'alert alert-warn'}" style="margin-top:8px">🤖 申請準備判定：<strong>${r}</strong></div>`; }
+}
+
+// ── STEP4: 書類監査（シンプル版） ──
+function cuP4(){
+  const c=CU_SC[4];
+  return cuCard(`
+    <div class="card-title" style="color:${c[2]}">STEP 4 ─ 書類整合性監査</div>
+    <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px;padding:8px 10px;background:var(--paper2);border-radius:var(--r)">
+      ${cuChip('S3判定',cuP().s3.result,cuP().s3.result==='申請可能'?'ok':'warn')}
+      ${cuChip('賃金比較',cuP().s3.wage_result,cuP().s3.wage_result?.includes('クリア')?'ok':'ng')}
+    </div>
+    ${cuAin()}
+    <div style="font-size:13px;color:var(--ink3);margin-bottom:12px">以下の書類・条件を確認してください。問題があれば前のSTEPに戻って修正してください。</div>
+    ${[
+      ['就業規則に正社員転換規定があるか',cuP().s1.conv_rule,'あり'],
+      ['雇用保険に加入しているか',cuP().s1.emp_ins,'加入済'],
+      ['社会保険に加入しているか',cuP().s1.shi,'加入済'],
+      ['勤続6か月以上か',cuP().s1.six_months,'はい'],
+      ['転換後賃金が3%以上増額しているか',cuP().s3.wage_result,'要件クリア'],
+      ['転換辞令の作成',cuP().s3.jirei,'あり'],
+      ['申請前6か月以内の解雇がないか',cuP().s3.rc1,'なし'],
+    ].map(([label, val, expected]) => {
+      const ok = val && (val===expected || val.includes(expected));
+      return `<div class="check-item ${ok?'ok':val?'danger':'info'}">
+        <span class="check-icon">${ok?'✅':val?'❌':'❓'}</span>
+        <span style="flex:1">${label}</span>
+        <span style="font-size:11px;font-weight:600">${val||'未入力'}</span>
+      </div>`;
+    }).join('')}
+  `) + cuNav(4);
+}
+
+// ── STEP5: 資料管理 ──
+function cuP5(){
+  const c=CU_SC[5];
+  return cuCard(`
+    <div class="card-title" style="color:${c[2]}">STEP 5 ─ 資料管理 <small style="font-size:11px;font-weight:400;color:var(--ink3)">対象者：${cuEscH(cuP().name)}</small></div>
+    ${cuAin()}
+    <div id="cu-s5-doclist"></div>
+  `) + cuNav(5);
+}
+function cuRDocs(){
+  const st=cuP().s5.statuses||{};
+  const el=document.getElementById('cu-s5-doclist');
+  if(!el)return;
+  const done=CU_DOCS.filter(d=>[1,4].includes(st[d.id]||0)).length;
+  const pct=Math.round(done/CU_DOCS.length*100);
+  let html=`<div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:12px"><span style="font-weight:600">書類提出状況</span><span style="color:var(--blue);font-weight:700">${done}/${CU_DOCS.length} (${pct}%)</span></div>
+  <div class="progress-wrap" style="margin-bottom:12px"><div class="progress-fill" style="width:${pct}%"></div></div>`;
+  CU_DOCS.forEach(doc => {
+    const stIdx=st[doc.id]||0;
+    const stLabel=CU_DST[stIdx];
+    const stBg=CU_DSTB[stIdx], stColor=CU_DSTCO[stIdx];
+    html+=`<div style="display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--border);border-radius:var(--r);margin-bottom:6px">
+      <span style="font-size:11px;padding:2px 6px;border-radius:4px;font-weight:600;background:${CU_DSTB[stIdx]};color:${CU_DSTCO[stIdx]};white-space:nowrap;cursor:pointer" onclick="cuCycDoc('${doc.id}')">${stLabel}</span>
+      <span style="flex:1;font-size:13px">${doc.id}</span>
+      <span style="font-size:10px;color:var(--ink3)">${doc.p}</span>
+    </div>`;
+  });
+  el.innerHTML=html;
+}
+function cuCycDoc(id){
+  if(!cuP().s5.statuses)cuP().s5.statuses={};
+  cuP().s5.statuses[id]=((cuP().s5.statuses[id]||0)+1)%CU_DST.length;
+  cuAS(); cuRDocs();
+}
+
+// ── STEP6: 申請後フォロー ──
+function cuP6(){
+  const c=CU_SC[6], m=cuP().s6.m;
+  const convDate=cuP().s3.conv_date;
+  const sixDate=convDate?cuAddM(convDate,6):'';
+  const applyDL=convDate?cuAddM(convDate,8):'';
+  const doneCnt=CU_MS_KEYS.filter(k=>m[k]&&m[k].done).length;
+  const progPct=Math.round(doneCnt/CU_MS_KEYS.length*100);
+
+  function msI(key,lbl,sub){
+    const dn=m[key]&&m[key].done||false;
+    return `<div style="display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--paper3)">
+      <div onclick="cuTogMs('${key}')" style="width:22px;height:22px;border-radius:50%;border:1.5px solid ${dn?'var(--green)':'var(--border2)'};background:${dn?'var(--green)':'var(--paper)'};display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;margin-top:1px;font-size:11px;color:#fff">${dn?'✓':''}</div>
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:500;${dn?'text-decoration:line-through;color:var(--ink3)':''}">${lbl}</div>
+        ${sub?`<div style="font-size:11px;color:var(--ink3);margin-top:2px">${sub}</div>`:''}
+        <div style="margin-top:5px;display:flex;align-items:center;gap:6px">
+          <span style="font-size:11px;color:var(--ink3)">実施日：</span>
+          <input type="text" value="${m[key]&&m[key].date||''}" placeholder="令和X年X月X日" oninput="cuP().s6.m['${key}'].date=this.value;cuAS()"
+            style="font-size:12px;padding:3px 8px;border:1px solid var(--border2);border-radius:6px;width:160px">
+        </div>
+      </div>
+    </div>`;
+  }
+
+  return cuCard(`
+    <div class="card-title" style="color:${c[2]}">STEP 6 ─ 申請後フォロー管理 <small style="font-size:11px;font-weight:400;color:var(--ink3)">対象者：${cuEscH(cuP().name)}</small></div>
+    <div style="padding:10px;background:var(--paper2);border-radius:var(--r);margin-bottom:12px;font-size:12px">
+      ${convDate?`<div style="margin-bottom:4px">転換予定日：<strong>${convDate}</strong></div>`:''}
+      ${sixDate?`<div style="margin-bottom:4px">6か月到達予定：<strong>${sixDate}</strong></div>`:''}
+      ${applyDL?`<div>支給申請期限：<strong>${applyDL}</strong> ${cuDlChip(applyDL)}</div>`:''}
+      ${!convDate?'<div style="color:var(--amber-d)">⚠ STEP3で転換日を入力すると期限が自動計算されます</div>':''}
+    </div>
+    <div style="margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span>進捗：${doneCnt}/${CU_MS_KEYS.length} 完了</span><span style="font-weight:600;color:${c[2]}">${progPct}%</span></div>
+      <div class="progress-wrap"><div class="progress-fill" style="width:${progPct}%;background:${c[1]}"></div></div>
+    </div>
+    <div style="font-size:12px;font-weight:700;color:var(--amber-d);background:var(--amber-l);border-radius:6px;padding:5px 10px;margin-bottom:8px">① キャリアアップ計画届の提出（転換「前」に必須）</div>
+    ${msI('plan','計画届を労働局・ハローワークへ提出','⚠ 正社員転換より前に提出が必要です')}
+    <div style="font-size:12px;font-weight:700;color:var(--amber-d);background:var(--amber-l);border-radius:6px;padding:5px 10px;margin:8px 0">② 正社員転換の実施</div>
+    ${msI('conv','正社員転換を実施',convDate?'転換予定日：'+convDate:'')}
+    ${msI('jirei','転換辞令を交付','署名・押印した辞令を対象者に交付')}
+    ${msI('ins','社会保険等の変更手続き完了','健保・厚年・雇保の区分変更手続き')}
+    <div style="font-size:12px;font-weight:700;color:var(--amber-d);background:var(--amber-l);border-radius:6px;padding:5px 10px;margin:8px 0">③ 転換後6か月の継続雇用確認${sixDate?' — 到達予定：'+sixDate:''}</div>
+    ${msI('six','6か月継続雇用を確認',sixDate?'6か月到達予定：'+sixDate:'')}
+    ${msI('wage6','転換後6か月分の賃金台帳・出勤簿を整備','')}
+    <div style="font-size:12px;font-weight:700;color:var(--amber-d);background:var(--amber-l);border-radius:6px;padding:5px 10px;margin:8px 0">④ 支給申請書の提出${applyDL?' — 期限：'+applyDL:''}</div>
+    ${msI('apply','支給申請書（様式第5号）を提出','賃金比較表・書類一式を添付して労働局へ提出')}
+    <div style="font-size:12px;font-weight:700;color:var(--amber-d);background:var(--amber-l);border-radius:6px;padding:5px 10px;margin:8px 0">⑤ 支給決定・入金</div>
+    ${msI('decision','支給決定通知を受領','')}
+    ${msI('payment','助成金の入金を確認','')}
+    ${m.payment&&m.payment.done?'<div class="alert alert-ok" style="margin-top:10px">🎉 受給完了！お疲れさまでした。</div>':''}
+  `) + cuNav(6);
+}
+function cuTogMs(key){
+  const m=cuP().s6.m;
+  if(!m[key]) m[key]={done:false,date:''};
+  m[key].done=!m[key].done;
+  cuAS(); cuGo(cuCur);
+}
+
+// ── STEP7: 総合サマリー ──
+function cuP7(){
+  const c=CU_SC[7], s1=cuP().s1, s2=cuP().s2, s3=cuP().s3;
+  return cuCard(`
+    <div class="card-title" style="color:${c[2]}">総合サマリー <small style="font-size:11px;font-weight:400;color:var(--ink3)">対象者：${cuEscH(cuP().name)}</small></div>
+    <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:14px">
+      ${cuChip('S1簡易判定',s1.result,s1.result==='可能性高'?'ok':s1.result==='要確認'?'warn':'ng')}
+      ${cuChip('S2詳細診断',s2.result,s2.result==='申請可能'?'ok':s2.result==='要整備'?'warn':'ng')}
+      ${cuChip('S3申請準備',s3.result,s3.result==='申請可能'?'ok':'warn')}
+      ${cuChip('賃金比較',s3.wage_result,s3.wage_result?.includes('クリア')?'ok':'ng')}
+    </div>
+    <div style="font-size:12px;color:var(--ink3);background:var(--paper2);border-radius:var(--r);padding:10px 12px;line-height:1.8">
+      <div>対象者：<strong>${cuEscH(cuP().name)}</strong></div>
+      ${s1.now_sal?`<div>転換前月給：<strong>${cuFmt(s1.now_sal)}</strong> → 転換後：<strong>${cuFmt(s1.new_sal)}</strong></div>`:''}
+      ${s3.conv_date?`<div>転換予定日：<strong>${s3.conv_date}</strong></div>`:''}
+      ${s3.conv_date?`<div>支給申請期限：<strong>${cuAddM(s3.conv_date,8)}</strong> ${cuDlChip(cuAddM(s3.conv_date,8))}</div>`:''}
+    </div>
+    <div class="alert alert-info" style="margin-top:12px;font-size:12px">📋 支給額目安：1措置につき最大80万円（中小企業の場合）<br>書類保管：支給決定日の翌日から5年間</div>
+    <div class="btn-row" style="margin-top:14px">
+      <button class="btn" onclick="cuGo(1)">← STEP1に戻る</button>
+      <button class="btn btn-green" onclick="cuCopySum()">📋 サマリーをコピー</button>
+    </div>
+  `);
+}
+function cuCopySum(){
+  const s1=cuP().s1, s2=cuP().s2, s3=cuP().s3;
+  const txt=`【キャリアアップ助成金 診断サマリー】\n対象者：${cuP().name}\n生成日：${new Date().toLocaleDateString('ja-JP')}\n\n■ 診断結果\nS1簡易判定：${s1.result||'未診断'}\nS2詳細診断：${s2.result||'未診断'}\nS3申請準備：${s3.result||'未診断'}\n賃金比較：${s3.wage_result||'未入力'}\n\n■ 賃金情報\n転換前：${s1.now_sal?cuFmt(s1.now_sal):'未入力'} → 転換後：${s1.new_sal?cuFmt(s1.new_sal):'未入力'}\n\n■ 転換予定日\n${s3.conv_date||'未入力'}\n\n※本内容はAI判定による参考情報です。最終判断は担当社労士が行ってください。`;
+  navigator.clipboard.writeText(txt).then(()=>showToast('📋 サマリーをコピーしました')).catch(()=>showToast('コピーに失敗しました'));
+}
+
+function initCareerPage(){
+  cuLoadD();
+  const gc=document.getElementById('cu-gc'); if(gc)gc.value=cuD.company||'';
+  const gd=document.getElementById('cu-gd'); if(gd)gd.value=cuD.plan||'';
+  const gp=document.getElementById('cu-gp'); if(gp)gp.value=cuD.pref||'';
+  cuRPersonTabs();
+  cuRProg();
+  cuRender();
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
