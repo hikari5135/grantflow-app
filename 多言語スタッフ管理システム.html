@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>多言語スタッフ管理システム｜GrantFlow</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#1a1a18;--ink2:#3a3a36;--ink3:#7a7a72;
+  --bg:#f2f1ec;--surface:#fff;--surface2:#f8f7f2;
+  --border:#e2e1d8;--border2:#c8c7be;
+  --green:#1a7a4a;--green-l:#e8f5ee;--green-m:#b8e0ca;
+  --red:#c0392b;--red-l:#fdecea;--red-m:#f5b7b1;
+  --amber:#c47a00;--amber-l:#fff8e6;--amber-m:#ffd97a;
+  --blue:#1a5fa8;--blue-l:#e8f0fb;--blue-m:#a8c4ef;
+  --purple:#6d28d9;--purple-l:#ede9fe;--purple-m:#c4b5fd;
+  --teal:#0d7a6a;--teal-l:#e6f5f2;--teal-m:#a8ddd6;
+  --r:10px;--r2:16px;
+  --shadow:0 2px 8px rgba(0,0,0,.06);
+  --shadow2:0 8px 24px rgba(0,0,0,.10);
+}
+body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;font-size:14px;line-height:1.6;}
+.layout{display:flex;min-height:100vh;}
+.sidebar{width:240px;background:var(--ink);color:#fff;position:fixed;top:0;left:0;bottom:0;display:flex;flex-direction:column;z-index:100;}
+.sidebar-logo{padding:20px 18px;border-bottom:1px solid rgba(255,255,255,.1);}
+.logo-name{font-size:13px;font-weight:700;line-height:1.4;}
+.logo-sub{font-size:10px;color:rgba(255,255,255,.45);margin-top:2px;}
+.logo-badge{display:inline-block;margin-top:6px;font-size:9px;font-weight:700;background:var(--teal);color:#fff;padding:2px 8px;border-radius:4px;font-family:'DM Mono',monospace;}
+.nav-section{padding:12px 0 4px;}
+.nav-label{font-size:9px;font-weight:700;letter-spacing:.1em;color:rgba(255,255,255,.3);padding:0 18px;margin-bottom:4px;text-transform:uppercase;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 18px;font-size:13px;font-weight:500;color:rgba(255,255,255,.6);cursor:pointer;border-left:3px solid transparent;transition:all .15s;}
+.nav-item:hover{color:#fff;background:rgba(255,255,255,.06);}
+.nav-item.active{color:#fff;border-left-color:var(--teal);background:rgba(255,255,255,.08);}
+.nav-icon{font-size:16px;width:20px;text-align:center;}
+.sidebar-footer{margin-top:auto;padding:14px 18px;border-top:1px solid rgba(255,255,255,.1);}
+.user-row{display:flex;align-items:center;gap:8px;}
+.user-av{width:28px;height:28px;border-radius:50%;background:var(--teal);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;}
+.user-name{font-size:11px;font-weight:600;}
+.user-role{font-size:10px;color:rgba(255,255,255,.4);}
+
+.main{margin-left:240px;flex:1;}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:12px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
+.topbar-title{font-size:16px;font-weight:700;}
+.topbar-right{display:flex;align-items:center;gap:10px;}
+
+.page{display:none;padding:24px;}
+.page.active{display:block;}
+
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:20px;margin-bottom:14px;box-shadow:var(--shadow);}
+.card-title{font-size:14px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.section-title{font-size:18px;font-weight:700;}
+.section-sub{font-size:13px;color:var(--ink3);margin-top:2px;}
+
+.badge{display:inline-flex;align-items:center;padding:2px 10px;border-radius:6px;font-size:11px;font-weight:700;}
+.badge-ok{background:var(--green-l);color:var(--green);}
+.badge-ng{background:var(--red-l);color:var(--red);}
+.badge-warn{background:var(--amber-l);color:var(--amber);}
+.badge-info{background:var(--blue-l);color:var(--blue);}
+.badge-purple{background:var(--purple-l);color:var(--purple);}
+.badge-teal{background:var(--teal-l);color:var(--teal);}
+.badge-gray{background:var(--surface2);color:var(--ink3);border:1px solid var(--border);}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:9px 18px;border:1.5px solid var(--border2);border-radius:var(--r);font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;transition:all .15s;background:var(--surface);color:var(--ink);}
+.btn:hover{background:var(--surface2);}
+.btn-teal{background:var(--teal);border-color:var(--teal);color:#fff;}
+.btn-teal:hover{background:#0a5c4f;}
+.btn-red{background:var(--red);border-color:var(--red);color:#fff;}
+.btn-blue{background:var(--blue);border-color:var(--blue);color:#fff;}
+.btn-sm{padding:5px 12px;font-size:12px;}
+.btn-full{width:100%;}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;}
+
+.fg{display:flex;flex-direction:column;gap:4px;margin-bottom:12px;}
+.fg label{font-size:11px;font-weight:700;color:var(--ink3);}
+.fg input,.fg select,.fg textarea{width:100%;padding:9px 12px;border:1.5px solid var(--border2);border-radius:var(--r);font-size:13px;font-family:inherit;color:var(--ink);background:var(--surface);outline:none;transition:border .15s;}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--teal);}
+.fg textarea{resize:vertical;min-height:70px;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+
+/* STAT */
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:14px 16px;box-shadow:var(--shadow);}
+.stat-label{font-size:11px;color:var(--ink3);margin-bottom:4px;}
+.stat-val{font-size:26px;font-weight:700;line-height:1.1;}
+.stat-sub{font-size:11px;color:var(--ink3);margin-top:2px;}
+
+/* LANG TAB */
+.lang-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;}
+.lang-tab{padding:6px 14px;border-radius:99px;font-size:12px;font-weight:600;border:1.5px solid var(--border2);background:var(--surface);color:var(--ink3);cursor:pointer;transition:all .15s;}
+.lang-tab.active{background:var(--teal);border-color:var(--teal);color:#fff;}
+
+/* STAFF CARD */
+.staff-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r2);padding:18px 20px;margin-bottom:10px;transition:all .2s;}
+.staff-card:hover{border-color:var(--border2);box-shadow:var(--shadow);}
+.staff-head{display:flex;align-items:flex-start;gap:14px;}
+.staff-avatar{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;background:var(--teal-l);}
+.staff-info{flex:1;min-width:0;}
+.staff-name{font-size:15px;font-weight:700;margin-bottom:2px;}
+.staff-meta{font-size:12px;color:var(--ink3);line-height:1.6;}
+.staff-tags{display:flex;gap:4px;flex-wrap:wrap;margin-top:6px;}
+.staff-actions{display:flex;gap:6px;flex-shrink:0;}
+
+/* NOTICE CARD */
+.notice-item{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:12px 14px;margin-bottom:8px;}
+.notice-head{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+.notice-type{font-size:10px;font-weight:700;padding:2px 8px;border-radius:99px;}
+.notice-title{font-size:13px;font-weight:600;}
+.notice-langs{display:flex;flex-direction:column;gap:6px;margin-top:8px;}
+.notice-lang-row{display:flex;gap:10px;align-items:flex-start;}
+.notice-lang-label{font-size:10px;font-weight:700;color:var(--ink3);width:60px;flex-shrink:0;padding-top:2px;}
+.notice-lang-text{font-size:12px;line-height:1.6;flex:1;}
+
+/* SHIFT */
+.shift-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:12px;}
+.shift-day{text-align:center;padding:6px 4px;border-radius:var(--r);background:var(--surface2);border:1px solid var(--border);}
+.shift-day-label{font-size:10px;color:var(--ink3);margin-bottom:3px;}
+.shift-day-name{font-size:12px;font-weight:700;}
+.shift-day.today{background:var(--teal-l);border-color:var(--teal-m);}
+.shift-day.today .shift-day-name{color:var(--teal);}
+
+/* MODAL */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;align-items:center;justify-content:center;padding:16px;}
+.modal-bg.open{display:flex;}
+.modal-box{background:var(--surface);border-radius:var(--r2);padding:24px;width:min(680px,100%);max-height:90vh;overflow-y:auto;box-shadow:var(--shadow2);}
+.modal-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;}
+.modal-title{font-size:16px;font-weight:700;}
+.modal-close{font-size:20px;cursor:pointer;color:var(--ink3);background:none;border:none;}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 20px;border-radius:var(--r);font-size:13px;font-weight:600;opacity:0;transition:opacity .3s;pointer-events:none;z-index:999;white-space:nowrap;}
+.toast.show{opacity:1;}
+
+/* PROFILE VIEW */
+.profile-section{margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--border);}
+.profile-section:last-child{border-bottom:none;margin-bottom:0;}
+.profile-section-title{font-size:11px;font-weight:700;color:var(--ink3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;}
+.profile-row{display:flex;gap:8px;margin-bottom:6px;font-size:13px;}
+.profile-label{color:var(--ink3);width:120px;flex-shrink:0;}
+.profile-val{font-weight:500;flex:1;}
+
+@media(max-width:768px){.sidebar{transform:translateX(-100%);}.main{margin-left:0;}.stat-grid{grid-template-columns:1fr 1fr;}.grid2,.grid3{grid-template-columns:1fr;}.shift-grid{grid-template-columns:repeat(4,1fr);}}
+</style>
+</head>
+<body>
+<div class="layout">
+
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-name">多言語スタッフ<br>管理システム</div>
+    <div class="logo-sub">GrantFlow 多言語対応</div>
+    <div class="logo-badge">v1.0</div>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">メニュー</div>
+    <div class="nav-item active" onclick="showPage('pg-home')"><span class="nav-icon">🏠</span>ダッシュボード</div>
+    <div class="nav-item" onclick="showPage('pg-staff')"><span class="nav-icon">🌏</span>スタッフ管理</div>
+    <div class="nav-item" onclick="showPage('pg-notice')"><span class="nav-icon">📢</span>多言語連絡事項</div>
+    <div class="nav-item" onclick="showPage('pg-shift')"><span class="nav-icon">📅</span>シフト管理</div>
+    <div class="nav-item" onclick="showPage('pg-emergency')"><span class="nav-icon">🚨</span>緊急連絡先</div>
+  </div>
+  <div class="sidebar-footer">
+    <div class="user-row">
+      <div class="user-av">阪</div>
+      <div><div class="user-name">阪本 光</div><div class="user-role">管理者</div></div>
+    </div>
+  </div>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title" id="topbar-title">ダッシュボード</div>
+    <div class="topbar-right">
+      <button class="btn btn-teal btn-sm" onclick="openAddStaff()">＋ スタッフ追加</button>
+    </div>
+  </div>
+
+  <!-- HOME -->
+  <div class="page active" id="pg-home">
+    <div class="section-header">
+      <div>
+        <div class="section-title">ダッシュボード</div>
+        <div class="section-sub" id="home-date"></div>
+      </div>
+    </div>
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-label">総スタッフ数</div><div class="stat-val" id="stat-total" style="color:var(--teal)">0</div><div class="stat-sub">名</div></div>
+      <div class="stat-card"><div class="stat-label">国籍数</div><div class="stat-val" id="stat-countries" style="color:var(--blue)">0</div><div class="stat-sub">カ国</div></div>
+      <div class="stat-card"><div class="stat-label">使用言語数</div><div class="stat-val" id="stat-langs" style="color:var(--purple)">0</div><div class="stat-sub">言語</div></div>
+      <div class="stat-card"><div class="stat-label">連絡事項</div><div class="stat-val" id="stat-notices" style="color:var(--amber)">0</div><div class="stat-sub">件（今月）</div></div>
+    </div>
+    <div class="grid2">
+      <div class="card">
+        <div class="card-title">🌏 国籍別スタッフ数</div>
+        <div id="country-breakdown"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">📢 最新の連絡事項</div>
+        <div id="latest-notices"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">👥 スタッフ一覧</div>
+      <div id="home-staff"></div>
+    </div>
+  </div>
+
+  <!-- STAFF -->
+  <div class="page" id="pg-staff">
+    <div class="section-header">
+      <div><div class="section-title">🌏 スタッフ管理</div><div class="section-sub">多言語対応のスタッフ情報を管理します</div></div>
+      <button class="btn btn-teal" onclick="openAddStaff()">＋ スタッフ追加</button>
+    </div>
+    <div class="card" style="padding:12px 16px;margin-bottom:14px">
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <input type="text" id="staff-search" placeholder="🔍 名前・国籍・言語で検索..." oninput="renderStaff()" style="flex:1;padding:9px 12px;border:1.5px solid var(--border2);border-radius:var(--r);font-size:13px;font-family:inherit;outline:none;">
+        <select id="staff-lang-filter" onchange="renderStaff()" style="padding:9px 12px;border:1.5px solid var(--border2);border-radius:var(--r);font-size:13px;font-family:inherit;">
+          <option value="">全言語</option>
+          <option>日本語</option><option>ベトナム語</option><option>中国語</option>
+          <option>タガログ語</option><option>インドネシア語</option><option>ミャンマー語</option>
+          <option>タイ語</option><option>ネパール語</option><option>英語</option>
+        </select>
+      </div>
+    </div>
+    <div id="staff-list"></div>
+  </div>
+
+  <!-- NOTICE -->
+  <div class="page" id="pg-notice">
+    <div class="section-header">
+      <div><div class="section-title">📢 多言語連絡事項</div><div class="section-sub">連絡事項を複数言語で作成・共有します</div></div>
+      <button class="btn btn-teal" onclick="openAddNotice()">＋ 連絡事項を作成</button>
+    </div>
+    <div class="lang-tabs" id="notice-lang-tabs">
+      <div class="lang-tab active" onclick="setNoticeLang('all',this)">すべて</div>
+      <div class="lang-tab" onclick="setNoticeLang('ja',this)">🇯🇵 日本語</div>
+      <div class="lang-tab" onclick="setNoticeLang('vi',this)">🇻🇳 ベトナム語</div>
+      <div class="lang-tab" onclick="setNoticeLang('zh',this)">🇨🇳 中国語</div>
+      <div class="lang-tab" onclick="setNoticeLang('tl',this)">🇵🇭 タガログ語</div>
+      <div class="lang-tab" onclick="setNoticeLang('id',this)">🇮🇩 インドネシア語</div>
+      <div class="lang-tab" onclick="setNoticeLang('my',this)">🇲🇲 ミャンマー語</div>
+    </div>
+    <div id="notice-list"></div>
+  </div>
+
+  <!-- SHIFT -->
+  <div class="page" id="pg-shift">
+    <div class="section-header">
+      <div><div class="section-title">📅 シフト管理</div><div class="section-sub">スタッフのシフトを多言語で確認・共有</div></div>
+      <button class="btn btn-teal" onclick="openAddShift()">＋ シフト追加</button>
+    </div>
+    <div id="shift-content"></div>
+  </div>
+
+  <!-- EMERGENCY -->
+  <div class="page" id="pg-emergency">
+    <div class="section-header">
+      <div><div class="section-title">🚨 緊急連絡先</div><div class="section-sub">スタッフの緊急連絡先を多言語で管理</div></div>
+    </div>
+    <div id="emergency-list"></div>
+  </div>
+</div>
+</div>
+
+<!-- MODAL: スタッフ追加 -->
+<div class="modal-bg" id="modal-staff">
+  <div class="modal-box">
+    <div class="modal-top">
+      <div class="modal-title" id="modal-staff-title">🌏 スタッフ追加</div>
+      <button class="modal-close" onclick="closeModal('modal-staff')">✕</button>
+    </div>
+    <div class="profile-section">
+      <div class="profile-section-title">基本情報</div>
+      <div class="grid2">
+        <div class="fg"><label>氏名（本名）★</label><input type="text" id="s-name" placeholder="例：Nguyen Thi Lan"></div>
+        <div class="fg"><label>よみがな・通称名</label><input type="text" id="s-kana" placeholder="例：グエン・ティ・ラン"></div>
+        <div class="fg"><label>国籍★</label>
+          <select id="s-country">
+            <option>ベトナム</option><option>中国</option><option>フィリピン</option>
+            <option>インドネシア</option><option>ミャンマー</option><option>タイ</option>
+            <option>ネパール</option><option>カンボジア</option><option>バングラデシュ</option><option>その他</option>
+          </select>
+        </div>
+        <div class="fg"><label>母国語★</label>
+          <select id="s-lang">
+            <option>ベトナム語</option><option>中国語</option><option>タガログ語</option>
+            <option>インドネシア語</option><option>ミャンマー語</option><option>タイ語</option>
+            <option>ネパール語</option><option>クメール語</option><option>ベンガル語</option><option>英語</option>
+          </select>
+        </div>
+        <div class="fg"><label>日本語レベル</label>
+          <select id="s-jlevel">
+            <option>ほぼ話せない</option><option>日常会話程度</option><option>業務に支障なし</option><option>流暢</option>
+          </select>
+        </div>
+        <div class="fg"><label>性別</label>
+          <select id="s-gender"><option>男性</option><option>女性</option><option>その他</option></select>
+        </div>
+        <div class="fg"><label>生年月日</label><input type="date" id="s-birth"></div>
+        <div class="fg"><label>入社日</label><input type="date" id="s-hire"></div>
+      </div>
+    </div>
+    <div class="profile-section">
+      <div class="profile-section-title">連絡先</div>
+      <div class="grid2">
+        <div class="fg"><label>電話番号</label><input type="text" id="s-tel" placeholder="090-xxxx-xxxx"></div>
+        <div class="fg"><label>メールアドレス</label><input type="text" id="s-email"></div>
+        <div class="fg"><label>LINEアカウント</label><input type="text" id="s-line" placeholder="LINE ID"></div>
+        <div class="fg"><label>住所</label><input type="text" id="s-address"></div>
+      </div>
+    </div>
+    <div class="profile-section">
+      <div class="profile-section-title">緊急連絡先</div>
+      <div class="grid2">
+        <div class="fg"><label>緊急連絡先氏名</label><input type="text" id="s-ename"></div>
+        <div class="fg"><label>続柄</label><input type="text" id="s-erel" placeholder="例：母・兄"></div>
+        <div class="fg"><label>緊急連絡先電話番号</label><input type="text" id="s-etel"></div>
+        <div class="fg"><label>居住国</label><input type="text" id="s-ecountry" placeholder="例：ベトナム・ハノイ"></div>
+      </div>
+    </div>
+    <div class="profile-section">
+      <div class="profile-section-title">勤務情報</div>
+      <div class="grid2">
+        <div class="fg"><label>部署・配属先</label><input type="text" id="s-dept" placeholder="例：製造1課"></div>
+        <div class="fg"><label>雇用形態</label>
+          <select id="s-etype"><option>正社員</option><option>パート・アルバイト</option><option>技能実習生</option><option>特定技能</option><option>派遣</option></select>
+        </div>
+      </div>
+      <div class="fg"><label>備考・特記事項</label><textarea id="s-memo" placeholder="アレルギー・宗教上の配慮・その他"></textarea></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-teal" onclick="saveStaff()">💾 保存する</button>
+      <button class="btn" onclick="closeModal('modal-staff')">キャンセル</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: 連絡事項作成 -->
+<div class="modal-bg" id="modal-notice">
+  <div class="modal-box">
+    <div class="modal-top">
+      <div class="modal-title">📢 多言語連絡事項を作成</div>
+      <button class="modal-close" onclick="closeModal('modal-notice')">✕</button>
+    </div>
+    <div class="fg">
+      <label>連絡種別</label>
+      <select id="n-type">
+        <option>業務連絡</option><option>安全・注意事項</option><option>シフト変更</option>
+        <option>給与・福利厚生</option><option>緊急連絡</option><option>その他</option>
+      </select>
+    </div>
+    <div class="fg"><label>件名★</label><input type="text" id="n-title" placeholder="例：来週のシフトについて"></div>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:12px">
+      <div class="fg" style="margin-bottom:0"><label>🇯🇵 日本語</label><textarea id="n-ja" rows="2" placeholder="日本語で入力してください"></textarea></div>
+      <div class="fg" style="margin-bottom:0"><label>🇻🇳 ベトナム語</label><textarea id="n-vi" rows="2" placeholder="Nhập bằng tiếng Việt"></textarea></div>
+      <div class="fg" style="margin-bottom:0"><label>🇨🇳 中国語</label><textarea id="n-zh" rows="2" placeholder="请用中文输入"></textarea></div>
+      <div class="fg" style="margin-bottom:0"><label>🇵🇭 タガログ語</label><textarea id="n-tl" rows="2" placeholder="Mag-type sa Filipino"></textarea></div>
+      <div class="fg" style="margin-bottom:0"><label>🇮🇩 インドネシア語</label><textarea id="n-id" rows="2" placeholder="Ketik dalam bahasa Indonesia"></textarea></div>
+      <div class="fg" style="margin-bottom:0"><label>🇲🇲 ミャンマー語</label><textarea id="n-my" rows="2" placeholder="မြန်မာဘာသာဖြင့် ရိုက်ထည့်ပါ"></textarea></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-teal" onclick="saveNotice()">📤 送信・保存する</button>
+      <button class="btn" onclick="closeModal('modal-notice')">キャンセル</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: シフト追加 -->
+<div class="modal-bg" id="modal-shift">
+  <div class="modal-box">
+    <div class="modal-top">
+      <div class="modal-title">📅 シフト追加</div>
+      <button class="modal-close" onclick="closeModal('modal-shift')">✕</button>
+    </div>
+    <div class="grid2">
+      <div class="fg"><label>スタッフ★</label><select id="sh-staff"></select></div>
+      <div class="fg"><label>日付★</label><input type="date" id="sh-date"></div>
+      <div class="fg"><label>開始時間</label><input type="time" id="sh-start" value="09:00"></div>
+      <div class="fg"><label>終了時間</label><input type="time" id="sh-end" value="18:00"></div>
+      <div class="fg"><label>業務内容</label><input type="text" id="sh-task" placeholder="例：製造ライン・梱包作業"></div>
+      <div class="fg"><label>配属先</label><input type="text" id="sh-place" placeholder="例：第1工場"></div>
+    </div>
+    <div class="fg"><label>メモ（多言語で表示されます）</label><textarea id="sh-memo" rows="2" placeholder="スタッフへの連絡事項があれば入力"></textarea></div>
+    <div class="btn-row">
+      <button class="btn btn-teal" onclick="saveShift()">💾 保存する</button>
+      <button class="btn" onclick="closeModal('modal-shift')">キャンセル</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: スタッフ詳細 -->
+<div class="modal-bg" id="modal-profile">
+  <div class="modal-box">
+    <div class="modal-top">
+      <div class="modal-title" id="modal-profile-title">スタッフ詳細</div>
+      <button class="modal-close" onclick="closeModal('modal-profile')">✕</button>
+    </div>
+    <div id="modal-profile-content"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const COUNTRY_FLAG = {
+  'ベトナム':'🇻🇳','中国':'🇨🇳','フィリピン':'🇵🇭','インドネシア':'🇮🇩',
+  'ミャンマー':'🇲🇲','タイ':'🇹🇭','ネパール':'🇳🇵','カンボジア':'🇰🇭',
+  'バングラデシュ':'🇧🇩','その他':'🌏'
+};
+const LANG_CODE = {
+  'ベトナム語':'vi','中国語':'zh','タガログ語':'tl','インドネシア語':'id',
+  'ミャンマー語':'my','タイ語':'th','ネパール語':'ne','クメール語':'km',
+  'ベンガル語':'bn','英語':'en','日本語':'ja'
+};
+const LANG_FLAG = {'vi':'🇻🇳','zh':'🇨🇳','tl':'🇵🇭','id':'🇮🇩','my':'🇲🇲','th':'🇹🇭','ja':'🇯🇵','en':'🇬🇧'};
+const LANG_NAME = {'vi':'ベトナム語','zh':'中国語','tl':'タガログ語','id':'インドネシア語','my':'ミャンマー語','th':'タイ語','ja':'日本語','en':'英語'};
+
+// SHIFT TRANSLATIONS
+const SHIFT_TRANS = {
+  vi:{start:'Bắt đầu',end:'Kết thúc',task:'Công việc',place:'Địa điểm',memo:'Ghi chú'},
+  zh:{start:'开始',end:'结束',task:'工作内容',place:'工作地点',memo:'备注'},
+  tl:{start:'Simula',end:'Katapusan',task:'Trabaho',place:'Lugar',memo:'Tala'},
+  id:{start:'Mulai',end:'Selesai',task:'Pekerjaan',place:'Tempat',memo:'Catatan'},
+  my:{start:'စတင်',end:'ပြီးဆုံး',task:'အလုပ်',place:'နေရာ',memo:'မှတ်စု'},
+};
+
+let STATE = {staff:[],notices:[],shifts:[],nextId:{staff:1,notice:1,shift:1}};
+let noticeLangFilter = 'all';
+let editingStaffId = null;
+
+function loadState(){const s=localStorage.getItem('grantflow_ml_v1');if(s)try{STATE=JSON.parse(s);}catch(e){}}
+function saveState(){localStorage.setItem('grantflow_ml_v1',JSON.stringify(STATE));}
+
+// PAGES
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelector(`[onclick="showPage('${id}')"]`).classList.add('active');
+  const titles={'pg-home':'ダッシュボード','pg-staff':'スタッフ管理','pg-notice':'多言語連絡事項','pg-shift':'シフト管理','pg-emergency':'緊急連絡先'};
+  document.getElementById('topbar-title').textContent=titles[id]||'';
+  if(id==='pg-home') renderHome();
+  if(id==='pg-staff') renderStaff();
+  if(id==='pg-notice') renderNotices();
+  if(id==='pg-shift') renderShift();
+  if(id==='pg-emergency') renderEmergency();
+}
+
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+function formatDate(d){if(!d)return'—';const dt=new Date(d);return`${dt.getFullYear()}/${String(dt.getMonth()+1).padStart(2,'0')}/${String(dt.getDate()).padStart(2,'0')}`;}
+
+// HOME
+function renderHome(){
+  const now=new Date();
+  document.getElementById('home-date').textContent=`${now.getFullYear()}年${now.getMonth()+1}月${now.getDate()}日（${['日','月','火','水','木','金','土'][now.getDay()]}）`;
+  const staff=STATE.staff;
+  const countries=[...new Set(staff.map(s=>s.country))];
+  const langs=[...new Set(staff.map(s=>s.lang))];
+  const thisMonth=STATE.notices.filter(n=>{const d=new Date(n.at);return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();});
+  document.getElementById('stat-total').textContent=staff.length;
+  document.getElementById('stat-countries').textContent=countries.length;
+  document.getElementById('stat-langs').textContent=langs.length;
+  document.getElementById('stat-notices').textContent=thisMonth.length;
+
+  // Country breakdown
+  const cb=document.getElementById('country-breakdown');
+  if(staff.length===0){cb.innerHTML='<div style="color:var(--ink3);font-size:13px">スタッフが登録されていません</div>';return;}
+  const countMap={};staff.forEach(s=>{countMap[s.country]=(countMap[s.country]||0)+1;});
+  cb.innerHTML=Object.entries(countMap).sort((a,b)=>b[1]-a[1]).map(([c,n])=>`
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+      <span style="font-size:18px">${COUNTRY_FLAG[c]||'🌏'}</span>
+      <span style="flex:1;font-size:13px">${c}</span>
+      <span style="font-family:'DM Mono',monospace;font-size:13px;font-weight:600">${n}名</span>
+    </div>`).join('');
+
+  // Latest notices
+  const ln=document.getElementById('latest-notices');
+  const notices=STATE.notices.slice(-3).reverse();
+  if(notices.length===0){ln.innerHTML='<div style="color:var(--ink3);font-size:13px">連絡事項がありません</div>';}
+  else{ln.innerHTML=notices.map(n=>`<div style="padding:8px 0;border-bottom:1px solid var(--border)"><div style="font-size:13px;font-weight:600">${n.title}</div><div style="font-size:11px;color:var(--ink3)">${n.type} | ${formatDate(n.at)}</div></div>`).join('');}
+
+  // Staff list
+  const hs=document.getElementById('home-staff');
+  hs.innerHTML=staff.slice(0,5).map(s=>staffRowHTML(s)).join('')||'<div style="color:var(--ink3);font-size:13px">スタッフが登録されていません</div>';
+}
+
+function staffRowHTML(s){
+  return `<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)">
+    <div style="font-size:24px">${COUNTRY_FLAG[s.country]||'🌏'}</div>
+    <div style="flex:1">
+      <div style="font-size:13px;font-weight:700">${s.name} ${s.kana?`<span style="font-size:11px;color:var(--ink3);font-weight:400">（${s.kana}）</span>`:''}
+      </div>
+      <div style="font-size:11px;color:var(--ink3)">${s.country} | ${s.lang} | 日本語：${s.jlevel}</div>
+    </div>
+    <span class="badge badge-teal">${s.etype}</span>
+    <button class="btn btn-sm" onclick="openProfile(${s.id})">詳細</button>
+  </div>`;
+}
+
+// STAFF
+function openAddStaff(){
+  editingStaffId=null;
+  document.getElementById('modal-staff-title').textContent='🌏 スタッフ追加';
+  ['s-name','s-kana','s-tel','s-email','s-line','s-address','s-ename','s-erel','s-etel','s-ecountry','s-dept','s-memo','s-birth','s-hire'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('modal-staff').classList.add('open');
+}
+
+function saveStaff(){
+  const name=document.getElementById('s-name').value.trim();
+  if(!name){showToast('氏名を入力してください');return;}
+  const data={
+    id:editingStaffId||STATE.nextId.staff++,
+    name,kana:document.getElementById('s-kana').value,
+    country:document.getElementById('s-country').value,
+    lang:document.getElementById('s-lang').value,
+    jlevel:document.getElementById('s-jlevel').value,
+    gender:document.getElementById('s-gender').value,
+    birth:document.getElementById('s-birth').value,
+    hire:document.getElementById('s-hire').value,
+    tel:document.getElementById('s-tel').value,
+    email:document.getElementById('s-email').value,
+    line:document.getElementById('s-line').value,
+    address:document.getElementById('s-address').value,
+    ename:document.getElementById('s-ename').value,
+    erel:document.getElementById('s-erel').value,
+    etel:document.getElementById('s-etel').value,
+    ecountry:document.getElementById('s-ecountry').value,
+    dept:document.getElementById('s-dept').value,
+    etype:document.getElementById('s-etype').value,
+    memo:document.getElementById('s-memo').value,
+  };
+  if(editingStaffId){STATE.staff=STATE.staff.map(s=>s.id===editingStaffId?data:s);}
+  else{STATE.staff.push(data);}
+  saveState();closeModal('modal-staff');showToast('✅ 保存しました');
+  renderStaff();renderHome();
+}
+
+function renderStaff(){
+  const q=(document.getElementById('staff-search')||{}).value||'';
+  const lf=(document.getElementById('staff-lang-filter')||{}).value||'';
+  const list=STATE.staff.filter(s=>(s.name.includes(q)||s.kana?.includes(q)||s.country.includes(q)||s.lang.includes(q))&&(lf===''||s.lang===lf));
+  const el=document.getElementById('staff-list');
+  if(list.length===0){el.innerHTML='<div class="card" style="text-align:center;color:var(--ink3);padding:32px">スタッフが登録されていません</div>';return;}
+  el.innerHTML=list.map(s=>`
+    <div class="staff-card">
+      <div class="staff-head">
+        <div class="staff-avatar">${COUNTRY_FLAG[s.country]||'🌏'}</div>
+        <div class="staff-info">
+          <div class="staff-name">${s.name} ${s.kana?`<span style="font-size:12px;color:var(--ink3);font-weight:400">（${s.kana}）</span>`:''}</div>
+          <div class="staff-meta">${s.country} | ${s.lang} | 日本語：${s.jlevel} | ${s.dept||'部署未設定'}</div>
+          <div class="staff-tags">
+            <span class="badge badge-teal">${s.etype}</span>
+            <span class="badge badge-gray">${s.gender}</span>
+            ${s.tel?`<span class="badge badge-gray">📞 ${s.tel}</span>`:''}
+            ${s.line?`<span class="badge badge-ok">LINE: ${s.line}</span>`:''}
+          </div>
+        </div>
+        <div class="staff-actions">
+          <button class="btn btn-sm btn-teal" onclick="openProfile(${s.id})">👤 詳細</button>
+          <button class="btn btn-sm" onclick="editStaff(${s.id})">✏️</button>
+          <button class="btn btn-sm btn-red" onclick="deleteStaff(${s.id})">🗑️</button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function editStaff(id){
+  editingStaffId=id;
+  const s=STATE.staff.find(x=>x.id===id);if(!s)return;
+  document.getElementById('modal-staff-title').textContent='🌏 スタッフ編集';
+  ['name','kana','tel','email','line','address','ename','erel','etel','ecountry','dept','memo','birth','hire'].forEach(f=>{
+    const el=document.getElementById('s-'+f);if(el)el.value=s[f]||'';
+  });
+  ['country','lang','jlevel','gender','etype'].forEach(f=>{
+    const el=document.getElementById('s-'+f);if(el)el.value=s[f]||el.options[0].value;
+  });
+  document.getElementById('modal-staff').classList.add('open');
+}
+
+function deleteStaff(id){
+  if(!confirm('このスタッフを削除しますか？'))return;
+  STATE.staff=STATE.staff.filter(s=>s.id!==id);
+  saveState();renderStaff();renderHome();showToast('削除しました');
+}
+
+function openProfile(id){
+  const s=STATE.staff.find(x=>x.id===id);if(!s)return;
+  const shifts=STATE.shifts.filter(sh=>sh.staffId===id).slice(-5).reverse();
+  document.getElementById('modal-profile-title').textContent=`${COUNTRY_FLAG[s.country]||'🌏'} ${s.name}`;
+  document.getElementById('modal-profile-content').innerHTML=`
+    <div class="profile-section">
+      <div class="profile-section-title">基本情報</div>
+      <div class="profile-row"><span class="profile-label">氏名</span><span class="profile-val">${s.name} ${s.kana?`（${s.kana}）`:''}</span></div>
+      <div class="profile-row"><span class="profile-label">国籍</span><span class="profile-val">${COUNTRY_FLAG[s.country]||''} ${s.country}</span></div>
+      <div class="profile-row"><span class="profile-label">母国語</span><span class="profile-val">${s.lang}</span></div>
+      <div class="profile-row"><span class="profile-label">日本語レベル</span><span class="profile-val">${s.jlevel}</span></div>
+      <div class="profile-row"><span class="profile-label">生年月日</span><span class="profile-val">${formatDate(s.birth)}</span></div>
+      <div class="profile-row"><span class="profile-label">入社日</span><span class="profile-val">${formatDate(s.hire)}</span></div>
+    </div>
+    <div class="profile-section">
+      <div class="profile-section-title">連絡先</div>
+      <div class="profile-row"><span class="profile-label">電話番号</span><span class="profile-val">${s.tel||'—'}</span></div>
+      <div class="profile-row"><span class="profile-label">メール</span><span class="profile-val">${s.email||'—'}</span></div>
+      <div class="profile-row"><span class="profile-label">LINE</span><span class="profile-val">${s.line||'—'}</span></div>
+      <div class="profile-row"><span class="profile-label">住所</span><span class="profile-val">${s.address||'—'}</span></div>
+    </div>
+    <div class="profile-section">
+      <div class="profile-section-title">🚨 緊急連絡先</div>
+      <div class="profile-row"><span class="profile-label">氏名</span><span class="profile-val">${s.ename||'—'}</span></div>
+      <div class="profile-row"><span class="profile-label">続柄</span><span class="profile-val">${s.erel||'—'}</span></div>
+      <div class="profile-row"><span class="profile-label">電話番号</span><span class="profile-val">${s.etel||'—'}</span></div>
+      <div class="profile-row"><span class="profile-label">居住地</span><span class="profile-val">${s.ecountry||'—'}</span></div>
+    </div>
+    ${s.memo?`<div class="profile-section"><div class="profile-section-title">備考</div><div style="font-size:13px;line-height:1.7">${s.memo}</div></div>`:''}
+    ${shifts.length>0?`<div class="profile-section"><div class="profile-section-title">直近のシフト</div>${shifts.map(sh=>`<div style="display:flex;gap:8px;font-size:12px;padding:4px 0;border-bottom:1px solid var(--border)"><span style="color:var(--ink3)">${formatDate(sh.date)}</span><span>${sh.start}〜${sh.end}</span><span style="color:var(--ink3)">${sh.task||''}</span></div>`).join('')}</div>`:''}
+    <div class="btn-row">
+      <button class="btn btn-teal btn-sm" onclick="editStaff(${id});closeModal('modal-profile')">✏️ 編集</button>
+      <button class="btn btn-sm" onclick="closeModal('modal-profile')">閉じる</button>
+    </div>`;
+  document.getElementById('modal-profile').classList.add('open');
+}
+
+// NOTICE
+function openAddNotice(){
+  ['n-title','n-ja','n-vi','n-zh','n-tl','n-id','n-my'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('modal-notice').classList.add('open');
+}
+
+function saveNotice(){
+  const title=document.getElementById('n-title').value.trim();
+  if(!title){showToast('件名を入力してください');return;}
+  STATE.notices.push({
+    id:STATE.nextId.notice++,
+    type:document.getElementById('n-type').value,
+    title,
+    langs:{
+      ja:document.getElementById('n-ja').value,
+      vi:document.getElementById('n-vi').value,
+      zh:document.getElementById('n-zh').value,
+      tl:document.getElementById('n-tl').value,
+      id:document.getElementById('n-id').value,
+      my:document.getElementById('n-my').value,
+    },
+    at:new Date().toISOString()
+  });
+  saveState();closeModal('modal-notice');showToast('✅ 連絡事項を保存しました');renderNotices();renderHome();
+}
+
+function setNoticeLang(lang,el){
+  noticeLangFilter=lang;
+  document.querySelectorAll('.lang-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  renderNotices();
+}
+
+function renderNotices(){
+  const el=document.getElementById('notice-list');
+  const list=STATE.notices.slice().reverse();
+  if(list.length===0){el.innerHTML='<div class="card" style="text-align:center;color:var(--ink3);padding:32px">連絡事項がありません。「＋ 連絡事項を作成」から追加してください。</div>';return;}
+  const typeColor={'業務連絡':'badge-info','安全・注意事項':'badge-warn','シフト変更':'badge-teal','給与・福利厚生':'badge-ok','緊急連絡':'badge-ng','その他':'badge-gray'};
+  el.innerHTML=list.map(n=>{
+    const langs=Object.entries(n.langs).filter(([k,v])=>v&&(noticeLangFilter==='all'||k===noticeLangFilter));
+    return `
+    <div class="notice-item">
+      <div class="notice-head">
+        <span class="badge ${typeColor[n.type]||'badge-gray'} notice-type">${n.type}</span>
+        <span class="notice-title">${n.title}</span>
+        <span style="margin-left:auto;font-size:11px;color:var(--ink3)">${formatDate(n.at)}</span>
+        <button class="btn btn-sm btn-red" style="padding:3px 8px;font-size:11px" onclick="deleteNotice(${n.id})">削除</button>
+      </div>
+      <div class="notice-langs">
+        ${langs.map(([k,v])=>`
+          <div class="notice-lang-row">
+            <span class="notice-lang-label">${LANG_FLAG[k]||''} ${LANG_NAME[k]||k}</span>
+            <span class="notice-lang-text">${v}</span>
+          </div>`).join('')}
+        ${langs.length===0?'<div style="color:var(--ink3);font-size:12px">この言語のテキストがありません</div>':''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function deleteNotice(id){
+  if(!confirm('この連絡事項を削除しますか？'))return;
+  STATE.notices=STATE.notices.filter(n=>n.id!==id);
+  saveState();renderNotices();renderHome();showToast('削除しました');
+}
+
+// SHIFT
+function openAddShift(){
+  const sel=document.getElementById('sh-staff');
+  sel.innerHTML=STATE.staff.map(s=>`<option value="${s.id}">${COUNTRY_FLAG[s.country]||''} ${s.name}（${s.lang}）</option>`).join('');
+  if(STATE.staff.length===0){showToast('先にスタッフを登録してください');return;}
+  const today=new Date().toISOString().split('T')[0];
+  document.getElementById('sh-date').value=today;
+  ['sh-task','sh-place','sh-memo'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('modal-shift').classList.add('open');
+}
+
+function saveShift(){
+  const staffId=parseInt(document.getElementById('sh-staff').value);
+  const date=document.getElementById('sh-date').value;
+  if(!date){showToast('日付を入力してください');return;}
+  STATE.shifts.push({
+    id:STATE.nextId.shift++,staffId,date,
+    start:document.getElementById('sh-start').value,
+    end:document.getElementById('sh-end').value,
+    task:document.getElementById('sh-task').value,
+    place:document.getElementById('sh-place').value,
+    memo:document.getElementById('sh-memo').value,
+  });
+  saveState();closeModal('modal-shift');showToast('✅ シフトを追加しました');renderShift();
+}
+
+function renderShift(){
+  const el=document.getElementById('shift-content');
+  const today=new Date();
+  const days=[];
+  for(let i=0;i<7;i++){const d=new Date(today);d.setDate(today.getDate()+i);days.push(d);}
+  const dayNames=['日','月','火','水','木','金','土'];
+
+  let html=`<div class="shift-grid">`;
+  days.forEach(d=>{
+    const isToday=d.toDateString()===today.toDateString();
+    const dateStr=d.toISOString().split('T')[0];
+    const dayShifts=STATE.shifts.filter(s=>s.date===dateStr);
+    html+=`<div class="shift-day${isToday?' today':''}">
+      <div class="shift-day-label">${dayNames[d.getDay()]}</div>
+      <div class="shift-day-name">${d.getDate()}</div>
+      <div style="font-size:10px;color:var(--ink3);margin-top:2px">${dayShifts.length}件</div>
+    </div>`;
+  });
+  html+='</div>';
+
+  if(STATE.shifts.length===0){
+    html+='<div class="card" style="text-align:center;color:var(--ink3);padding:32px">シフトが登録されていません</div>';
+  } else {
+    const upcoming=STATE.shifts.filter(s=>new Date(s.date)>=new Date(today.toDateString())).sort((a,b)=>new Date(a.date)-new Date(b.date));
+    html+='<div class="card"><div class="card-title">📅 直近のシフト</div>';
+    if(upcoming.length===0){html+='<div style="color:var(--ink3);font-size:13px">直近のシフトはありません</div>';}
+    else{
+      html+=upcoming.slice(0,10).map(sh=>{
+        const staff=STATE.staff.find(s=>s.id===sh.staffId);
+        if(!staff)return'';
+        const langCode=LANG_CODE[staff.lang]||'vi';
+        const trans=SHIFT_TRANS[langCode]||{};
+        return `
+        <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:12px 14px;margin-bottom:8px">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+            <span style="font-size:18px">${COUNTRY_FLAG[staff.country]||'🌏'}</span>
+            <div>
+              <div style="font-size:13px;font-weight:700">${staff.name} <span style="font-size:11px;color:var(--ink3)">（${staff.lang}）</span></div>
+              <div style="font-size:11px;color:var(--ink3)">${formatDate(sh.date)} | ${sh.start}〜${sh.end}</div>
+            </div>
+            <button class="btn btn-sm btn-red" style="margin-left:auto" onclick="deleteShift(${sh.id})">削除</button>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:12px">
+            <div style="background:var(--surface);border-radius:6px;padding:6px 10px">
+              <div style="color:var(--ink3);font-size:10px">🇯🇵 日本語</div>
+              <div>${sh.start}〜${sh.end} | ${sh.task||''} | ${sh.place||''}</div>
+              ${sh.memo?`<div style="color:var(--ink3)">${sh.memo}</div>`:''}
+            </div>
+            <div style="background:var(--surface);border-radius:6px;padding:6px 10px">
+              <div style="color:var(--ink3);font-size:10px">${LANG_FLAG[langCode]||''} ${LANG_NAME[langCode]||staff.lang}</div>
+              <div>${trans.start||'Start'}: ${sh.start} / ${trans.end||'End'}: ${sh.end}</div>
+              ${sh.task?`<div>${trans.task||'Task'}: ${sh.task}</div>`:''}
+              ${sh.memo?`<div style="color:var(--ink3)">${trans.memo||'Note'}: ${sh.memo}</div>`:''}
+            </div>
+          </div>
+        </div>`;
+      }).join('')}
+    html+='</div>';
+  }
+  el.innerHTML=html;
+}
+
+function deleteShift(id){
+  if(!confirm('このシフトを削除しますか？'))return;
+  STATE.shifts=STATE.shifts.filter(s=>s.id!==id);
+  saveState();renderShift();showToast('削除しました');
+}
+
+// EMERGENCY
+function renderEmergency(){
+  const el=document.getElementById('emergency-list');
+  if(STATE.staff.length===0){el.innerHTML='<div class="card" style="text-align:center;color:var(--ink3);padding:32px">スタッフが登録されていません</div>';return;}
+  el.innerHTML=STATE.staff.map(s=>`
+    <div class="card" style="padding:16px 20px">
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+        <span style="font-size:24px">${COUNTRY_FLAG[s.country]||'🌏'}</span>
+        <div style="flex:1;min-width:160px">
+          <div style="font-size:14px;font-weight:700">${s.name} ${s.kana?`（${s.kana}）`:''}</div>
+          <div style="font-size:12px;color:var(--ink3)">${s.dept||''} | ${s.lang} | 日本語：${s.jlevel}</div>
+        </div>
+        <div style="font-size:13px;flex:1;min-width:160px">
+          <div style="font-size:11px;color:var(--ink3);margin-bottom:2px">📞 本人連絡先</div>
+          <div style="font-weight:600">${s.tel||'—'}</div>
+          ${s.line?`<div style="font-size:11px;color:var(--green)">LINE: ${s.line}</div>`:''}
+        </div>
+        <div style="font-size:13px;flex:1;min-width:160px;background:var(--red-l);border-radius:var(--r);padding:8px 12px">
+          <div style="font-size:11px;color:var(--red);margin-bottom:2px">🚨 緊急連絡先</div>
+          <div style="font-weight:600">${s.ename||'未登録'} ${s.erel?`（${s.erel}）`:''}</div>
+          <div>${s.etel||'—'}</div>
+          ${s.ecountry?`<div style="font-size:11px;color:var(--ink3)">${s.ecountry}</div>`:''}
+        </div>
+        <button class="btn btn-sm" onclick="editStaff(${s.id})">✏️ 編集</button>
+      </div>
+    </div>`).join('');
+}
+
+// INIT
+loadState();
+const now=new Date();
+const homeDate=document.getElementById('home-date');
+if(homeDate)homeDate.textContent=`${now.getFullYear()}年${now.getMonth()+1}月${now.getDate()}日（${['日','月','火','水','木','金','土'][now.getDay()]}）`;
+renderHome();
+</script>
+</body>
+</html>
