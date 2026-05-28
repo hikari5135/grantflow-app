@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>外国人スタッフ メンタル・健康管理システム｜GrantFlow</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#1a1a18;--ink2:#3a3a36;--ink3:#7a7a72;
+  --bg:#f2f1ec;--surface:#fff;--surface2:#f8f7f2;
+  --border:#e2e1d8;--border2:#c8c7be;
+  --green:#1a7a4a;--green-l:#e8f5ee;--green-m:#b8e0ca;
+  --red:#c0392b;--red-l:#fdecea;--red-m:#f5b7b1;
+  --amber:#c47a00;--amber-l:#fff8e6;--amber-m:#ffd97a;
+  --blue:#1a5fa8;--blue-l:#e8f0fb;--blue-m:#a8c4ef;
+  --pink:#c0185a;--pink-l:#fce8f0;--pink-m:#f5a8c8;
+  --r:10px;--r2:16px;
+  --shadow:0 2px 8px rgba(0,0,0,.06);
+  --shadow2:0 8px 24px rgba(0,0,0,.10);
+}
+body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;font-size:14px;line-height:1.6;}
+.layout{display:flex;min-height:100vh;}
+.sidebar{width:240px;background:var(--ink);color:#fff;position:fixed;top:0;left:0;bottom:0;display:flex;flex-direction:column;z-index:100;}
+.sidebar-logo{padding:20px 18px;border-bottom:1px solid rgba(255,255,255,.1);}
+.logo-name{font-size:13px;font-weight:700;line-height:1.4;}
+.logo-sub{font-size:10px;color:rgba(255,255,255,.45);margin-top:2px;}
+.logo-badge{display:inline-block;margin-top:6px;font-size:9px;font-weight:700;background:var(--pink);color:#fff;padding:2px 8px;border-radius:4px;font-family:'DM Mono',monospace;}
+.nav-section{padding:12px 0 4px;}
+.nav-label{font-size:9px;font-weight:700;letter-spacing:.1em;color:rgba(255,255,255,.3);padding:0 18px;margin-bottom:4px;text-transform:uppercase;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 18px;font-size:13px;font-weight:500;color:rgba(255,255,255,.6);cursor:pointer;border-left:3px solid transparent;transition:all .15s;}
+.nav-item:hover{color:#fff;background:rgba(255,255,255,.06);}
+.nav-item.active{color:#fff;border-left-color:var(--pink);background:rgba(255,255,255,.08);}
+.nav-icon{font-size:16px;width:20px;text-align:center;}
+.sidebar-footer{margin-top:auto;padding:14px 18px;border-top:1px solid rgba(255,255,255,.1);}
+.user-row{display:flex;align-items:center;gap:8px;}
+.user-av{width:28px;height:28px;border-radius:50%;background:var(--pink);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;}
+.user-name{font-size:11px;font-weight:600;}
+.user-role{font-size:10px;color:rgba(255,255,255,.4);}
+.main{margin-left:240px;flex:1;}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:12px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
+.topbar-title{font-size:16px;font-weight:700;}
+.topbar-right{display:flex;align-items:center;gap:10px;}
+.page{display:none;padding:24px;}
+.page.active{display:block;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:20px;margin-bottom:14px;box-shadow:var(--shadow);}
+.card-title{font-size:14px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.section-title{font-size:18px;font-weight:700;}
+.section-sub{font-size:13px;color:var(--ink3);margin-top:2px;}
+.badge{display:inline-flex;align-items:center;padding:2px 10px;border-radius:6px;font-size:11px;font-weight:700;}
+.badge-ok{background:var(--green-l);color:var(--green);}
+.badge-ng{background:var(--red-l);color:var(--red);}
+.badge-warn{background:var(--amber-l);color:var(--amber);}
+.badge-info{background:var(--blue-l);color:var(--blue);}
+.badge-pink{background:var(--pink-l);color:var(--pink);}
+.badge-gray{background:var(--surface2);color:var(--ink3);border:1px solid var(--border);}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:9px 18px;border:1.5px solid var(--border2);border-radius:var(--r);font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;transition:all .15s;background:var(--surface);color:var(--ink);}
+.btn:hover{background:var(--surface2);}
+.btn-pink{background:var(--pink);border-color:var(--pink);color:#fff;}
+.btn-pink:hover{background:#a01248;}
+.btn-green{background:var(--green);border-color:var(--green);color:#fff;}
+.btn-red{background:var(--red);border-color:var(--red);color:#fff;}
+.btn-sm{padding:5px 12px;font-size:12px;}
+.btn-full{width:100%;}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;}
+.fg{display:flex;flex-direction:column;gap:4px;margin-bottom:12px;}
+.fg label{font-size:11px;font-weight:700;color:var(--ink3);}
+.fg input,.fg select,.fg textarea{width:100%;padding:9px 12px;border:1.5px solid var(--border2);border-radius:var(--r);font-size:13px;font-family:inherit;color:var(--ink);background:var(--surface);outline:none;transition:border .15s;}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--pink);}
+.fg textarea{resize:vertical;min-height:70px;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:14px 16px;box-shadow:var(--shadow);}
+.stat-label{font-size:11px;color:var(--ink3);margin-bottom:4px;}
+.stat-val{font-size:26px;font-weight:700;line-height:1.1;}
+.stat-sub{font-size:11px;color:var(--ink3);margin-top:2px;}
+.alert{display:flex;gap:10px;padding:12px 14px;border-radius:var(--r);font-size:13px;margin-bottom:8px;border:1px solid;}
+.alert-red{background:var(--red-l);border-color:var(--red-m);color:var(--red);}
+.alert-amber{background:var(--amber-l);border-color:var(--amber-m);color:var(--amber);}
+.alert-green{background:var(--green-l);border-color:var(--green-m);color:var(--green);}
+.alert-blue{background:var(--blue-l);border-color:var(--blue-m);color:var(--blue);}
+/* SCORE DISPLAY */
+.score-ring{width:80px;height:80px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;flex-shrink:0;border:4px solid;}
+.score-good{border-color:var(--green);color:var(--green);background:var(--green-l);}
+.score-warn{border-color:var(--amber);color:var(--amber);background:var(--amber-l);}
+.score-bad{border-color:var(--red);color:var(--red);background:var(--red-l);}
+/* SURVEY */
+.survey-q{margin-bottom:16px;}
+.survey-q-label{font-size:13px;font-weight:600;margin-bottom:8px;}
+.survey-options{display:flex;gap:6px;flex-wrap:wrap;}
+.survey-opt{padding:6px 14px;border-radius:99px;font-size:12px;font-weight:600;border:1.5px solid var(--border2);background:var(--surface);color:var(--ink3);cursor:pointer;transition:all .15s;}
+.survey-opt:hover{border-color:var(--border2);background:var(--surface2);}
+.survey-opt.selected{background:var(--pink);border-color:var(--pink);color:#fff;}
+/* LANG BADGE */
+.lang-badge{display:inline-block;font-size:11px;padding:2px 8px;border-radius:4px;background:var(--blue-l);color:var(--blue);font-weight:600;margin-right:4px;}
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;align-items:center;justify-content:center;padding:16px;}
+.modal-bg.open{display:flex;}
+.modal-box{background:var(--surface);border-radius:var(--r2);padding:24px;width:min(680px,100%);max-height:90vh;overflow-y:auto;box-shadow:var(--shadow2);}
+.modal-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;}
+.modal-title{font-size:16px;font-weight:700;}
+.modal-close{font-size:20px;cursor:pointer;color:var(--ink3);background:none;border:none;}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 20px;border-radius:var(--r);font-size:13px;font-weight:600;opacity:0;transition:opacity .3s;pointer-events:none;z-index:999;white-space:nowrap;}
+.toast.show{opacity:1;}
+@media(max-width:768px){.sidebar{transform:translateX(-100%);}.main{margin-left:0;}.stat-grid{grid-template-columns:1fr 1fr;}.grid2{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<div class="layout">
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-name">メンタル・健康<br>管理システム</div>
+    <div class="logo-sub">GrantFlow ⑫</div>
+    <div class="logo-badge">v1.0</div>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">メニュー</div>
+    <div class="nav-item active" onclick="showPage('pg-home')"><span class="nav-icon">🏠</span>ダッシュボード</div>
+    <div class="nav-item" onclick="showPage('pg-staff')"><span class="nav-icon">👤</span>スタッフ管理</div>
+    <div class="nav-item" onclick="showPage('pg-survey')"><span class="nav-icon">📝</span>健康アンケート</div>
+    <div class="nav-item" onclick="showPage('pg-results')"><span class="nav-icon">📊</span>アンケート結果</div>
+    <div class="nav-item" onclick="showPage('pg-health')"><span class="nav-icon">🩺</span>健康診断管理</div>
+    <div class="nav-item" onclick="showPage('pg-alert')"><span class="nav-icon">🚨</span>リスクアラート</div>
+  </div>
+  <div class="sidebar-footer">
+    <div class="user-row">
+      <div class="user-av">阪</div>
+      <div><div class="user-name">阪本 光</div><div class="user-role">管理者</div></div>
+    </div>
+  </div>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title" id="topbar-title">ダッシュボード</div>
+    <div class="topbar-right">
+      <button class="btn btn-pink btn-sm" onclick="openAddStaff()">＋ スタッフ追加</button>
+    </div>
+  </div>
+
+  <!-- HOME -->
+  <div class="page active" id="pg-home">
+    <div class="section-header">
+      <div><div class="section-title">ダッシュボード</div><div class="section-sub" id="home-date"></div></div>
+    </div>
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-label">登録スタッフ</div><div class="stat-val" id="stat-staff" style="color:var(--pink)">0</div><div class="stat-sub">名</div></div>
+      <div class="stat-card"><div class="stat-label">要注意スタッフ</div><div class="stat-val" id="stat-risk" style="color:var(--red)">0</div><div class="stat-sub">名</div></div>
+      <div class="stat-card"><div class="stat-label">今月のアンケート</div><div class="stat-val" id="stat-survey" style="color:var(--blue)">0</div><div class="stat-sub">件</div></div>
+      <div class="stat-card"><div class="stat-label">健康診断未受診</div><div class="stat-val" id="stat-health" style="color:var(--amber)">0</div><div class="stat-sub">名</div></div>
+    </div>
+    <div class="card"><div class="card-title">🚨 要注意アラート</div><div id="home-alerts"></div></div>
+    <div class="card"><div class="card-title">👤 スタッフ健康状況</div><div id="home-staff"></div></div>
+  </div>
+
+  <!-- STAFF -->
+  <div class="page" id="pg-staff">
+    <div class="section-header">
+      <div><div class="section-title">👤 スタッフ管理</div><div class="section-sub">健康管理対象のスタッフを管理します</div></div>
+      <button class="btn btn-pink" onclick="openAddStaff()">＋ スタッフ追加</button>
+    </div>
+    <div id="staff-list"></div>
+  </div>
+
+  <!-- SURVEY -->
+  <div class="page" id="pg-survey">
+    <div class="section-header">
+      <div><div class="section-title">📝 健康アンケート</div><div class="section-sub">母国語対応の健康・メンタルチェックを実施します</div></div>
+    </div>
+    <div class="alert alert-blue" style="margin-bottom:14px">
+      <span>ℹ️</span><div>アンケートは<strong>月1回</strong>実施を推奨します。スコアが低い場合は早期にフォローアップしてください。</div>
+    </div>
+    <div class="card">
+      <div class="card-title">📝 アンケート対象者を選択</div>
+      <div class="fg"><label>スタッフ</label><select id="survey-staff-sel"></select></div>
+      <div class="fg"><label>実施言語</label>
+        <select id="survey-lang">
+          <option value="ja">🇯🇵 日本語</option>
+          <option value="vi">🇻🇳 ベトナム語</option>
+          <option value="zh">🇨🇳 中国語</option>
+          <option value="id">🇮🇩 インドネシア語</option>
+          <option value="my">🇲🇲 ミャンマー語</option>
+        </select>
+      </div>
+      <button class="btn btn-pink" onclick="startSurvey()">📝 アンケートを開始する</button>
+    </div>
+    <div id="survey-form" style="display:none"></div>
+  </div>
+
+  <!-- RESULTS -->
+  <div class="page" id="pg-results">
+    <div class="section-header">
+      <div><div class="section-title">📊 アンケート結果</div><div class="section-sub">過去のアンケート結果と推移を確認します</div></div>
+    </div>
+    <div id="results-list"></div>
+  </div>
+
+  <!-- HEALTH -->
+  <div class="page" id="pg-health">
+    <div class="section-header">
+      <div><div class="section-title">🩺 健康診断管理</div><div class="section-sub">年次健康診断の実施状況を管理します</div></div>
+      <button class="btn btn-pink" onclick="openAddHealth()">＋ 健康診断記録</button>
+    </div>
+    <div class="alert alert-amber" style="margin-bottom:14px">
+      <span>⚠️</span><div>外国人労働者を含むすべての労働者に対して、<strong>年1回の健康診断実施が義務</strong>です。</div>
+    </div>
+    <div id="health-list"></div>
+  </div>
+
+  <!-- ALERT -->
+  <div class="page" id="pg-alert">
+    <div class="section-header">
+      <div><div class="section-title">🚨 リスクアラート</div><div class="section-sub">要注意スタッフの一覧と対応状況</div></div>
+    </div>
+    <div id="alert-list"></div>
+  </div>
+</div>
+</div>
+
+<!-- MODAL: スタッフ追加 -->
+<div class="modal-bg" id="modal-staff">
+  <div class="modal-box">
+    <div class="modal-top">
+      <div class="modal-title">👤 スタッフ追加</div>
+      <button class="modal-close" onclick="closeModal('modal-staff')">✕</button>
+    </div>
+    <div class="grid2">
+      <div class="fg"><label>氏名★</label><input type="text" id="s-name" placeholder="例：Nguyen Van A"></div>
+      <div class="fg"><label>国籍</label>
+        <select id="s-country">
+          <option>ベトナム</option><option>中国</option><option>フィリピン</option>
+          <option>インドネシア</option><option>ミャンマー</option><option>タイ</option>
+          <option>ネパール</option><option>その他</option>
+        </select>
+      </div>
+      <div class="fg"><label>母国語</label>
+        <select id="s-lang">
+          <option value="vi">ベトナム語</option><option value="zh">中国語</option>
+          <option value="tl">タガログ語</option><option value="id">インドネシア語</option>
+          <option value="my">ミャンマー語</option><option value="ja">日本語</option>
+        </select>
+      </div>
+      <div class="fg"><label>年齢</label><input type="number" id="s-age" min="18" max="65" placeholder="例：25"></div>
+      <div class="fg"><label>性別</label><select id="s-gender"><option>男性</option><option>女性</option><option>その他</option></select></div>
+      <div class="fg"><label>在留資格</label>
+        <select id="s-visa">
+          <option>特定技能1号</option><option>特定技能2号</option>
+          <option>技能実習1号</option><option>技能実習2号</option><option>技能実習3号</option>
+          <option>技術・人文知識・国際業務</option><option>その他</option>
+        </select>
+      </div>
+      <div class="fg"><label>就労開始日</label><input type="date" id="s-start"></div>
+      <div class="fg"><label>受入企業</label><input type="text" id="s-company" placeholder="例：株式会社〇〇"></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-pink" onclick="saveStaff()">💾 保存する</button>
+      <button class="btn" onclick="closeModal('modal-staff')">キャンセル</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: 健康診断記録 -->
+<div class="modal-bg" id="modal-health">
+  <div class="modal-box">
+    <div class="modal-top">
+      <div class="modal-title">🩺 健康診断記録</div>
+      <button class="modal-close" onclick="closeModal('modal-health')">✕</button>
+    </div>
+    <div class="grid2">
+      <div class="fg"><label>スタッフ★</label><select id="h-staff"></select></div>
+      <div class="fg"><label>受診日★</label><input type="date" id="h-date"></div>
+      <div class="fg"><label>受診機関</label><input type="text" id="h-place" placeholder="例：〇〇クリニック"></div>
+      <div class="fg"><label>総合判定</label>
+        <select id="h-result">
+          <option value="A">A：異常なし</option>
+          <option value="B">B：軽度異常</option>
+          <option value="C">C：要経過観察</option>
+          <option value="D">D：要医療</option>
+        </select>
+      </div>
+    </div>
+    <div class="fg"><label>所見・メモ</label><textarea id="h-memo" placeholder="医師の所見・フォローアップ事項など"></textarea></div>
+    <div class="btn-row">
+      <button class="btn btn-pink" onclick="saveHealth()">💾 保存する</button>
+      <button class="btn" onclick="closeModal('modal-health')">キャンセル</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ====== 多言語アンケート ======
+const SURVEY_LANGS = {
+  ja:{
+    title:'健康・メンタルチェックアンケート',
+    questions:[
+      {id:'q1',text:'今週の体調はどうですか？',opts:['とても良い','良い','普通','少し悪い','とても悪い'],scores:[5,4,3,2,1]},
+      {id:'q2',text:'睡眠は十分に取れていますか？',opts:['とてもよく眠れている','まあまあ眠れている','あまり眠れていない','ほとんど眠れていない'],scores:[4,3,2,1]},
+      {id:'q3',text:'仕事のストレスはどのくらいですか？',opts:['ほとんどない','少しある','かなりある','非常に強い'],scores:[4,3,2,1]},
+      {id:'q4',text:'職場の人間関係はどうですか？',opts:['とても良い','良い','普通','少し問題がある','大きな問題がある'],scores:[5,4,3,2,1]},
+      {id:'q5',text:'日本での生活に満足していますか？',opts:['とても満足','満足','普通','少し不満','とても不満'],scores:[5,4,3,2,1]},
+      {id:'q6',text:'悩みや不安を話せる人がいますか？',opts:['いる','まあいる','あまりいない','いない'],scores:[4,3,2,1]},
+      {id:'q7',text:'食事は規則正しく取れていますか？',opts:['毎日取れている','だいたい取れている','あまり取れていない','ほとんど取れていない'],scores:[4,3,2,1]},
+      {id:'q8',text:'身体的な不調はありますか？',opts:['全くない','少しある','かなりある','非常に強い'],scores:[4,3,2,1]},
+    ]
+  },
+  vi:{
+    title:'Bảng câu hỏi sức khỏe và tâm lý',
+    questions:[
+      {id:'q1',text:'Tình trạng sức khỏe của bạn tuần này như thế nào?',opts:['Rất tốt','Tốt','Bình thường','Hơi kém','Rất kém'],scores:[5,4,3,2,1]},
+      {id:'q2',text:'Bạn có ngủ đủ giấc không?',opts:['Ngủ rất tốt','Ngủ khá tốt','Ngủ không đủ','Hầu như không ngủ được'],scores:[4,3,2,1]},
+      {id:'q3',text:'Mức độ căng thẳng trong công việc của bạn như thế nào?',opts:['Hầu như không','Một chút','Khá nhiều','Rất căng thẳng'],scores:[4,3,2,1]},
+      {id:'q4',text:'Quan hệ với đồng nghiệp như thế nào?',opts:['Rất tốt','Tốt','Bình thường','Có vấn đề nhỏ','Có vấn đề lớn'],scores:[5,4,3,2,1]},
+      {id:'q5',text:'Bạn có hài lòng với cuộc sống ở Nhật không?',opts:['Rất hài lòng','Hài lòng','Bình thường','Không hài lòng','Rất không hài lòng'],scores:[5,4,3,2,1]},
+      {id:'q6',text:'Bạn có người để chia sẻ lo lắng không?',opts:['Có','Khá có','Ít người','Không có'],scores:[4,3,2,1]},
+      {id:'q7',text:'Bạn có ăn uống điều độ không?',opts:['Ăn đủ mỗi ngày','Khá đủ','Không đủ lắm','Hầu như không ăn được'],scores:[4,3,2,1]},
+      {id:'q8',text:'Bạn có triệu chứng thể chất không?',opts:['Hoàn toàn không','Có một chút','Khá nhiều','Rất nhiều'],scores:[4,3,2,1]},
+    ]
+  },
+  zh:{
+    title:'健康与心理问卷调查',
+    questions:[
+      {id:'q1',text:'本周您的身体状况如何？',opts:['非常好','好','一般','有点差','很差'],scores:[5,4,3,2,1]},
+      {id:'q2',text:'您睡眠充足吗？',opts:['睡眠很好','睡眠还可以','睡眠不足','几乎无法入睡'],scores:[4,3,2,1]},
+      {id:'q3',text:'工作压力有多大？',opts:['几乎没有','有一点','相当大','非常大'],scores:[4,3,2,1]},
+      {id:'q4',text:'与同事的关系如何？',opts:['非常好','好','一般','有些问题','问题很大'],scores:[5,4,3,2,1]},
+      {id:'q5',text:'您对在日本的生活满意吗？',opts:['非常满意','满意','一般','不太满意','很不满意'],scores:[5,4,3,2,1]},
+      {id:'q6',text:'您有可以倾诉烦恼的人吗？',opts:['有','还有','不太有','没有'],scores:[4,3,2,1]},
+      {id:'q7',text:'您饮食规律吗？',opts:['每天都很规律','比较规律','不太规律','几乎无法正常饮食'],scores:[4,3,2,1]},
+      {id:'q8',text:'您有身体不适症状吗？',opts:['完全没有','有一点','比较严重','非常严重'],scores:[4,3,2,1]},
+    ]
+  },
+  id:{
+    title:'Kuesioner Kesehatan dan Mental',
+    questions:[
+      {id:'q1',text:'Bagaimana kondisi kesehatan Anda minggu ini?',opts:['Sangat baik','Baik','Biasa','Kurang baik','Sangat buruk'],scores:[5,4,3,2,1]},
+      {id:'q2',text:'Apakah Anda tidur cukup?',opts:['Tidur sangat baik','Cukup baik','Kurang tidur','Hampir tidak bisa tidur'],scores:[4,3,2,1]},
+      {id:'q3',text:'Seberapa besar tekanan kerja Anda?',opts:['Hampir tidak ada','Sedikit','Cukup besar','Sangat besar'],scores:[4,3,2,1]},
+      {id:'q4',text:'Bagaimana hubungan dengan rekan kerja?',opts:['Sangat baik','Baik','Biasa','Ada masalah kecil','Ada masalah besar'],scores:[5,4,3,2,1]},
+      {id:'q5',text:'Apakah Anda puas dengan kehidupan di Jepang?',opts:['Sangat puas','Puas','Biasa','Kurang puas','Sangat tidak puas'],scores:[5,4,3,2,1]},
+      {id:'q6',text:'Apakah ada orang yang bisa Anda ajak bicara?',opts:['Ada','Cukup ada','Kurang ada','Tidak ada'],scores:[4,3,2,1]},
+      {id:'q7',text:'Apakah Anda makan secara teratur?',opts:['Setiap hari teratur','Cukup teratur','Kurang teratur','Hampir tidak makan'],scores:[4,3,2,1]},
+      {id:'q8',text:'Apakah ada keluhan fisik?',opts:['Tidak sama sekali','Ada sedikit','Cukup banyak','Sangat banyak'],scores:[4,3,2,1]},
+    ]
+  },
+  my:{
+    title:'ကျန်းမာရေးနှင့် စိတ်ကျန်းမာရေး မေးခွန်းလွှာ',
+    questions:[
+      {id:'q1',text:'ဤအပတ် သင်၏ ကျန်းမာရေးအခြေအနေ ဘယ်လိုရှိသလဲ?',opts:['အလွန်ကောင်းသည်','ကောင်းသည်','သာမန်','အနည်းငယ်မကောင်း','အလွန်မကောင်း'],scores:[5,4,3,2,1]},
+      {id:'q2',text:'အိပ်ရေးဝဝအိပ်နိုင်ပါသလား?',opts:['အလွန်ကောင်းသည်','တော်တော်ကောင်းသည်','မဝပ','မရပ'],scores:[4,3,2,1]},
+      {id:'q3',text:'အလုပ်ဖိစီးမှု မည်မျှရှိသနည်း?',opts:['မရှိသလောက်','အနည်းငယ်','တော်တော်ရှိ','အလွန်ကြီးမား'],scores:[4,3,2,1]},
+      {id:'q4',text:'လုပ်ဖော်ကိုင်ဖက်များနှင့် ဆက်ဆံရေး ဘယ်လိုရှိသလဲ?',opts:['အလွန်ကောင်း','ကောင်း','သာမန်','ပြဿနာအနည်းငယ်','ပြဿနာကြီးကြီး'],scores:[5,4,3,2,1]},
+      {id:'q5',text:'ဂျပန်နိုင်ငံတွင် နေထိုင်ခြင်းကို ကျေနပ်ပါသလား?',opts:['အလွန်ကျေနပ်','ကျေနပ်','သာမန်','မကျေနပ်','အလွန်မကျေနပ်'],scores:[5,4,3,2,1]},
+      {id:'q6',text:'စိတ်ပူမှုများကို ပြောဆိုနိုင်သူ ရှိပါသလား?',opts:['ရှိ','တော်တော်ရှိ','မများ','မရှိ'],scores:[4,3,2,1]},
+      {id:'q7',text:'ပုံမှန်အစားအသောက် စားနိုင်ပါသလား?',opts:['နေ့တိုင်းပုံမှန်','တော်တော်ပုံမှန်','မပုံမှန်','မစားနိုင်တော့'],scores:[4,3,2,1]},
+      {id:'q8',text:'ကိုယ်ခန္ဓာ ဝေဒနာများ ရှိပါသလား?',opts:['လုံးဝမရှိ','အနည်းငယ်','တော်တော်ရှိ','အလွန်ဆိုး'],scores:[4,3,2,1]},
+    ]
+  }
+};
+
+let STATE={staff:[],surveys:[],healthRecords:[],nextId:{staff:1,survey:1,health:1}};
+let currentSurveyAnswers={};
+let currentSurveyLang='ja';
+let currentSurveyStaffId=null;
+
+function loadState(){const s=localStorage.getItem('grantflow_mental_v1');if(s)try{STATE=JSON.parse(s);}catch(e){}}
+function saveState(){localStorage.setItem('grantflow_mental_v1',JSON.stringify(STATE));}
+
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelector(`[onclick="showPage('${id}')"]`).classList.add('active');
+  const titles={'pg-home':'ダッシュボード','pg-staff':'スタッフ管理','pg-survey':'健康アンケート','pg-results':'アンケート結果','pg-health':'健康診断管理','pg-alert':'リスクアラート'};
+  document.getElementById('topbar-title').textContent=titles[id]||'';
+  if(id==='pg-home') renderHome();
+  if(id==='pg-staff') renderStaffList();
+  if(id==='pg-survey') renderSurveyPage();
+  if(id==='pg-results') renderResults();
+  if(id==='pg-health') renderHealthList();
+  if(id==='pg-alert') renderAlertList();
+}
+
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+function formatDate(d){if(!d)return'—';const dt=new Date(d);return`${dt.getFullYear()}/${String(dt.getMonth()+1).padStart(2,'0')}/${String(dt.getDate()).padStart(2,'0')}`;}
+
+function getScoreInfo(score,max){
+  const pct=Math.round(score/max*100);
+  if(pct>=75)return{label:'良好',cls:'good',badgeCls:'badge-ok'};
+  if(pct>=50)return{label:'注意',cls:'warn',badgeCls:'badge-warn'};
+  return{label:'要フォロー',cls:'bad',badgeCls:'badge-ng'};
+}
+
+function getLatestSurvey(staffId){
+  return STATE.surveys.filter(s=>s.staffId===staffId).sort((a,b)=>new Date(b.date)-new Date(a.date))[0];
+}
+
+// STAFF
+function openAddStaff(){
+  ['s-name','s-age','s-start','s-company'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('modal-staff').classList.add('open');
+}
+
+function saveStaff(){
+  const name=document.getElementById('s-name').value.trim();
+  if(!name){showToast('氏名を入力してください');return;}
+  STATE.staff.push({
+    id:STATE.nextId.staff++,name,
+    country:document.getElementById('s-country').value,
+    lang:document.getElementById('s-lang').value,
+    age:document.getElementById('s-age').value,
+    gender:document.getElementById('s-gender').value,
+    visa:document.getElementById('s-visa').value,
+    start:document.getElementById('s-start').value,
+    company:document.getElementById('s-company').value,
+  });
+  saveState();closeModal('modal-staff');showToast('✅ スタッフを追加しました');
+  renderStaffList();renderHome();
+}
+
+function renderStaffList(){
+  const el=document.getElementById('staff-list');
+  if(STATE.staff.length===0){el.innerHTML='<div class="card" style="text-align:center;color:var(--ink3);padding:32px">スタッフが登録されていません</div>';return;}
+  el.innerHTML=STATE.staff.map(s=>{
+    const latest=getLatestSurvey(s.id);
+    const maxScore=32;
+    const info=latest?getScoreInfo(latest.totalScore,maxScore):null;
+    const health=STATE.healthRecords.filter(h=>h.staffId===s.id).sort((a,b)=>new Date(b.date)-new Date(a.date))[0];
+    return `
+    <div class="card" style="padding:16px 20px">
+      <div style="display:flex;align-items:center;gap:14px">
+        ${latest?`<div class="score-ring score-${info.cls}">${latest.totalScore}</div>`:
+          '<div class="score-ring" style="border-color:var(--border2);color:var(--ink3)">—</div>'}
+        <div style="flex:1">
+          <div style="font-size:15px;font-weight:700;margin-bottom:4px">${s.name} <span class="badge badge-gray">${s.visa}</span></div>
+          <div style="font-size:12px;color:var(--ink3);margin-bottom:6px">${s.country} | ${s.company||'—'} | 就労開始：${formatDate(s.start)}</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            ${latest?`<span class="badge ${info.badgeCls}">最新スコア：${info.label}（${formatDate(latest.date)}）</span>`:'<span class="badge badge-gray">未回答</span>'}
+            ${health?`<span class="badge ${health.result==='A'?'badge-ok':health.result==='B'?'badge-warn':'badge-ng'}">健診：${health.result}判定（${formatDate(health.date)}）</span>`:'<span class="badge badge-gray">健診未受診</span>'}
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0">
+          <button class="btn btn-sm btn-pink" onclick="quickSurvey(${s.id})">📝 アンケート</button>
+          <button class="btn btn-sm" onclick="openAddHealth();document.getElementById('h-staff').value=${s.id}">🩺 健診記録</button>
+          <button class="btn btn-sm btn-red" onclick="deleteStaff(${s.id})">🗑️</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function deleteStaff(id){
+  if(!confirm('このスタッフを削除しますか？'))return;
+  STATE.staff=STATE.staff.filter(s=>s.id!==id);
+  STATE.surveys=STATE.surveys.filter(s=>s.staffId!==id);
+  STATE.healthRecords=STATE.healthRecords.filter(h=>h.staffId!==id);
+  saveState();renderStaffList();renderHome();showToast('削除しました');
+}
+
+// SURVEY
+function renderSurveyPage(){
+  const sel=document.getElementById('survey-staff-sel');
+  sel.innerHTML=STATE.staff.map(s=>`<option value="${s.id}">${s.name}（${s.company||'—'}）</option>`).join('');
+  document.getElementById('survey-form').style.display='none';
+}
+
+function quickSurvey(staffId){
+  showPage('pg-survey');
+  setTimeout(()=>{
+    document.getElementById('survey-staff-sel').value=staffId;
+    startSurvey();
+  },100);
+}
+
+function startSurvey(){
+  const staffId=parseInt(document.getElementById('survey-staff-sel').value);
+  const lang=document.getElementById('survey-lang').value;
+  if(!staffId){showToast('スタッフを選択してください');return;}
+  currentSurveyStaffId=staffId;
+  currentSurveyLang=lang;
+  currentSurveyAnswers={};
+  const surveyData=SURVEY_LANGS[lang]||SURVEY_LANGS.ja;
+  const staff=STATE.staff.find(s=>s.id===staffId);
+  const el=document.getElementById('survey-form');
+  el.style.display='block';
+  el.innerHTML=`
+    <div class="card">
+      <div class="card-title">📝 ${surveyData.title}</div>
+      <div style="font-size:12px;color:var(--ink3);margin-bottom:16px">${staff?.name} | ${formatDate(new Date().toISOString().split('T')[0])}</div>
+      ${surveyData.questions.map((q,qi)=>`
+        <div class="survey-q">
+          <div class="survey-q-label">${qi+1}. ${q.text}</div>
+          <div class="survey-options">
+            ${q.opts.map((opt,oi)=>`
+              <button class="survey-opt" id="opt-${q.id}-${oi}" onclick="selectOpt('${q.id}',${oi},${q.scores[oi]},${q.opts.length})">
+                ${opt}
+              </button>`).join('')}
+          </div>
+        </div>`).join('')}
+      <div class="btn-row">
+        <button class="btn btn-pink" onclick="submitSurvey()">📊 結果を保存する</button>
+        <button class="btn" onclick="document.getElementById('survey-form').style.display='none'">キャンセル</button>
+      </div>
+    </div>`;
+}
+
+function selectOpt(qId,optIdx,score,total){
+  currentSurveyAnswers[qId]={optIdx,score};
+  for(let i=0;i<total;i++){
+    const btn=document.getElementById(`opt-${qId}-${i}`);
+    if(btn)btn.classList.toggle('selected',i===optIdx);
+  }
+}
+
+function submitSurvey(){
+  const surveyData=SURVEY_LANGS[currentSurveyLang]||SURVEY_LANGS.ja;
+  const answered=Object.keys(currentSurveyAnswers).length;
+  if(answered<surveyData.questions.length){
+    showToast(`全${surveyData.questions.length}問に回答してください（${answered}問回答済み）`);return;
+  }
+  const totalScore=Object.values(currentSurveyAnswers).reduce((s,a)=>s+a.score,0);
+  STATE.surveys.push({
+    id:STATE.nextId.survey++,
+    staffId:currentSurveyStaffId,
+    lang:currentSurveyLang,
+    date:new Date().toISOString().split('T')[0],
+    answers:currentSurveyAnswers,
+    totalScore,
+    maxScore:32,
+  });
+  saveState();
+  document.getElementById('survey-form').style.display='none';
+  const info=getScoreInfo(totalScore,32);
+  showToast(`✅ 保存しました（スコア：${totalScore}/32 ${info.label}）`);
+  renderHome();
+}
+
+// RESULTS
+function renderResults(){
+  const el=document.getElementById('results-list');
+  if(STATE.surveys.length===0){el.innerHTML='<div class="card" style="text-align:center;color:var(--ink3);padding:32px">アンケート結果がありません</div>';return;}
+  const byStaff={};
+  STATE.surveys.forEach(s=>{if(!byStaff[s.staffId])byStaff[s.staffId]=[];byStaff[s.staffId].push(s);});
+  el.innerHTML=Object.entries(byStaff).map(([staffId,surveys])=>{
+    const s=STATE.staff.find(x=>x.id==staffId);
+    const sorted=surveys.sort((a,b)=>new Date(b.date)-new Date(a.date));
+    return `
+    <div class="card">
+      <div class="card-title">👤 ${s?.name||'不明'} <span class="badge badge-gray">${s?.company||'—'}</span></div>
+      ${sorted.map(sv=>{
+        const info=getScoreInfo(sv.totalScore,sv.maxScore);
+        const pct=Math.round(sv.totalScore/sv.maxScore*100);
+        return `
+        <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)">
+          <div style="font-size:12px;color:var(--ink3);width:80px;flex-shrink:0">${formatDate(sv.date)}</div>
+          <div style="flex:1">
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
+              <span style="font-size:14px;font-weight:700;color:${info.cls==='good'?'var(--green)':info.cls==='warn'?'var(--amber)':'var(--red)'}">${sv.totalScore}点</span>
+              <span class="badge ${info.badgeCls}">${info.label}</span>
+              <span class="lang-badge">${sv.lang==='ja'?'🇯🇵':sv.lang==='vi'?'🇻🇳':sv.lang==='zh'?'🇨🇳':sv.lang==='id'?'🇮🇩':'🇲🇲'}</span>
+            </div>
+            <div style="background:var(--surface2);border-radius:99px;height:6px;overflow:hidden">
+              <div style="height:100%;border-radius:99px;background:${info.cls==='good'?'var(--green)':info.cls==='warn'?'var(--amber)':'var(--red)'};width:${pct}%"></div>
+            </div>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>`;
+  }).join('');
+}
+
+// HEALTH
+function openAddHealth(){
+  const sel=document.getElementById('h-staff');
+  sel.innerHTML=STATE.staff.map(s=>`<option value="${s.id}">${s.name}</option>`).join('');
+  if(STATE.staff.length===0){showToast('先にスタッフを登録してください');return;}
+  document.getElementById('h-date').value=new Date().toISOString().split('T')[0];
+  ['h-place','h-memo'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('modal-health').classList.add('open');
+}
+
+function saveHealth(){
+  const staffId=parseInt(document.getElementById('h-staff').value);
+  const date=document.getElementById('h-date').value;
+  if(!date){showToast('受診日を入力してください');return;}
+  STATE.healthRecords.push({
+    id:STATE.nextId.health++,staffId,date,
+    place:document.getElementById('h-place').value,
+    result:document.getElementById('h-result').value,
+    memo:document.getElementById('h-memo').value,
+  });
+  saveState();closeModal('modal-health');showToast('✅ 健康診断記録を保存しました');
+  renderHealthList();renderHome();
+}
+
+function renderHealthList(){
+  const el=document.getElementById('health-list');
+  if(STATE.staff.length===0){el.innerHTML='<div class="card" style="text-align:center;color:var(--ink3);padding:32px">スタッフが登録されていません</div>';return;}
+  el.innerHTML=STATE.staff.map(s=>{
+    const records=STATE.healthRecords.filter(h=>h.staffId===s.id).sort((a,b)=>new Date(b.date)-new Date(a.date));
+    const latest=records[0];
+    const resultColor={'A':'badge-ok','B':'badge-warn','C':'badge-warn','D':'badge-ng'};
+    return `
+    <div class="card" style="padding:16px 20px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div>
+          <div style="font-size:14px;font-weight:700">${s.name} <span class="badge badge-gray">${s.company||'—'}</span></div>
+          <div style="font-size:12px;color:var(--ink3)">就労開始：${formatDate(s.start)}</div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          ${latest?`<span class="badge ${resultColor[latest.result]||'badge-gray'}">${latest.result}判定</span>`:'<span class="badge badge-ng">未受診</span>'}
+          <button class="btn btn-sm btn-pink" onclick="openAddHealth();document.getElementById('h-staff').value=${s.id}">＋ 記録追加</button>
+        </div>
+      </div>
+      ${records.length>0?records.map(r=>`
+        <div style="display:flex;gap:10px;font-size:12px;padding:6px 0;border-bottom:1px solid var(--border);align-items:center">
+          <span style="color:var(--ink3);width:80px">${formatDate(r.date)}</span>
+          <span>${r.place||'—'}</span>
+          <span class="badge ${resultColor[r.result]||'badge-gray'}">${r.result}判定</span>
+          ${r.memo?`<span style="color:var(--ink3);flex:1">${r.memo}</span>`:''}
+        </div>`).join(''):'<div style="font-size:12px;color:var(--ink3)">健康診断の記録がありません</div>'}
+    </div>`;
+  }).join('');
+}
+
+// ALERT
+function renderAlertList(){
+  const el=document.getElementById('alert-list');
+  const risks=[];
+  STATE.staff.forEach(s=>{
+    const latest=getLatestSurvey(s.id);
+    const health=STATE.healthRecords.filter(h=>h.staffId===s.id).sort((a,b)=>new Date(b.date)-new Date(a.date))[0];
+    if(!latest)risks.push({staff:s,reason:'アンケート未回答',level:'warn'});
+    else{
+      const info=getScoreInfo(latest.totalScore,32);
+      if(info.cls==='bad')risks.push({staff:s,reason:`スコア低下（${latest.totalScore}/32点）`,level:'danger',score:latest.totalScore,date:latest.date});
+      else if(info.cls==='warn')risks.push({staff:s,reason:`スコア注意（${latest.totalScore}/32点）`,level:'warn',score:latest.totalScore,date:latest.date});
+    }
+    if(!health)risks.push({staff:s,reason:'健康診断未受診',level:'warn'});
+    else if(['C','D'].includes(health.result))risks.push({staff:s,reason:`健康診断${health.result}判定（要フォロー）`,level:'danger'});
+  });
+
+  if(risks.length===0){el.innerHTML='<div class="card" style="text-align:center;color:var(--green);padding:32px;font-size:16px;font-weight:700">🎉 要注意スタッフはいません</div>';return;}
+
+  el.innerHTML=`
+    <div class="card">
+      <div class="card-title">🚨 要注意スタッフ一覧（${risks.length}件）</div>
+      ${risks.map(r=>`
+        <div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)">
+          <div style="width:10px;height:10px;border-radius:50%;background:${r.level==='danger'?'var(--red)':'var(--amber)'};flex-shrink:0"></div>
+          <div style="flex:1">
+            <div style="font-size:13px;font-weight:700">${r.staff.name} <span class="badge badge-gray">${r.staff.company||'—'}</span></div>
+            <div style="font-size:11px;color:var(--ink3)">${r.reason}</div>
+          </div>
+          <div style="display:flex;gap:6px">
+            <button class="btn btn-sm btn-pink" onclick="quickSurvey(${r.staff.id})">📝 アンケート</button>
+          </div>
+        </div>`).join('')}
+    </div>
+    <div class="card">
+      <div class="card-title">📋 フォローアップガイド</div>
+      <div style="font-size:12px;line-height:1.9;color:var(--ink2)">
+        <div>🟡 <strong>注意（スコア50〜74%）</strong>：次回アンケートを2週間後に実施。状況変化を観察する。</div>
+        <div>🔴 <strong>要フォロー（スコア50%未満）</strong>：面談を1週間以内に実施。必要に応じて産業医・相談窓口を案内。</div>
+        <div>🩺 <strong>健診C・D判定</strong>：受診勧奨を行い、医師の指示に従いフォロー。就業上の配慮が必要な場合は産業医に相談。</div>
+      </div>
+    </div>`;
+}
+
+// HOME
+function renderHome(){
+  const now=new Date();
+  document.getElementById('home-date').textContent=`${now.getFullYear()}年${now.getMonth()+1}月${now.getDate()}日（${['日','月','火','水','木','金','土'][now.getDay()]}）`;
+
+  let riskCount=0;
+  const alerts=[];
+  const thisMonthSurveys=STATE.surveys.filter(s=>{const d=new Date(s.date);return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();});
+  const noHealth=STATE.staff.filter(s=>!STATE.healthRecords.find(h=>h.staffId===s.id));
+
+  STATE.staff.forEach(s=>{
+    const latest=getLatestSurvey(s.id);
+    if(!latest){alerts.push({type:'amber',msg:`【未回答】${s.name} アンケート未実施`});riskCount++;}
+    else{
+      const info=getScoreInfo(latest.totalScore,32);
+      if(info.cls==='bad'){alerts.push({type:'red',msg:`【要フォロー】${s.name} スコア${latest.totalScore}/32点`});riskCount++;}
+      else if(info.cls==='warn'){alerts.push({type:'amber',msg:`【注意】${s.name} スコア${latest.totalScore}/32点`});riskCount++;}
+    }
+  });
+
+  document.getElementById('stat-staff').textContent=STATE.staff.length;
+  document.getElementById('stat-risk').textContent=riskCount;
+  document.getElementById('stat-survey').textContent=thisMonthSurveys.length;
+  document.getElementById('stat-health').textContent=noHealth.length;
+
+  const alertEl=document.getElementById('home-alerts');
+  alertEl.innerHTML=alerts.length===0?'<div class="alert alert-green"><span>✅</span><div>要注意スタッフはいません</div></div>':
+    alerts.slice(0,5).map(a=>`<div class="alert alert-${a.type==='red'?'red':'amber'}"><span>${a.type==='red'?'🚨':'⚠️'}</span><div>${a.msg}</div></div>`).join('');
+
+  const staffEl=document.getElementById('home-staff');
+  staffEl.innerHTML=STATE.staff.length===0?'<div style="color:var(--ink3);font-size:13px">スタッフが登録されていません</div>':
+    STATE.staff.map(s=>{
+      const latest=getLatestSurvey(s.id);
+      const info=latest?getScoreInfo(latest.totalScore,32):null;
+      return `
+      <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:600">${s.name}</div>
+          <div style="font-size:11px;color:var(--ink3)">${s.company||'—'}</div>
+        </div>
+        ${latest?`<span class="badge ${info.badgeCls}">${info.label}（${latest.totalScore}点）</span>`:'<span class="badge badge-gray">未回答</span>'}
+        <button class="btn btn-sm btn-pink" onclick="quickSurvey(${s.id})">📝</button>
+      </div>`;
+    }).join('');
+}
+
+loadState();
+const initNow=new Date();
+document.getElementById('home-date').textContent=`${initNow.getFullYear()}年${initNow.getMonth()+1}月${initNow.getDate()}日（${['日','月','火','水','木','金','土'][initNow.getDay()]}）`;
+renderHome();
+</script>
+</body>
+</html>
