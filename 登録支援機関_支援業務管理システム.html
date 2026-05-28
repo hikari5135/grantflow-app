@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>登録支援機関 支援業務管理システム｜GrantFlow</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#1a1a18;--ink2:#3a3a36;--ink3:#7a7a72;
+  --bg:#f2f1ec;--surface:#fff;--surface2:#f8f7f2;
+  --border:#e2e1d8;--border2:#c8c7be;
+  --green:#1a7a4a;--green-l:#e8f5ee;--green-m:#b8e0ca;
+  --red:#c0392b;--red-l:#fdecea;--red-m:#f5b7b1;
+  --amber:#c47a00;--amber-l:#fff8e6;--amber-m:#ffd97a;
+  --blue:#1a5fa8;--blue-l:#e8f0fb;--blue-m:#a8c4ef;
+  --teal:#0d7a6a;--teal-l:#e6f5f2;--teal-m:#a8ddd6;
+  --r:10px;--r2:16px;
+  --shadow:0 2px 8px rgba(0,0,0,.06);
+  --shadow2:0 8px 24px rgba(0,0,0,.10);
+}
+body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;font-size:14px;line-height:1.6;}
+.layout{display:flex;min-height:100vh;}
+.sidebar{width:240px;background:var(--ink);color:#fff;position:fixed;top:0;left:0;bottom:0;display:flex;flex-direction:column;z-index:100;}
+.sidebar-logo{padding:20px 18px;border-bottom:1px solid rgba(255,255,255,.1);}
+.logo-name{font-size:13px;font-weight:700;line-height:1.4;}
+.logo-sub{font-size:10px;color:rgba(255,255,255,.45);margin-top:2px;}
+.logo-badge{display:inline-block;margin-top:6px;font-size:9px;font-weight:700;background:var(--teal);color:#fff;padding:2px 8px;border-radius:4px;font-family:'DM Mono',monospace;}
+.nav-section{padding:12px 0 4px;}
+.nav-label{font-size:9px;font-weight:700;letter-spacing:.1em;color:rgba(255,255,255,.3);padding:0 18px;margin-bottom:4px;text-transform:uppercase;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 18px;font-size:13px;font-weight:500;color:rgba(255,255,255,.6);cursor:pointer;border-left:3px solid transparent;transition:all .15s;}
+.nav-item:hover{color:#fff;background:rgba(255,255,255,.06);}
+.nav-item.active{color:#fff;border-left-color:var(--teal);background:rgba(255,255,255,.08);}
+.nav-icon{font-size:16px;width:20px;text-align:center;}
+.sidebar-footer{margin-top:auto;padding:14px 18px;border-top:1px solid rgba(255,255,255,.1);}
+.user-row{display:flex;align-items:center;gap:8px;}
+.user-av{width:28px;height:28px;border-radius:50%;background:var(--teal);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;}
+.user-name{font-size:11px;font-weight:600;}
+.user-role{font-size:10px;color:rgba(255,255,255,.4);}
+
+.main{margin-left:240px;flex:1;}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:12px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
+.topbar-title{font-size:16px;font-weight:700;}
+.topbar-right{display:flex;align-items:center;gap:10px;}
+
+.page{display:none;padding:24px;}
+.page.active{display:block;}
+
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:20px;margin-bottom:14px;box-shadow:var(--shadow);}
+.card-title{font-size:14px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.section-title{font-size:18px;font-weight:700;}
+.section-sub{font-size:13px;color:var(--ink3);margin-top:2px;}
+
+.badge{display:inline-flex;align-items:center;padding:2px 10px;border-radius:6px;font-size:11px;font-weight:700;}
+.badge-ok{background:var(--green-l);color:var(--green);}
+.badge-ng{background:var(--red-l);color:var(--red);}
+.badge-warn{background:var(--amber-l);color:var(--amber);}
+.badge-info{background:var(--blue-l);color:var(--blue);}
+.badge-teal{background:var(--teal-l);color:var(--teal);}
+.badge-gray{background:var(--surface2);color:var(--ink3);border:1px solid var(--border);}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:9px 18px;border:1.5px solid var(--border2);border-radius:var(--r);font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;transition:all .15s;background:var(--surface);color:var(--ink);}
+.btn:hover{background:var(--surface2);}
+.btn-teal{background:var(--teal);border-color:var(--teal);color:#fff;}
+.btn-teal:hover{background:#0a5c4f;}
+.btn-green{background:var(--green);border-color:var(--green);color:#fff;}
+.btn-red{background:var(--red);border-color:var(--red);color:#fff;}
+.btn-blue{background:var(--blue);border-color:var(--blue);color:#fff;}
+.btn-sm{padding:5px 12px;font-size:12px;}
+.btn-full{width:100%;}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;}
+
+.fg{display:flex;flex-direction:column;gap:4px;margin-bottom:12px;}
+.fg label{font-size:11px;font-weight:700;color:var(--ink3);}
+.fg input,.fg select,.fg textarea{width:100%;padding:9px 12px;border:1.5px solid var(--border2);border-radius:var(--r);font-size:13px;font-family:inherit;color:var(--ink);background:var(--surface);outline:none;transition:border .15s;}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--teal);}
+.fg textarea{resize:vertical;min-height:70px;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:14px 16px;box-shadow:var(--shadow);}
+.stat-label{font-size:11px;color:var(--ink3);margin-bottom:4px;}
+.stat-val{font-size:26px;font-weight:700;line-height:1.1;}
+.stat-sub{font-size:11px;color:var(--ink3);margin-top:2px;}
+
+.alert{display:flex;gap:10px;padding:12px 14px;border-radius:var(--r);font-size:13px;margin-bottom:8px;border:1px solid;}
+.alert-red{background:var(--red-l);border-color:var(--red-m);color:var(--red);}
+.alert-amber{background:var(--amber-l);border-color:var(--amber-m);color:var(--amber);}
+.alert-green{background:var(--green-l);border-color:var(--green-m);color:var(--green);}
+.alert-blue{background:var(--blue-l);border-color:var(--blue-m);color:var(--blue);}
+
+.support-item{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r2);padding:14px 16px;margin-bottom:8px;transition:all .2s;}
+.support-item:hover{border-color:var(--border2);box-shadow:var(--shadow);}
+.support-item.done{opacity:.6;background:var(--surface2);}
+.support-check{width:20px;height:20px;border-radius:5px;border:2px solid var(--border2);flex-shrink:0;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;}
+.support-check.checked{background:var(--green);border-color:var(--green);}
+
+.progress-wrap{background:var(--surface2);border-radius:99px;height:8px;overflow:hidden;margin:6px 0;}
+.progress-fill{height:100%;border-radius:99px;background:var(--teal);transition:width .4s;}
+.progress-fill.warn{background:var(--amber);}
+.progress-fill.danger{background:var(--red);}
+
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;align-items:center;justify-content:center;padding:16px;}
+.modal-bg.open{display:flex;}
+.modal-box{background:var(--surface);border-radius:var(--r2);padding:24px;width:min(680px,100%);max-height:90vh;overflow-y:auto;box-shadow:var(--shadow2);}
+.modal-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;}
+.modal-title{font-size:16px;font-weight:700;}
+.modal-close{font-size:20px;cursor:pointer;color:var(--ink3);background:none;border:none;}
+
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 20px;border-radius:var(--r);font-size:13px;font-weight:600;opacity:0;transition:opacity .3s;pointer-events:none;z-index:999;white-space:nowrap;}
+.toast.show{opacity:1;}
+
+.report-section{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:14px;margin-bottom:10px;}
+.report-section-title{font-size:11px;font-weight:700;color:var(--ink3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;}
+
+@media(max-width:768px){.sidebar{transform:translateX(-100%);}.main{margin-left:0;}.stat-grid{grid-template-columns:1fr 1fr;}.grid2,.grid3{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<div class="layout">
+
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-name">登録支援機関<br>支援業務管理</div>
+    <div class="logo-sub">GrantFlow ⑩</div>
+    <div class="logo-badge">v1.0</div>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">メニュー</div>
+    <div class="nav-item active" onclick="showPage('pg-home')"><span class="nav-icon">🏠</span>ダッシュボード</div>
+    <div class="nav-item" onclick="showPage('pg-staff')"><span class="nav-icon">👤</span>支援対象者管理</div>
+    <div class="nav-item" onclick="showPage('pg-support')"><span class="nav-icon">📋</span>支援実施記録</div>
+    <div class="nav-item" onclick="showPage('pg-interview')"><span class="nav-icon">🤝</span>定期面談記録</div>
+    <div class="nav-item" onclick="showPage('pg-report')"><span class="nav-icon">📊</span>定期報告書作成</div>
+    <div class="nav-item" onclick="showPage('pg-orientation')"><span class="nav-icon">🎓</span>生活オリエンテーション</div>
+  </div>
+  <div class="sidebar-footer">
+    <div class="user-row">
+      <div class="user-av">阪</div>
+      <div><div class="user-name">阪本 光</div><div class="user-role">登録支援機関</div></div>
+    </div>
+  </div>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title" id="topbar-title">ダッシュボード</div>
+    <div class="topbar-right">
+      <button class="btn btn-teal btn-sm" onclick="openAddStaff()">＋ 支援対象者追加</button>
+    </div>
+  </div>
+
+  <!-- HOME -->
+  <div class="page active" id="pg-home">
+    <div class="section-header">
+      <div><div class="section-title">ダッシュボード</div><div class="section-sub" id="home-date"></div></div>
+    </div>
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-label">支援対象者数</div><div class="stat-val" id="stat-staff" style="color:var(--teal)">0</div><div class="stat-sub">名</div></div>
+      <div class="stat-card"><div class="stat-label">未実施支援</div><div class="stat-val" id="stat-pending" style="color:var(--red)">0</div><div class="stat-sub">件</div></div>
+      <div class="stat-card"><div class="stat-label">今月の面談</div><div class="stat-val" id="stat-interview" style="color:var(--amber)">0</div><div class="stat-sub">件</div></div>
+      <div class="stat-card"><div class="stat-label">支援完了率</div><div class="stat-val" id="stat-rate" style="color:var(--green)">—</div><div class="stat-sub">%</div></div>
+    </div>
+    <div class="card"><div class="card-title">🚨 要対応アラート</div><div id="home-alerts"></div></div>
+    <div class="grid2">
+      <div class="card"><div class="card-title">👤 支援対象者一覧</div><div id="home-staff"></div></div>
+      <div class="card"><div class="card-title">📋 直近の支援記録</div><div id="home-records"></div></div>
+    </div>
+  </div>
+
+  <!-- STAFF -->
+  <div class="page" id="pg-staff">
+    <div class="section-header">
+      <div><div class="section-title">👤 支援対象者管理</div><div class="section-sub">特定技能外国人の支援対象者を管理します</div></div>
+      <button class="btn btn-teal" onclick="openAddStaff()">＋ 支援対象者追加</button>
+    </div>
+    <div id="staff-list"></div>
+  </div>
+
+  <!-- SUPPORT -->
+  <div class="page" id="pg-support">
+    <div class="section-header">
+      <div><div class="section-title">📋 支援実施記録</div><div class="section-sub">法定11項目の支援実施状況を管理します</div></div>
+      <button class="btn btn-teal" onclick="openAddSupport()">＋ 支援記録を追加</button>
+    </div>
+    <div class="alert alert-blue" style="margin-bottom:14px">
+      <span>ℹ️</span><div>特定技能外国人への支援は法律で定められた義務です。実施記録は出入国在留管理庁への報告に使用します。</div>
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap" id="support-filter-tabs">
+      <button class="filter-tab active" onclick="setSupportFilter('all',this)">📋 すべて</button>
+      <button class="filter-tab" onclick="setSupportFilter('未実施',this)">⬜ 未実施</button>
+      <button class="filter-tab" onclick="setSupportFilter('実施済',this)">✅ 実施済</button>
+    </div>
+    <div id="support-list"></div>
+  </div>
+
+  <!-- INTERVIEW -->
+  <div class="page" id="pg-interview">
+    <div class="section-header">
+      <div><div class="section-title">🤝 定期面談記録</div><div class="section-sub">3ヶ月ごとの定期面談を記録します</div></div>
+      <button class="btn btn-teal" onclick="openAddInterview()">＋ 面談記録を追加</button>
+    </div>
+    <div class="alert alert-amber" style="margin-bottom:14px">
+      <span>⚠️</span><div>定期面談は3ヶ月に1回以上の実施が義務です。面談は対面または電話・ビデオ通話で実施できます。</div>
+    </div>
+    <div id="interview-list"></div>
+  </div>
+
+  <!-- REPORT -->
+  <div class="page" id="pg-report">
+    <div class="section-header">
+      <div><div class="section-title">📊 定期報告書作成</div><div class="section-sub">出入国在留管理庁への報告書を自動作成します</div></div>
+    </div>
+    <div class="alert alert-blue" style="margin-bottom:14px">
+      <span>ℹ️</span><div>定期報告は<strong>4ヶ月ごと</strong>（1月・5月・9月）に出入国在留管理庁へ提出が必要です。</div>
+    </div>
+    <div id="report-content"></div>
+  </div>
+
+  <!-- ORIENTATION -->
+  <div class="page" id="pg-orientation">
+    <div class="section-header">
+      <div><div class="section-title">🎓 生活オリエンテーション</div><div class="section-sub">入国後の生活オリエンテーション実施記録</div></div>
+      <button class="btn btn-teal" onclick="openAddOrientation()">＋ 実施記録を追加</button>
+    </div>
+    <div class="alert alert-blue" style="margin-bottom:14px">
+      <span>ℹ️</span><div>生活オリエンテーションは就労開始前または就労開始後できるだけ早期に実施する義務があります。実施時間は<strong>8時間以上</strong>が目安です。</div>
+    </div>
+    <div id="orientation-list"></div>
+  </div>
+</div>
+</div>
+
+<!-- MODAL: 支援対象者追加 -->
+<div class="modal-bg" id="modal-staff">
+  <div class="modal-box">
+    <div class="modal-top">
+      <div class="modal-title">👤 支援対象者追加</div>
+      <button class="modal-close" onclick="closeModal('modal-staff')">✕</button>
+    </div>
+    <div class="grid2">
+      <div class="fg"><label>氏名★</label><input type="text" id="s-name" placeholder="例：Nguyen Van A"></div>
+      <div class="fg"><label>国籍</label>
+        <select id="s-country">
+          <option>ベトナム</option><option>中国</option><option>フィリピン</option>
+          <option>インドネシア</option><option>ミャンマー</option><option>タイ</option>
+          <option>ネパール</option><option>その他</option>
+        </select>
+      </div>
+      <div class="fg"><label>在留資格</label>
+        <select id="s-visa">
+          <option>特定技能1号</option><option>特定技能2号</option>
+        </select>
+      </div>
+      <div class="fg"><label>在留期限★</label><input type="date" id="s-visa-exp"></div>
+      <div class="fg"><label>受入企業名★</label><input type="text" id="s-company" placeholder="例：株式会社〇〇"></div>
+      <div class="fg"><label>就労開始日★</label><input type="date" id="s-start"></div>
+      <div class="fg"><label>分野</label>
+        <select id="s-field">
+          <option>介護</option><option>ビルクリーニング</option><option>素形材・産業機械・電気電子情報関連製造業</option>
+          <option>建設</option><option>造船・舶用工業</option><option>自動車整備</option>
+          <option>航空</option><option>宿泊</option><option>農業</option>
+          <option>漁業</option><option>飲食料品製造業</option><option>外食業</option>
+        </select>
+      </div>
+      <div class="fg"><label>母国語</label>
+        <select id="s-lang">
+          <option>ベトナム語</option><option>中国語</option><option>タガログ語</option>
+          <option>インドネシア語</option><option>ミャンマー語</option><option>タイ語</option>
+          <option>ネパール語</option>
+        </select>
+      </div>
+      <div class="fg"><label>電話番号</label><input type="text" id="s-tel"></div>
+      <div class="fg"><label>住所</label><input type="text" id="s-address"></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-teal" onclick="saveStaff()">💾 保存する</button>
+      <button class="btn" onclick="closeModal('modal-staff')">キャンセル</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: 支援記録追加 -->
+<div class="modal-bg" id="modal-support">
+  <div class="modal-box">
+    <div class="modal-top">
+      <div class="modal-title">📋 支援実施記録</div>
+      <button class="modal-close" onclick="closeModal('modal-support')">✕</button>
+    </div>
+    <div class="grid2">
+      <div class="fg"><label>支援対象者★</label><select id="sp-staff"></select></div>
+      <div class="fg"><label>支援項目★</label>
+        <select id="sp-type">
+          <option>事前ガイダンス</option>
+          <option>出入国時の送迎</option>
+          <option>住居確保・生活に必要な契約支援</option>
+          <option>生活オリエンテーション</option>
+          <option>日本語学習機会の提供</option>
+          <option>相談・苦情対応</option>
+          <option>日本人との交流促進</option>
+          <option>転職支援（人員整理等の場合）</option>
+          <option>定期面談</option>
+          <option>行政手続き同行</option>
+          <option>その他支援</option>
+        </select>
+      </div>
+      <div class="fg"><label>実施日★</label><input type="date" id="sp-date"></div>
+      <div class="fg"><label>実施方法</label>
+        <select id="sp-method">
+          <option>対面</option><option>電話</option><option>ビデオ通話</option><option>書面</option><option>その他</option>
+        </select>
+      </div>
+      <div class="fg"><label>実施時間</label><input type="text" id="sp-hours" placeholder="例：2時間"></div>
+      <div class="fg"><label>担当者</label><input type="text" id="sp-person" placeholder="例：阪本 光"></div>
+    </div>
+    <div class="fg"><label>実施内容・特記事項</label><textarea id="sp-memo" placeholder="支援の内容・結果・次回への申し送り事項を記録してください"></textarea></div>
+    <div class="btn-row">
+      <button class="btn btn-teal" onclick="saveSupport()">💾 保存する</button>
+      <button class="btn" onclick="closeModal('modal-support')">キャンセル</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: 面談記録 -->
+<div class="modal-bg" id="modal-interview">
+  <div class="modal-box">
+    <div class="modal-top">
+      <div class="modal-title">🤝 定期面談記録</div>
+      <button class="modal-close" onclick="closeModal('modal-interview')">✕</button>
+    </div>
+    <div class="grid2">
+      <div class="fg"><label>支援対象者★</label><select id="iv-staff"></select></div>
+      <div class="fg"><label>面談日★</label><input type="date" id="iv-date"></div>
+      <div class="fg"><label>面談方法</label>
+        <select id="iv-method"><option>対面</option><option>電話</option><option>ビデオ通話</option></select>
+      </div>
+      <div class="fg"><label>面談時間</label><input type="text" id="iv-hours" placeholder="例：30分"></div>
+      <div class="fg"><label>就労状況</label>
+        <select id="iv-work"><option>良好</option><option>やや問題あり</option><option>問題あり</option></select>
+      </div>
+      <div class="fg"><label>生活状況</label>
+        <select id="iv-life"><option>良好</option><option>やや問題あり</option><option>問題あり</option></select>
+      </div>
+    </div>
+    <div class="fg"><label>面談内容・確認事項</label><textarea id="iv-content" placeholder="就労状況・生活状況・本人の希望・問題点などを記録"></textarea></div>
+    <div class="fg"><label>次回面談予定日</label><input type="date" id="iv-next"></div>
+    <div class="btn-row">
+      <button class="btn btn-teal" onclick="saveInterview()">💾 保存する</button>
+      <button class="btn" onclick="closeModal('modal-interview')">キャンセル</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: オリエンテーション -->
+<div class="modal-bg" id="modal-orientation">
+  <div class="modal-box">
+    <div class="modal-top">
+      <div class="modal-title">🎓 生活オリエンテーション実施記録</div>
+      <button class="modal-close" onclick="closeModal('modal-orientation')">✕</button>
+    </div>
+    <div class="grid2">
+      <div class="fg"><label>支援対象者★</label><select id="or-staff"></select></div>
+      <div class="fg"><label>実施日★</label><input type="date" id="or-date"></div>
+      <div class="fg"><label>実施時間合計</label><input type="text" id="or-hours" placeholder="例：8時間"></div>
+      <div class="fg"><label>使用言語</label><input type="text" id="or-lang" placeholder="例：ベトナム語・日本語"></div>
+    </div>
+    <div style="margin-bottom:12px">
+      <div style="font-size:11px;font-weight:700;color:var(--ink3);margin-bottom:8px">実施項目チェックリスト</div>
+      <div id="orientation-checklist"></div>
+    </div>
+    <div class="fg"><label>特記事項</label><textarea id="or-memo" placeholder="質問事項・理解度・次回フォロー内容など"></textarea></div>
+    <div class="btn-row">
+      <button class="btn btn-teal" onclick="saveOrientation()">💾 保存する</button>
+      <button class="btn" onclick="closeModal('modal-orientation')">キャンセル</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const ORIENTATION_ITEMS = [
+  '日本の在留資格制度','労働関係法令（労働時間・休日・賃金）',
+  '社会保険・労働保険の加入','税金の仕組み（所得税・住民税）',
+  '日本語学習の機会','生活ルール（ゴミ出し・騒音・近隣マナー）',
+  '医療機関の利用方法','銀行口座の開設','相談窓口の案内',
+  '緊急時の連絡方法（110・119番）','日本人との交流の機会',
+  '母国への送金方法','住民登録の手続き'
+];
+
+let STATE={staff:[],supports:[],interviews:[],orientations:[],nextId:{staff:1,support:1,interview:1,orientation:1}};
+let supportFilter='all';
+
+function loadState(){const s=localStorage.getItem('grantflow_support_v1');if(s)try{STATE=JSON.parse(s);}catch(e){}}
+function saveState(){localStorage.setItem('grantflow_support_v1',JSON.stringify(STATE));}
+
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelector(`[onclick="showPage('${id}')"]`).classList.add('active');
+  const titles={'pg-home':'ダッシュボード','pg-staff':'支援対象者管理','pg-support':'支援実施記録','pg-interview':'定期面談記録','pg-report':'定期報告書作成','pg-orientation':'生活オリエンテーション'};
+  document.getElementById('topbar-title').textContent=titles[id]||'';
+  if(id==='pg-home') renderHome();
+  if(id==='pg-staff') renderStaffList();
+  if(id==='pg-support') renderSupportList();
+  if(id==='pg-interview') renderInterviewList();
+  if(id==='pg-report') renderReport();
+  if(id==='pg-orientation') renderOrientationList();
+}
+
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+function formatDate(d){if(!d)return'—';const dt=new Date(d);return`${dt.getFullYear()}/${String(dt.getMonth()+1).padStart(2,'0')}/${String(dt.getDate()).padStart(2,'0')}`;}
+function daysUntil(d){if(!d)return null;return Math.ceil((new Date(d)-new Date())/86400000);}
+
+function updateStaffSelects(){
+  const opts=STATE.staff.map(s=>`<option value="${s.id}">${s.name}（${s.company}）</option>`).join('');
+  ['sp-staff','iv-staff','or-staff'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=opts;});
+}
+
+// STAFF
+function openAddStaff(){
+  ['s-name','s-visa-exp','s-start','s-company','s-tel','s-address'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('modal-staff').classList.add('open');
+}
+
+function saveStaff(){
+  const name=document.getElementById('s-name').value.trim();
+  const company=document.getElementById('s-company').value.trim();
+  if(!name||!company){showToast('氏名と受入企業名を入力してください');return;}
+  STATE.staff.push({
+    id:STATE.nextId.staff++,name,
+    country:document.getElementById('s-country').value,
+    visa:document.getElementById('s-visa').value,
+    visaExp:document.getElementById('s-visa-exp').value,
+    company,field:document.getElementById('s-field').value,
+    lang:document.getElementById('s-lang').value,
+    start:document.getElementById('s-start').value,
+    tel:document.getElementById('s-tel').value,
+    address:document.getElementById('s-address').value,
+  });
+  saveState();closeModal('modal-staff');showToast('✅ 支援対象者を追加しました');
+  renderStaffList();renderHome();
+}
+
+function renderStaffList(){
+  const el=document.getElementById('staff-list');
+  if(STATE.staff.length===0){el.innerHTML='<div class="card" style="text-align:center;color:var(--ink3);padding:32px">支援対象者が登録されていません</div>';return;}
+  el.innerHTML=STATE.staff.map(s=>{
+    const supports=STATE.supports.filter(sp=>sp.staffId===s.id);
+    const interviews=STATE.interviews.filter(iv=>iv.staffId===s.id);
+    const orientation=STATE.orientations.find(or=>or.staffId===s.id);
+    const lastInterview=interviews.sort((a,b)=>new Date(b.date)-new Date(a.date))[0];
+    const nextInterview=lastInterview?.nextDate;
+    const daysToInterview=nextInterview?daysUntil(nextInterview):null;
+    const visaDays=daysUntil(s.visaExp);
+    return `
+    <div class="card" style="padding:16px 20px">
+      <div style="display:flex;align-items:flex-start;gap:14px">
+        <div style="width:44px;height:44px;border-radius:50%;background:var(--teal-l);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">👤</div>
+        <div style="flex:1;min-width:0">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px">
+            <span style="font-size:15px;font-weight:700">${s.name}</span>
+            <span class="badge badge-teal">${s.visa}</span>
+            <span class="badge badge-gray">${s.field}</span>
+          </div>
+          <div style="font-size:12px;color:var(--ink3);margin-bottom:8px">
+            ${s.company} | ${s.country} | 就労開始：${formatDate(s.start)}<br>
+            在留期限：${formatDate(s.visaExp)} ${visaDays!==null?`（${visaDays<0?`<span style="color:var(--red)">期限切れ</span>`:`残り${visaDays}日`}）`:''}
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <span class="badge ${orientation?'badge-ok':'badge-ng'}">オリエンテーション：${orientation?'実施済':'未実施'}</span>
+            <span class="badge badge-gray">支援記録：${supports.length}件</span>
+            <span class="badge badge-gray">面談：${interviews.length}回</span>
+            ${daysToInterview!==null?`<span class="badge ${daysToInterview<0?'badge-ng':daysToInterview<=30?'badge-warn':'badge-ok'}">次回面談：${daysToInterview<0?`${Math.abs(daysToInterview)}日超過`:`残り${daysToInterview}日`}</span>`:''}
+          </div>
+        </div>
+        <div style="display:flex;gap:6px;flex-shrink:0;flex-direction:column">
+          <button class="btn btn-sm btn-teal" onclick="quickSupport(${s.id})">📋 支援記録</button>
+          <button class="btn btn-sm btn-blue" onclick="quickInterview(${s.id})">🤝 面談記録</button>
+          <button class="btn btn-sm btn-red" onclick="deleteStaff(${s.id})">🗑️ 削除</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function deleteStaff(id){
+  if(!confirm('この支援対象者と関連記録をすべて削除しますか？'))return;
+  STATE.staff=STATE.staff.filter(s=>s.id!==id);
+  STATE.supports=STATE.supports.filter(s=>s.staffId!==id);
+  STATE.interviews=STATE.interviews.filter(s=>s.staffId!==id);
+  STATE.orientations=STATE.orientations.filter(s=>s.staffId!==id);
+  saveState();renderStaffList();renderHome();showToast('削除しました');
+}
+
+function quickSupport(staffId){
+  updateStaffSelects();
+  document.getElementById('sp-staff').value=staffId;
+  document.getElementById('sp-date').value=new Date().toISOString().split('T')[0];
+  ['sp-hours','sp-person','sp-memo'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('modal-support').classList.add('open');
+}
+
+function quickInterview(staffId){
+  updateStaffSelects();
+  document.getElementById('iv-staff').value=staffId;
+  document.getElementById('iv-date').value=new Date().toISOString().split('T')[0];
+  ['iv-hours','iv-content','iv-next'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('modal-interview').classList.add('open');
+}
+
+// SUPPORT
+function openAddSupport(){
+  updateStaffSelects();
+  if(STATE.staff.length===0){showToast('先に支援対象者を登録してください');return;}
+  document.getElementById('sp-date').value=new Date().toISOString().split('T')[0];
+  ['sp-hours','sp-person','sp-memo'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('modal-support').classList.add('open');
+}
+
+function saveSupport(){
+  const staffId=parseInt(document.getElementById('sp-staff').value);
+  const date=document.getElementById('sp-date').value;
+  if(!date){showToast('実施日を入力してください');return;}
+  STATE.supports.push({
+    id:STATE.nextId.support++,staffId,
+    type:document.getElementById('sp-type').value,
+    date,method:document.getElementById('sp-method').value,
+    hours:document.getElementById('sp-hours').value,
+    person:document.getElementById('sp-person').value,
+    memo:document.getElementById('sp-memo').value,
+  });
+  saveState();closeModal('modal-support');showToast('✅ 支援記録を保存しました');
+  renderSupportList();renderHome();
+}
+
+function setSupportFilter(f,el){
+  supportFilter=f;
+  document.querySelectorAll('.filter-tab').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  renderSupportList();
+}
+
+function renderSupportList(){
+  const el=document.getElementById('support-list');
+  if(STATE.staff.length===0){el.innerHTML='<div class="card" style="text-align:center;color:var(--ink3);padding:32px">支援対象者が登録されていません</div>';return;}
+
+  const REQUIRED_SUPPORTS=['事前ガイダンス','住居確保・生活に必要な契約支援','生活オリエンテーション','日本語学習機会の提供','相談・苦情対応','日本人との交流促進','定期面談'];
+
+  let html='';
+  STATE.staff.forEach(s=>{
+    const done=STATE.supports.filter(sp=>sp.staffId===s.id).map(sp=>sp.type);
+    const items=REQUIRED_SUPPORTS.map(r=>({name:r,done:done.includes(r)}));
+    if(supportFilter==='未実施'&&items.every(i=>i.done))return;
+    if(supportFilter==='実施済'&&items.some(i=>!i.done))return;
+    const pct=Math.round(items.filter(i=>i.done).length/items.length*100);
+    html+=`
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div>
+          <div style="font-size:14px;font-weight:700">${s.name} <span class="badge badge-gray">${s.company}</span></div>
+        </div>
+        <span class="badge ${pct===100?'badge-ok':pct>=50?'badge-warn':'badge-ng'}">${pct}% 完了</span>
+      </div>
+      <div class="progress-wrap"><div class="progress-fill ${pct<50?'danger':pct<80?'warn':''}" style="width:${pct}%"></div></div>
+      <div style="margin-top:10px;display:flex;flex-direction:column;gap:6px">
+        ${items.map(item=>`
+          <div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border)">
+            <div class="support-check ${item.done?'checked':''}" onclick="toggleSupport(${s.id},'${item.name}')">
+              ${item.done?'<svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="2" stroke-linecap="round"/></svg>':''}
+            </div>
+            <span style="flex:1;font-size:13px">${item.name}</span>
+            <span class="badge ${item.done?'badge-ok':'badge-gray'}">${item.done?'実施済':'未実施'}</span>
+            ${item.done?`<span style="font-size:11px;color:var(--ink3)">${formatDate(STATE.supports.filter(sp=>sp.staffId===s.id&&sp.type===item.name).slice(-1)[0]?.date)}</span>`:''}
+          </div>`).join('')}
+      </div>
+    </div>`;
+  });
+  el.innerHTML=html||'<div class="card" style="text-align:center;color:var(--ink3);padding:32px">該当する記録がありません</div>';
+}
+
+function toggleSupport(staffId,type){
+  const existing=STATE.supports.find(s=>s.staffId===staffId&&s.type===type);
+  if(existing){
+    if(!confirm('この支援記録を未実施に戻しますか？'))return;
+    STATE.supports=STATE.supports.filter(s=>!(s.staffId===staffId&&s.type===type));
+    showToast('未実施に戻しました');
+  } else {
+    STATE.supports.push({
+      id:STATE.nextId.support++,staffId,type,
+      date:new Date().toISOString().split('T')[0],
+      method:'対面',hours:'',person:'',memo:'',
+    });
+    showToast(`✅ 「${type}」を実施済にしました`);
+  }
+  saveState();renderSupportList();renderHome();
+}
+
+// INTERVIEW
+function openAddInterview(){
+  updateStaffSelects();
+  if(STATE.staff.length===0){showToast('先に支援対象者を登録してください');return;}
+  document.getElementById('iv-date').value=new Date().toISOString().split('T')[0];
+  ['iv-hours','iv-content','iv-next'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('modal-interview').classList.add('open');
+}
+
+function saveInterview(){
+  const staffId=parseInt(document.getElementById('iv-staff').value);
+  const date=document.getElementById('iv-date').value;
+  if(!date){showToast('面談日を入力してください');return;}
+  STATE.interviews.push({
+    id:STATE.nextId.interview++,staffId,date,
+    method:document.getElementById('iv-method').value,
+    hours:document.getElementById('iv-hours').value,
+    workStatus:document.getElementById('iv-work').value,
+    lifeStatus:document.getElementById('iv-life').value,
+    content:document.getElementById('iv-content').value,
+    nextDate:document.getElementById('iv-next').value,
+  });
+  saveState();closeModal('modal-interview');showToast('✅ 面談記録を保存しました');
+  renderInterviewList();renderHome();
+}
+
+function renderInterviewList(){
+  const el=document.getElementById('interview-list');
+  const list=STATE.interviews.sort((a,b)=>new Date(b.date)-new Date(a.date));
+  if(list.length===0){el.innerHTML='<div class="card" style="text-align:center;color:var(--ink3);padding:32px">面談記録がありません</div>';return;}
+  el.innerHTML=list.map(iv=>{
+    const s=STATE.staff.find(x=>x.id===iv.staffId);
+    const workBadge=iv.workStatus==='良好'?'badge-ok':iv.workStatus==='やや問題あり'?'badge-warn':'badge-ng';
+    const lifeBadge=iv.lifeStatus==='良好'?'badge-ok':iv.lifeStatus==='やや問題あり'?'badge-warn':'badge-ng';
+    return `
+    <div class="card" style="padding:16px 20px">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px">
+        <div>
+          <div style="font-size:14px;font-weight:700">${s?.name||'不明'} <span style="font-size:12px;color:var(--ink3);font-weight:400">（${s?.company||''}）</span></div>
+          <div style="font-size:12px;color:var(--ink3)">面談日：${formatDate(iv.date)} | ${iv.method} | ${iv.hours||'時間未記録'}</div>
+        </div>
+        <button class="btn btn-sm btn-red" onclick="deleteInterview(${iv.id})">🗑️</button>
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap">
+        <span>就労状況：<span class="badge ${workBadge}">${iv.workStatus}</span></span>
+        <span>生活状況：<span class="badge ${lifeBadge}">${iv.lifeStatus}</span></span>
+        ${iv.nextDate?`<span>次回面談：<span class="badge ${daysUntil(iv.nextDate)<0?'badge-ng':daysUntil(iv.nextDate)<=30?'badge-warn':'badge-ok'}">${formatDate(iv.nextDate)}</span></span>`:''}
+      </div>
+      ${iv.content?`<div style="font-size:12px;color:var(--ink2);background:var(--surface2);border-radius:var(--r);padding:10px;line-height:1.7">${iv.content}</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+function deleteInterview(id){
+  if(!confirm('この面談記録を削除しますか？'))return;
+  STATE.interviews=STATE.interviews.filter(i=>i.id!==id);
+  saveState();renderInterviewList();renderHome();showToast('削除しました');
+}
+
+// ORIENTATION
+function openAddOrientation(){
+  updateStaffSelects();
+  if(STATE.staff.length===0){showToast('先に支援対象者を登録してください');return;}
+  document.getElementById('or-date').value=new Date().toISOString().split('T')[0];
+  ['or-hours','or-lang','or-memo'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  const cl=document.getElementById('orientation-checklist');
+  cl.innerHTML=ORIENTATION_ITEMS.map((item,i)=>`
+    <div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border)">
+      <input type="checkbox" id="ori-${i}" style="width:16px;height:16px;cursor:pointer">
+      <label for="ori-${i}" style="font-size:12px;cursor:pointer">${item}</label>
+    </div>`).join('');
+  document.getElementById('modal-orientation').classList.add('open');
+}
+
+function saveOrientation(){
+  const staffId=parseInt(document.getElementById('or-staff').value);
+  const date=document.getElementById('or-date').value;
+  if(!date){showToast('実施日を入力してください');return;}
+  const checked=ORIENTATION_ITEMS.filter((_,i)=>document.getElementById(`ori-${i}`)?.checked);
+  STATE.orientations=STATE.orientations.filter(o=>o.staffId!==staffId);
+  STATE.orientations.push({
+    id:STATE.nextId.orientation++,staffId,date,
+    hours:document.getElementById('or-hours').value,
+    lang:document.getElementById('or-lang').value,
+    items:checked,
+    memo:document.getElementById('or-memo').value,
+  });
+  saveState();closeModal('modal-orientation');showToast('✅ オリエンテーション記録を保存しました');
+  renderOrientationList();renderHome();
+}
+
+function renderOrientationList(){
+  const el=document.getElementById('orientation-list');
+  if(STATE.staff.length===0){el.innerHTML='<div class="card" style="text-align:center;color:var(--ink3);padding:32px">支援対象者が登録されていません</div>';return;}
+  el.innerHTML=STATE.staff.map(s=>{
+    const or=STATE.orientations.find(o=>o.staffId===s.id);
+    return `
+    <div class="card" style="padding:16px 20px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div>
+          <div style="font-size:14px;font-weight:700">${s.name} <span class="badge badge-gray">${s.company}</span></div>
+          <div style="font-size:12px;color:var(--ink3)">${s.field} | ${s.lang}</div>
+        </div>
+        <span class="badge ${or?'badge-ok':'badge-ng'}">${or?'実施済':'未実施'}</span>
+      </div>
+      ${or?`
+        <div style="font-size:12px;color:var(--ink3);margin-bottom:8px">実施日：${formatDate(or.date)} | ${or.hours||'時間未記録'} | 使用言語：${or.lang||'—'}</div>
+        <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px">
+          ${ORIENTATION_ITEMS.map(item=>`<span class="badge ${or.items.includes(item)?'badge-ok':'badge-gray'}" style="font-size:10px">${item}</span>`).join('')}
+        </div>
+        ${or.memo?`<div style="font-size:12px;color:var(--ink2);background:var(--surface2);border-radius:var(--r);padding:8px">${or.memo}</div>`:''}
+      `:`
+        <button class="btn btn-teal btn-sm" onclick="quickOrientation(${s.id})">🎓 オリエンテーションを実施記録する</button>
+      `}
+    </div>`;
+  }).join('');
+}
+
+function quickOrientation(staffId){
+  updateStaffSelects();
+  document.getElementById('or-staff').value=staffId;
+  document.getElementById('or-date').value=new Date().toISOString().split('T')[0];
+  ['or-hours','or-lang','or-memo'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  const cl=document.getElementById('orientation-checklist');
+  cl.innerHTML=ORIENTATION_ITEMS.map((item,i)=>`
+    <div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border)">
+      <input type="checkbox" id="ori-${i}" style="width:16px;height:16px;cursor:pointer">
+      <label for="ori-${i}" style="font-size:12px;cursor:pointer">${item}</label>
+    </div>`).join('');
+  document.getElementById('modal-orientation').classList.add('open');
+}
+
+// REPORT
+function renderReport(){
+  const el=document.getElementById('report-content');
+  const now=new Date();
+  el.innerHTML=`
+    <div class="card">
+      <div class="card-title">📊 定期報告書（自動作成）</div>
+      <div class="report-section">
+        <div class="report-section-title">報告対象期間</div>
+        <div style="font-size:13px">${now.getFullYear()}年${now.getMonth()-2<1?12+now.getMonth()-2:now.getMonth()-2}月〜${now.getFullYear()}年${now.getMonth()+1}月</div>
+      </div>
+      <div class="report-section">
+        <div class="report-section-title">支援対象者数</div>
+        <div style="font-size:24px;font-weight:700;color:var(--teal)">${STATE.staff.length}名</div>
+      </div>
+      <div class="report-section">
+        <div class="report-section-title">支援実施状況</div>
+        ${STATE.staff.length===0?'<div style="color:var(--ink3);font-size:13px">支援対象者が登録されていません</div>':
+          STATE.staff.map(s=>{
+            const supports=STATE.supports.filter(sp=>sp.staffId===s.id);
+            const interviews=STATE.interviews.filter(iv=>iv.staffId===s.id);
+            const orientation=STATE.orientations.find(or=>or.staffId===s.id);
+            return `
+            <div style="padding:10px 0;border-bottom:1px solid var(--border)">
+              <div style="font-size:13px;font-weight:700;margin-bottom:4px">${s.name}（${s.company}）</div>
+              <div style="display:flex;gap:8px;flex-wrap:wrap">
+                <span class="badge ${orientation?'badge-ok':'badge-ng'}">オリエンテーション：${orientation?'実施済':'未実施'}</span>
+                <span class="badge badge-info">支援記録：${supports.length}件</span>
+                <span class="badge badge-info">面談：${interviews.length}回</span>
+              </div>
+            </div>`;
+          }).join('')
+        }
+      </div>
+      <div class="report-section">
+        <div class="report-section-title">問題・課題</div>
+        ${STATE.interviews.filter(iv=>iv.workStatus!=='良好'||iv.lifeStatus!=='良好').length>0?
+          STATE.interviews.filter(iv=>iv.workStatus!=='良好'||iv.lifeStatus!=='良好').map(iv=>{
+            const s=STATE.staff.find(x=>x.id===iv.staffId);
+            return `<div style="font-size:12px;padding:4px 0">${s?.name||'不明'}：就労${iv.workStatus}・生活${iv.lifeStatus}（${formatDate(iv.date)}面談）</div>`;
+          }).join(''):
+          '<div style="font-size:12px;color:var(--green)">特記事項なし</div>'
+        }
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-teal" onclick="printReport()">🖨️ 印刷・PDF保存</button>
+      </div>
+    </div>`;
+}
+
+function printReport(){window.print();showToast('印刷ダイアログを開きました');}
+
+// HOME
+function renderHome(){
+  const now=new Date();
+  document.getElementById('home-date').textContent=`${now.getFullYear()}年${now.getMonth()+1}月${now.getDate()}日（${['日','月','火','水','木','金','土'][now.getDay()]}）`;
+
+  const REQUIRED=['事前ガイダンス','住居確保・生活に必要な契約支援','生活オリエンテーション','日本語学習機会の提供','相談・苦情対応','日本人との交流促進','定期面談'];
+  let totalRequired=0,totalDone=0,pendingCount=0;
+  const alerts=[];
+
+  STATE.staff.forEach(s=>{
+    const done=STATE.supports.filter(sp=>sp.staffId===s.id).map(sp=>sp.type);
+    const orientation=STATE.orientations.find(or=>or.staffId===s.id);
+    REQUIRED.forEach(r=>{totalRequired++;if(done.includes(r))totalDone++;else pendingCount++;});
+    if(!orientation)alerts.push({type:'amber',msg:`【オリエンテーション未実施】${s.name}（${s.company}）`});
+    const interviews=STATE.interviews.filter(iv=>iv.staffId===s.id).sort((a,b)=>new Date(b.date)-new Date(a.date));
+    const lastIv=interviews[0];
+    if(lastIv?.nextDate){
+      const d=daysUntil(lastIv.nextDate);
+      if(d<0)alerts.push({type:'red',msg:`【面談期限切れ】${s.name}（${Math.abs(d)}日超過）`});
+      else if(d<=14)alerts.push({type:'amber',msg:`【面談期限間近】${s.name}（残り${d}日）`});
+    }
+    const visaDays=daysUntil(s.visaExp);
+    if(visaDays!==null&&visaDays<0)alerts.push({type:'red',msg:`【在留期限切れ】${s.name}`});
+    else if(visaDays!==null&&visaDays<=30)alerts.push({type:'amber',msg:`【在留期限間近】${s.name}（残り${visaDays}日）`});
+  });
+
+  const thisMonthIv=STATE.interviews.filter(iv=>{const d=new Date(iv.date);return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();});
+  document.getElementById('stat-staff').textContent=STATE.staff.length;
+  document.getElementById('stat-pending').textContent=pendingCount;
+  document.getElementById('stat-interview').textContent=thisMonthIv.length;
+  document.getElementById('stat-rate').textContent=totalRequired>0?Math.round(totalDone/totalRequired*100):'—';
+
+  const alertEl=document.getElementById('home-alerts');
+  alertEl.innerHTML=alerts.length===0?'<div class="alert alert-green"><span>✅</span><div>要対応のアラートはありません</div></div>':
+    alerts.slice(0,5).map(a=>`<div class="alert alert-${a.type==='red'?'red':'amber'}"><span>${a.type==='red'?'🚨':'⚠️'}</span><div>${a.msg}</div></div>`).join('');
+
+  const staffEl=document.getElementById('home-staff');
+  staffEl.innerHTML=STATE.staff.length===0?'<div style="color:var(--ink3);font-size:13px">支援対象者が登録されていません</div>':
+    STATE.staff.slice(0,4).map(s=>`
+    <div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border)">
+      <span style="font-size:13px;font-weight:600;flex:1">${s.name}</span>
+      <span class="badge badge-gray">${s.company}</span>
+      <button class="btn btn-sm" onclick="quickSupport(${s.id});showPage('pg-support')">記録</button>
+    </div>`).join('');
+
+  const recEl=document.getElementById('home-records');
+  const recent=STATE.supports.slice(-4).reverse();
+  recEl.innerHTML=recent.length===0?'<div style="color:var(--ink3);font-size:13px">支援記録がありません</div>':
+    recent.map(r=>{const s=STATE.staff.find(x=>x.id===r.staffId);return`<div style="font-size:12px;padding:6px 0;border-bottom:1px solid var(--border)"><span style="color:var(--ink3)">${formatDate(r.date)}</span> ${s?.name||''}／${r.type}</div>`;}).join('');
+}
+
+// CSS for filter tabs
+document.addEventListener('DOMContentLoaded',()=>{
+  const style=document.createElement('style');
+  style.textContent=`.filter-tab{padding:7px 14px;border-radius:99px;font-size:12px;font-weight:600;border:1.5px solid var(--border2);background:var(--surface);color:var(--ink3);cursor:pointer;transition:all .15s;font-family:inherit;}.filter-tab:hover{background:var(--surface2);}.filter-tab.active{background:var(--teal);border-color:var(--teal);color:#fff;}`;
+  document.head.appendChild(style);
+});
+
+loadState();
+const initNow=new Date();
+document.getElementById('home-date').textContent=`${initNow.getFullYear()}年${initNow.getMonth()+1}月${initNow.getDate()}日（${['日','月','火','水','木','金','土'][initNow.getDay()]}）`;
+renderHome();
+</script>
+</body>
+</html>
