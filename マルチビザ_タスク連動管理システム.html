@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>マルチビザ・タスク連動管理システム｜GrantFlow</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#1a1a18;--ink2:#3a3a36;--ink3:#7a7a72;
+  --bg:#f2f1ec;--surface:#fff;--surface2:#f8f7f2;
+  --border:#e2e1d8;--border2:#c8c7be;
+  --green:#1a7a4a;--green-l:#e8f5ee;--green-m:#b8e0ca;
+  --red:#c0392b;--red-l:#fdecea;--red-m:#f5b7b1;
+  --amber:#c47a00;--amber-l:#fff8e6;--amber-m:#ffd97a;
+  --blue:#1a5fa8;--blue-l:#e8f0fb;--blue-m:#a8c4ef;
+  --purple:#6d28d9;--purple-l:#ede9fe;--purple-m:#c4b5fd;
+  --r:10px;--r2:16px;
+  --shadow:0 2px 8px rgba(0,0,0,.06);
+  --shadow2:0 8px 24px rgba(0,0,0,.10);
+}
+body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;font-size:14px;line-height:1.6;}
+.layout{display:flex;min-height:100vh;}
+.sidebar{width:240px;background:var(--ink);color:#fff;position:fixed;top:0;left:0;bottom:0;display:flex;flex-direction:column;z-index:100;}
+.sidebar-logo{padding:20px 18px;border-bottom:1px solid rgba(255,255,255,.1);}
+.logo-name{font-size:13px;font-weight:700;line-height:1.4;}
+.logo-sub{font-size:10px;color:rgba(255,255,255,.45);margin-top:2px;}
+.logo-badge{display:inline-block;margin-top:6px;font-size:9px;font-weight:700;background:var(--purple);color:#fff;padding:2px 8px;border-radius:4px;font-family:'DM Mono',monospace;}
+.nav-section{padding:12px 0 4px;}
+.nav-label{font-size:9px;font-weight:700;letter-spacing:.1em;color:rgba(255,255,255,.3);padding:0 18px;margin-bottom:4px;text-transform:uppercase;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 18px;font-size:13px;font-weight:500;color:rgba(255,255,255,.6);cursor:pointer;border-left:3px solid transparent;transition:all .15s;}
+.nav-item:hover{color:#fff;background:rgba(255,255,255,.06);}
+.nav-item.active{color:#fff;border-left-color:var(--purple);background:rgba(255,255,255,.08);}
+.nav-icon{font-size:16px;width:20px;text-align:center;}
+.sidebar-footer{margin-top:auto;padding:14px 18px;border-top:1px solid rgba(255,255,255,.1);}
+.user-row{display:flex;align-items:center;gap:8px;}
+.user-av{width:28px;height:28px;border-radius:50%;background:var(--purple);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;}
+.user-name{font-size:11px;font-weight:600;}
+.user-role{font-size:10px;color:rgba(255,255,255,.4);}
+
+.main{margin-left:240px;flex:1;}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:12px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
+.topbar-title{font-size:16px;font-weight:700;}
+.topbar-right{display:flex;align-items:center;gap:10px;}
+
+.page{display:none;padding:24px;}
+.page.active{display:block;}
+
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:20px;margin-bottom:14px;box-shadow:var(--shadow);}
+.card-title{font-size:14px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.section-title{font-size:18px;font-weight:700;}
+.section-sub{font-size:13px;color:var(--ink3);margin-top:2px;}
+
+.badge{display:inline-flex;align-items:center;padding:2px 10px;border-radius:6px;font-size:11px;font-weight:700;}
+.badge-ok{background:var(--green-l);color:var(--green);}
+.badge-ng{background:var(--red-l);color:var(--red);}
+.badge-warn{background:var(--amber-l);color:var(--amber);}
+.badge-info{background:var(--blue-l);color:var(--blue);}
+.badge-purple{background:var(--purple-l);color:var(--purple);}
+.badge-gray{background:var(--surface2);color:var(--ink3);border:1px solid var(--border);}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:9px 18px;border:1.5px solid var(--border2);border-radius:var(--r);font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;transition:all .15s;background:var(--surface);color:var(--ink);}
+.btn:hover{background:var(--surface2);}
+.btn-purple{background:var(--purple);border-color:var(--purple);color:#fff;}
+.btn-purple:hover{background:#5b21b6;}
+.btn-green{background:var(--green);border-color:var(--green);color:#fff;}
+.btn-red{background:var(--red);border-color:var(--red);color:#fff;}
+.btn-sm{padding:5px 12px;font-size:12px;}
+.btn-full{width:100%;}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;}
+
+.fg{display:flex;flex-direction:column;gap:4px;margin-bottom:12px;}
+.fg label{font-size:11px;font-weight:700;color:var(--ink3);}
+.fg input,.fg select,.fg textarea{width:100%;padding:9px 12px;border:1.5px solid var(--border2);border-radius:var(--r);font-size:13px;font-family:inherit;color:var(--ink);background:var(--surface);outline:none;transition:border .15s;}
+.fg input:focus,.fg select:focus{border-color:var(--purple);}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:14px 16px;box-shadow:var(--shadow);}
+.stat-label{font-size:11px;color:var(--ink3);margin-bottom:4px;}
+.stat-val{font-size:26px;font-weight:700;line-height:1.1;}
+.stat-sub{font-size:11px;color:var(--ink3);margin-top:2px;}
+
+.alert{display:flex;gap:10px;padding:12px 14px;border-radius:var(--r);font-size:13px;margin-bottom:8px;border:1px solid;}
+.alert-red{background:var(--red-l);border-color:var(--red-m);color:var(--red);}
+.alert-amber{background:var(--amber-l);border-color:var(--amber-m);color:var(--amber);}
+.alert-green{background:var(--green-l);border-color:var(--green-m);color:var(--green);}
+.alert-blue{background:var(--blue-l);border-color:var(--blue-m);color:var(--blue);}
+
+/* TASK */
+.task-item{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r2);padding:14px 16px;margin-bottom:8px;transition:all .2s;}
+.task-item:hover{border-color:var(--border2);box-shadow:var(--shadow);}
+.task-item.done{opacity:.6;background:var(--surface2);}
+.task-item.overdue{border-left:4px solid var(--red);}
+.task-item.soon{border-left:4px solid var(--amber);}
+.task-item.ok{border-left:4px solid var(--green);}
+.task-head{display:flex;align-items:flex-start;gap:12px;}
+.task-check{width:20px;height:20px;border-radius:5px;border:2px solid var(--border2);flex-shrink:0;margin-top:2px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;}
+.task-check.checked{background:var(--green);border-color:var(--green);}
+.task-body{flex:1;min-width:0;}
+.task-title{font-size:13px;font-weight:700;margin-bottom:3px;}
+.task-item.done .task-title{text-decoration:line-through;color:var(--ink3);}
+.task-meta{font-size:11px;color:var(--ink3);line-height:1.6;}
+.task-actions{display:flex;gap:6px;flex-shrink:0;}
+
+/* CALENDAR */
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:8px;}
+.cal-head{text-align:center;font-size:11px;font-weight:700;color:var(--ink3);padding:6px 0;}
+.cal-day{min-height:60px;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:4px;font-size:11px;}
+.cal-day.other{background:var(--surface2);color:var(--ink3);}
+.cal-day.today{border-color:var(--purple);background:var(--purple-l);}
+.cal-day-num{font-weight:700;margin-bottom:2px;}
+.cal-today .cal-day-num{color:var(--purple);}
+.cal-event{font-size:9px;padding:1px 4px;border-radius:3px;margin-bottom:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.cal-event-red{background:var(--red-l);color:var(--red);}
+.cal-event-amber{background:var(--amber-l);color:var(--amber);}
+.cal-event-blue{background:var(--blue-l);color:var(--blue);}
+.cal-event-green{background:var(--green-l);color:var(--green);}
+
+/* MODAL */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;align-items:center;justify-content:center;padding:16px;}
+.modal-bg.open{display:flex;}
+.modal-box{background:var(--surface);border-radius:var(--r2);padding:24px;width:min(640px,100%);max-height:90vh;overflow-y:auto;box-shadow:var(--shadow2);}
+.modal-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;}
+.modal-title{font-size:16px;font-weight:700;}
+.modal-close{font-size:20px;cursor:pointer;color:var(--ink3);background:none;border:none;}
+
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 20px;border-radius:var(--r);font-size:13px;font-weight:600;opacity:0;transition:opacity .3s;pointer-events:none;z-index:999;white-space:nowrap;}
+.toast.show{opacity:1;}
+
+/* WORKING HOURS */
+.hours-bar{background:var(--surface2);border-radius:99px;height:8px;overflow:hidden;margin:6px 0;}
+.hours-fill{height:100%;border-radius:99px;transition:width .4s;}
+.hours-ok{background:var(--green);}
+.hours-warn{background:var(--amber);}
+.hours-over{background:var(--red);}
+
+@media(max-width:768px){.sidebar{transform:translateX(-100%);}.main{margin-left:0;}.stat-grid{grid-template-columns:1fr 1fr;}.grid2,.grid3{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<div class="layout">
+
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-name">マルチビザ<br>タスク連動管理</div>
+    <div class="logo-sub">GrantFlow ⑨</div>
+    <div class="logo-badge">v1.0</div>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">メニュー</div>
+    <div class="nav-item active" onclick="showPage('pg-home')"><span class="nav-icon">🏠</span>ダッシュボード</div>
+    <div class="nav-item" onclick="showPage('pg-staff')"><span class="nav-icon">👤</span>スタッフ登録</div>
+    <div class="nav-item" onclick="showPage('pg-tasks')"><span class="nav-icon">✅</span>タスク一覧</div>
+    <div class="nav-item" onclick="showPage('pg-calendar')"><span class="nav-icon">📅</span>カレンダー</div>
+    <div class="nav-item" onclick="showPage('pg-hours')"><span class="nav-icon">⏱️</span>勤怠管理</div>
+    <div class="nav-item" onclick="showPage('pg-hellowork')"><span class="nav-icon">🏛️</span>ハローワーク届出</div>
+  </div>
+  <div class="sidebar-footer">
+    <div class="user-row">
+      <div class="user-av">阪</div>
+      <div><div class="user-name">阪本 光</div><div class="user-role">管理者</div></div>
+    </div>
+  </div>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title" id="topbar-title">ダッシュボード</div>
+    <div class="topbar-right">
+      <button class="btn btn-purple btn-sm" onclick="openAddStaff()">＋ スタッフ登録</button>
+    </div>
+  </div>
+
+  <!-- HOME -->
+  <div class="page active" id="pg-home">
+    <div class="section-header">
+      <div><div class="section-title">ダッシュボード</div><div class="section-sub" id="home-date"></div></div>
+    </div>
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-label">登録スタッフ</div><div class="stat-val" id="stat-staff" style="color:var(--purple)">0</div><div class="stat-sub">名</div></div>
+      <div class="stat-card"><div class="stat-label">期限切れタスク</div><div class="stat-val" id="stat-overdue" style="color:var(--red)">0</div><div class="stat-sub">件</div></div>
+      <div class="stat-card"><div class="stat-label">30日以内タスク</div><div class="stat-val" id="stat-soon" style="color:var(--amber)">0</div><div class="stat-sub">件</div></div>
+      <div class="stat-card"><div class="stat-label">完了タスク</div><div class="stat-val" id="stat-done" style="color:var(--green)">0</div><div class="stat-sub">件</div></div>
+    </div>
+    <div class="card"><div class="card-title">🚨 要対応アラート</div><div id="home-alerts"></div></div>
+    <div class="card"><div class="card-title">📅 今後30日のタスク</div><div id="home-upcoming"></div></div>
+  </div>
+
+  <!-- STAFF -->
+  <div class="page" id="pg-staff">
+    <div class="section-header">
+      <div><div class="section-title">👤 スタッフ登録</div><div class="section-sub">登録と同時にタスクが自動生成されます</div></div>
+      <button class="btn btn-purple" onclick="openAddStaff()">＋ スタッフ登録</button>
+    </div>
+    <div id="staff-list"></div>
+  </div>
+
+  <!-- TASKS -->
+  <div class="page" id="pg-tasks">
+    <div class="section-header">
+      <div><div class="section-title">✅ タスク一覧</div><div class="section-sub">全スタッフの行政手続きタスクを管理します</div></div>
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+      <button class="task-filter-btn active" onclick="setTaskFilter('all',this)">📋 すべて</button>
+      <button class="task-filter-btn" onclick="setTaskFilter('overdue',this)">🚨 期限切れ</button>
+      <button class="task-filter-btn" onclick="setTaskFilter('soon',this)">⚠️ 30日以内</button>
+      <button class="task-filter-btn" onclick="setTaskFilter('pending',this)">🔵 未完了</button>
+      <button class="task-filter-btn" onclick="setTaskFilter('done',this)">✅ 完了済み</button>
+    </div>
+    <div id="task-list"></div>
+  </div>
+
+  <!-- CALENDAR -->
+  <div class="page" id="pg-calendar">
+    <div class="section-header">
+      <div><div class="section-title">📅 カレンダー</div><div class="section-sub" id="cal-month-label"></div></div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-sm" onclick="changeMonth(-1)">◀ 前月</button>
+        <button class="btn btn-sm" onclick="changeMonth(1)">次月 ▶</button>
+      </div>
+    </div>
+    <div class="card" style="padding:16px">
+      <div class="cal-grid" id="cal-heads"></div>
+      <div class="cal-grid" id="cal-body"></div>
+    </div>
+    <div class="card"><div class="card-title">📋 今月のタスク一覧</div><div id="cal-task-list"></div></div>
+  </div>
+
+  <!-- HOURS -->
+  <div class="page" id="pg-hours">
+    <div class="section-header">
+      <div><div class="section-title">⏱️ 勤怠管理</div><div class="section-sub">週28時間制限の超過アラートを管理します</div></div>
+      <button class="btn btn-purple btn-sm" onclick="openAddHours()">＋ 勤怠入力</button>
+    </div>
+    <div class="alert alert-amber" style="margin-bottom:14px">
+      <span>⚠️</span><div>留学・家族滞在の在留資格は週28時間以内の就労制限があります。超過した場合は不法就労となります。</div>
+    </div>
+    <div id="hours-list"></div>
+  </div>
+
+  <!-- HELLOWORK -->
+  <div class="page" id="pg-hellowork">
+    <div class="section-header">
+      <div><div class="section-title">🏛️ ハローワーク届出管理</div><div class="section-sub">外国人雇用状況届出の期日を自動管理します</div></div>
+    </div>
+    <div class="alert alert-blue" style="margin-bottom:14px">
+      <span>ℹ️</span><div>外国人労働者の雇入れ・離職時は、ハローワークへの「外国人雇用状況届出」が義務です。翌月末日までに届出が必要です。</div>
+    </div>
+    <div id="hellowork-list"></div>
+  </div>
+</div>
+</div>
+
+<!-- MODAL: スタッフ登録 -->
+<div class="modal-bg" id="modal-staff">
+  <div class="modal-box">
+    <div class="modal-top">
+      <div class="modal-title">👤 スタッフ登録（タスク自動生成）</div>
+      <button class="modal-close" onclick="closeModal('modal-staff')">✕</button>
+    </div>
+    <div class="alert alert-blue" style="margin-bottom:14px">
+      <span>🤖</span><div>在留資格を選択すると、必要な行政手続きタスクが自動で生成されます。</div>
+    </div>
+    <div class="grid2">
+      <div class="fg"><label>氏名★</label><input type="text" id="s-name" placeholder="例：Nguyen Van A"></div>
+      <div class="fg"><label>国籍</label>
+        <select id="s-country">
+          <option>ベトナム</option><option>中国</option><option>フィリピン</option>
+          <option>インドネシア</option><option>ミャンマー</option><option>タイ</option>
+          <option>ネパール</option><option>その他</option>
+        </select>
+      </div>
+      <div class="fg"><label>在留資格★</label>
+        <select id="s-visa" onchange="onVisaChange()">
+          <option value="特定技能1号">特定技能1号</option>
+          <option value="特定技能2号">特定技能2号</option>
+          <option value="技能実習1号">技能実習1号</option>
+          <option value="技能実習2号">技能実習2号</option>
+          <option value="技能実習3号">技能実習3号</option>
+          <option value="技術・人文知識・国際業務">技術・人文知識・国際業務</option>
+          <option value="留学">留学</option>
+          <option value="家族滞在">家族滞在</option>
+          <option value="永住者">永住者</option>
+          <option value="定住者">定住者</option>
+          <option value="日本人の配偶者等">日本人の配偶者等</option>
+        </select>
+      </div>
+      <div class="fg"><label>在留期限★</label><input type="date" id="s-visa-exp"></div>
+      <div class="fg"><label>入社日★</label><input type="date" id="s-hire"></div>
+      <div class="fg"><label>部署</label><input type="text" id="s-dept" placeholder="例：製造1課"></div>
+    </div>
+    <div id="auto-task-preview" style="margin-bottom:12px"></div>
+    <div class="btn-row">
+      <button class="btn btn-purple" onclick="saveStaff()">🤖 登録してタスクを自動生成</button>
+      <button class="btn" onclick="closeModal('modal-staff')">キャンセル</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: 勤怠入力 -->
+<div class="modal-bg" id="modal-hours">
+  <div class="modal-box">
+    <div class="modal-top">
+      <div class="modal-title">⏱️ 勤怠入力</div>
+      <button class="modal-close" onclick="closeModal('modal-hours')">✕</button>
+    </div>
+    <div class="grid2">
+      <div class="fg"><label>スタッフ★</label><select id="h-staff"></select></div>
+      <div class="fg"><label>週の開始日★</label><input type="date" id="h-week"></div>
+      <div class="fg"><label>月</label><input type="number" id="h-mon" min="0" max="24" step="0.5" value="0" placeholder="時間"></div>
+      <div class="fg"><label>火</label><input type="number" id="h-tue" min="0" max="24" step="0.5" value="0" placeholder="時間"></div>
+      <div class="fg"><label>水</label><input type="number" id="h-wed" min="0" max="24" step="0.5" value="0" placeholder="時間"></div>
+      <div class="fg"><label>木</label><input type="number" id="h-thu" min="0" max="24" step="0.5" value="0" placeholder="時間"></div>
+      <div class="fg"><label>金</label><input type="number" id="h-fri" min="0" max="24" step="0.5" value="0" placeholder="時間"></div>
+      <div class="fg"><label>土</label><input type="number" id="h-sat" min="0" max="24" step="0.5" value="0" placeholder="時間"></div>
+      <div class="fg"><label>日</label><input type="number" id="h-sun" min="0" max="24" step="0.5" value="0" placeholder="時間"></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-purple" onclick="saveHours()">💾 保存する</button>
+      <button class="btn" onclick="closeModal('modal-hours')">キャンセル</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ====== TASK TEMPLATES ======
+const TASK_TEMPLATES = {
+  '特定技能1号': [
+    {title:'在留期限更新申請',category:'在留資格',offsetDays:-90,repeat:365,priority:'high'},
+    {title:'定期届出（活動状況・支援状況報告）',category:'定期届出',offsetDays:90,repeat:90,priority:'high'},
+    {title:'支援計画 月次確認',category:'支援計画',offsetDays:30,repeat:30,priority:'mid'},
+    {title:'ハローワーク 外国人雇用状況届出（雇入れ）',category:'ハローワーク',offsetDays:0,repeat:null,priority:'high'},
+    {title:'健康診断の実施',category:'健康管理',offsetDays:180,repeat:365,priority:'mid'},
+  ],
+  '特定技能2号': [
+    {title:'在留期限更新申請',category:'在留資格',offsetDays:-90,repeat:1095,priority:'high'},
+    {title:'定期届出（活動状況報告）',category:'定期届出',offsetDays:90,repeat:90,priority:'high'},
+    {title:'ハローワーク 外国人雇用状況届出（雇入れ）',category:'ハローワーク',offsetDays:0,repeat:null,priority:'high'},
+  ],
+  '技能実習1号': [
+    {title:'在留期限更新申請（2号移行）',category:'在留資格',offsetDays:-90,repeat:null,priority:'high'},
+    {title:'監理団体への定期報告',category:'定期届出',offsetDays:90,repeat:90,priority:'high'},
+    {title:'技能実習計画の進捗確認',category:'実習管理',offsetDays:30,repeat:30,priority:'mid'},
+    {title:'ハローワーク 外国人雇用状況届出（雇入れ）',category:'ハローワーク',offsetDays:0,repeat:null,priority:'high'},
+    {title:'技能検定の受験申込確認',category:'技能検定',offsetDays:270,repeat:null,priority:'mid'},
+  ],
+  '技能実習2号': [
+    {title:'在留期限更新申請（3号移行）',category:'在留資格',offsetDays:-90,repeat:null,priority:'high'},
+    {title:'監理団体への定期報告',category:'定期届出',offsetDays:90,repeat:90,priority:'high'},
+    {title:'技能実習計画の進捗確認',category:'実習管理',offsetDays:30,repeat:30,priority:'mid'},
+    {title:'技能検定（2号）受験申込',category:'技能検定',offsetDays:180,repeat:null,priority:'high'},
+  ],
+  '技能実習3号': [
+    {title:'在留期限管理・帰国日程確認',category:'在留資格',offsetDays:-180,repeat:null,priority:'high'},
+    {title:'監理団体への定期報告',category:'定期届出',offsetDays:90,repeat:90,priority:'high'},
+    {title:'帰国手続き確認',category:'帰国管理',offsetDays:-60,repeat:null,priority:'high'},
+  ],
+  '技術・人文知識・国際業務': [
+    {title:'在留期限更新申請',category:'在留資格',offsetDays:-90,repeat:null,priority:'high'},
+    {title:'ハローワーク 外国人雇用状況届出（雇入れ）',category:'ハローワーク',offsetDays:0,repeat:null,priority:'high'},
+    {title:'就労資格証明書の取得確認（転職時）',category:'資格確認',offsetDays:30,repeat:null,priority:'mid'},
+  ],
+  '留学': [
+    {title:'在留期限更新申請',category:'在留資格',offsetDays:-90,repeat:null,priority:'high'},
+    {title:'資格外活動許可の確認',category:'資格確認',offsetDays:0,repeat:null,priority:'high'},
+    {title:'週28時間制限の勤怠確認',category:'勤怠管理',offsetDays:7,repeat:7,priority:'high'},
+  ],
+  '家族滞在': [
+    {title:'在留期限更新申請',category:'在留資格',offsetDays:-90,repeat:null,priority:'high'},
+    {title:'資格外活動許可の確認',category:'資格確認',offsetDays:0,repeat:null,priority:'high'},
+    {title:'週28時間制限の勤怠確認',category:'勤怠管理',offsetDays:7,repeat:7,priority:'high'},
+    {title:'扶養者の在留資格確認',category:'資格確認',offsetDays:30,repeat:90,priority:'mid'},
+  ],
+  '永住者': [
+    {title:'ハローワーク 外国人雇用状況届出（雇入れ）',category:'ハローワーク',offsetDays:0,repeat:null,priority:'high'},
+    {title:'在留カード更新確認（7年ごと）',category:'在留資格',offsetDays:-180,repeat:null,priority:'mid'},
+  ],
+  '定住者': [
+    {title:'在留期限更新申請',category:'在留資格',offsetDays:-90,repeat:null,priority:'high'},
+    {title:'ハローワーク 外国人雇用状況届出（雇入れ）',category:'ハローワーク',offsetDays:0,repeat:null,priority:'high'},
+  ],
+  '日本人の配偶者等': [
+    {title:'在留期限更新申請',category:'在留資格',offsetDays:-90,repeat:null,priority:'high'},
+    {title:'ハローワーク 外国人雇用状況届出（雇入れ）',category:'ハローワーク',offsetDays:0,repeat:null,priority:'high'},
+  ],
+};
+
+const CATEGORY_COLOR = {
+  '在留資格':'badge-ng','定期届出':'badge-purple','支援計画':'badge-info',
+  'ハローワーク':'badge-warn','実習管理':'badge-info','技能検定':'badge-purple',
+  '勤怠管理':'badge-warn','資格確認':'badge-info','健康管理':'badge-ok',
+  '帰国管理':'badge-gray',
+};
+
+let STATE = {staff:[],tasks:[],hours:[],nextId:{staff:1,task:1,hours:1}};
+let taskFilter = 'all';
+let calYear, calMonth;
+
+function loadState(){const s=localStorage.getItem('grantflow_mvt_v1');if(s)try{STATE=JSON.parse(s);}catch(e){}}
+function saveState(){localStorage.setItem('grantflow_mvt_v1',JSON.stringify(STATE));}
+
+// PAGES
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelector(`[onclick="showPage('${id}')"]`).classList.add('active');
+  const titles={'pg-home':'ダッシュボード','pg-staff':'スタッフ登録','pg-tasks':'タスク一覧','pg-calendar':'カレンダー','pg-hours':'勤怠管理','pg-hellowork':'ハローワーク届出管理'};
+  document.getElementById('topbar-title').textContent=titles[id]||'';
+  if(id==='pg-home') renderHome();
+  if(id==='pg-staff') renderStaffList();
+  if(id==='pg-tasks') renderTaskList();
+  if(id==='pg-calendar') renderCalendar();
+  if(id==='pg-hours') renderHours();
+  if(id==='pg-hellowork') renderHellowork();
+}
+
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+function formatDate(d){if(!d)return'—';const dt=new Date(d);return`${dt.getFullYear()}/${String(dt.getMonth()+1).padStart(2,'0')}/${String(dt.getDate()).padStart(2,'0')}`;}
+function daysUntil(dateStr){if(!dateStr)return null;return Math.ceil((new Date(dateStr)-new Date())/86400000);}
+function addDays(dateStr,days){const d=new Date(dateStr);d.setDate(d.getDate()+days);return d.toISOString().split('T')[0];}
+
+// TASK GENERATION
+function generateTasks(staff){
+  const templates = TASK_TEMPLATES[staff.visa]||[];
+  const hireDate = staff.hire || new Date().toISOString().split('T')[0];
+  const visaExp = staff.visaExp;
+  const tasks = [];
+  templates.forEach(t=>{
+    let dueDate;
+    if(t.offsetDays < 0 && visaExp){
+      dueDate = addDays(visaExp, t.offsetDays);
+    } else {
+      dueDate = addDays(hireDate, Math.abs(t.offsetDays));
+    }
+    tasks.push({
+      id: STATE.nextId.task++,
+      staffId: staff.id,
+      staffName: staff.name,
+      visa: staff.visa,
+      title: t.title,
+      category: t.category,
+      priority: t.priority,
+      dueDate,
+      repeat: t.repeat,
+      done: false,
+      doneAt: null,
+      auto: true,
+    });
+  });
+  return tasks;
+}
+
+function onVisaChange(){
+  const visa = document.getElementById('s-visa').value;
+  const templates = TASK_TEMPLATES[visa]||[];
+  const el = document.getElementById('auto-task-preview');
+  if(templates.length===0){el.innerHTML='';return;}
+  el.innerHTML=`
+    <div style="background:var(--purple-l);border:1px solid var(--purple-m);border-radius:var(--r);padding:12px 14px;">
+      <div style="font-size:11px;font-weight:700;color:var(--purple);margin-bottom:8px">🤖 自動生成されるタスク（${templates.length}件）</div>
+      ${templates.map(t=>`<div style="display:flex;align-items:center;gap:8px;font-size:12px;padding:3px 0"><span>✅</span><span>${t.title}</span><span class="badge ${CATEGORY_COLOR[t.category]||'badge-gray'}" style="margin-left:auto">${t.category}</span></div>`).join('')}
+    </div>`;
+}
+
+// STAFF
+function openAddStaff(){
+  ['s-name','s-visa-exp','s-hire','s-dept'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('auto-task-preview').innerHTML='';
+  onVisaChange();
+  document.getElementById('modal-staff').classList.add('open');
+}
+
+function saveStaff(){
+  const name=document.getElementById('s-name').value.trim();
+  const hire=document.getElementById('s-hire').value;
+  if(!name){showToast('氏名を入力してください');return;}
+  if(!hire){showToast('入社日を入力してください');return;}
+  const staff={
+    id:STATE.nextId.staff++,
+    name,
+    country:document.getElementById('s-country').value,
+    visa:document.getElementById('s-visa').value,
+    visaExp:document.getElementById('s-visa-exp').value,
+    hire,
+    dept:document.getElementById('s-dept').value,
+  };
+  STATE.staff.push(staff);
+  const newTasks=generateTasks(staff);
+  STATE.tasks.push(...newTasks);
+  // ハローワーク届出を自動追加
+  STATE.tasks.push({
+    id:STATE.nextId.task++,
+    staffId:staff.id,staffName:staff.name,visa:staff.visa,
+    title:`【${staff.name}】ハローワーク外国人雇用状況届出（雇入れ）`,
+    category:'ハローワーク',priority:'high',
+    dueDate:addDays(hire,31),
+    repeat:null,done:false,doneAt:null,auto:true,
+  });
+  saveState();
+  closeModal('modal-staff');
+  showToast(`✅ ${name}を登録しました（タスク${newTasks.length+1}件を自動生成）`);
+  renderStaffList();renderHome();
+}
+
+function renderStaffList(){
+  const el=document.getElementById('staff-list');
+  if(STATE.staff.length===0){el.innerHTML='<div class="card" style="text-align:center;color:var(--ink3);padding:32px">スタッフが登録されていません</div>';return;}
+  el.innerHTML=STATE.staff.map(s=>{
+    const tasks=STATE.tasks.filter(t=>t.staffId===s.id&&!t.done);
+    const overdue=tasks.filter(t=>daysUntil(t.dueDate)<0).length;
+    const soon=tasks.filter(t=>{const d=daysUntil(t.dueDate);return d>=0&&d<=30;}).length;
+    return `
+    <div class="card" style="padding:16px 20px">
+      <div style="display:flex;align-items:center;gap:14px">
+        <div style="width:44px;height:44px;border-radius:50%;background:var(--purple-l);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">👤</div>
+        <div style="flex:1">
+          <div style="font-size:15px;font-weight:700;margin-bottom:4px">${s.name} <span class="badge badge-purple">${s.visa}</span></div>
+          <div style="font-size:12px;color:var(--ink3)">${s.country} | ${s.dept||'部署未設定'} | 在留期限：${formatDate(s.visaExp)}</div>
+          <div style="display:flex;gap:8px;margin-top:6px">
+            ${overdue>0?`<span class="badge badge-ng">期限切れ ${overdue}件</span>`:''}
+            ${soon>0?`<span class="badge badge-warn">30日以内 ${soon}件</span>`:''}
+            <span class="badge badge-gray">タスク計 ${tasks.length}件</span>
+          </div>
+        </div>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-sm btn-purple" onclick="showStaffTasks(${s.id})">📋 タスク確認</button>
+          <button class="btn btn-sm btn-red" onclick="deleteStaff(${s.id})">🗑️</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function deleteStaff(id){
+  if(!confirm('このスタッフと関連タスクをすべて削除しますか？'))return;
+  // ハローワーク届出（離職）を自動追加
+  const s=STATE.staff.find(x=>x.id===id);
+  if(s){
+    STATE.tasks.push({
+      id:STATE.nextId.task++,staffId:id,staffName:s.name,visa:s.visa,
+      title:`【${s.name}】ハローワーク外国人雇用状況届出（離職）`,
+      category:'ハローワーク',priority:'high',
+      dueDate:addDays(new Date().toISOString().split('T')[0],31),
+      repeat:null,done:false,doneAt:null,auto:true,
+    });
+  }
+  STATE.staff=STATE.staff.filter(x=>x.id!==id);
+  STATE.tasks=STATE.tasks.filter(t=>t.staffId!==id||(t.category==='ハローワーク'&&t.title.includes('離職')));
+  saveState();renderStaffList();renderHome();
+  showToast('削除しました。ハローワーク離職届出タスクを追加しました。');
+}
+
+function showStaffTasks(staffId){
+  taskFilter='all';
+  document.querySelectorAll('.task-filter-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelector('.task-filter-btn').classList.add('active');
+  showPage('pg-tasks');
+  setTimeout(()=>{
+    const el=document.getElementById('task-list');
+    const tasks=STATE.tasks.filter(t=>t.staffId===staffId);
+    renderTaskItems(tasks,el);
+  },100);
+}
+
+// TASKS
+function setTaskFilter(f,el){
+  taskFilter=f;
+  document.querySelectorAll('.task-filter-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  renderTaskList();
+}
+
+function renderTaskList(){
+  const el=document.getElementById('task-list');
+  let tasks=STATE.tasks;
+  const now=new Date();
+  if(taskFilter==='overdue') tasks=tasks.filter(t=>!t.done&&daysUntil(t.dueDate)<0);
+  else if(taskFilter==='soon') tasks=tasks.filter(t=>!t.done&&daysUntil(t.dueDate)>=0&&daysUntil(t.dueDate)<=30);
+  else if(taskFilter==='pending') tasks=tasks.filter(t=>!t.done);
+  else if(taskFilter==='done') tasks=tasks.filter(t=>t.done);
+  tasks=tasks.sort((a,b)=>new Date(a.dueDate)-new Date(b.dueDate));
+  renderTaskItems(tasks,el);
+}
+
+function renderTaskItems(tasks,el){
+  if(tasks.length===0){el.innerHTML='<div class="card" style="text-align:center;color:var(--ink3);padding:32px">タスクがありません</div>';return;}
+  el.innerHTML=tasks.map(t=>{
+    const days=daysUntil(t.dueDate);
+    const cls=t.done?'done':days<0?'overdue':days<=30?'soon':'ok';
+    const daysLabel=t.done?`完了（${formatDate(t.doneAt)}）`:days<0?`<span style="color:var(--red);font-weight:700">${Math.abs(days)}日超過</span>`:days<=30?`<span style="color:var(--amber);font-weight:700">残り${days}日</span>`:`<span style="color:var(--green)">残り${days}日</span>`;
+    return `
+    <div class="task-item ${cls}" id="task-${t.id}">
+      <div class="task-head">
+        <div class="task-check ${t.done?'checked':''}" onclick="toggleTask(${t.id})">
+          ${t.done?'<svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="2" stroke-linecap="round"/></svg>':''}
+        </div>
+        <div class="task-body">
+          <div class="task-title">${t.title}</div>
+          <div class="task-meta">
+            <span class="badge ${CATEGORY_COLOR[t.category]||'badge-gray'}" style="margin-right:6px">${t.category}</span>
+            👤 ${t.staffName} | 📅 期日：${formatDate(t.dueDate)} | ${daysLabel}
+            ${t.repeat?` | 🔄 ${t.repeat}日ごとに繰り返し`:''}
+          </div>
+        </div>
+        <div class="task-actions">
+          ${!t.done?`<button class="btn btn-sm btn-green" onclick="toggleTask(${t.id})">✅ 完了</button>`:''}
+          <button class="btn btn-sm btn-red" onclick="deleteTask(${t.id})">🗑️</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleTask(id){
+  const t=STATE.tasks.find(x=>x.id===id);
+  if(!t)return;
+  t.done=!t.done;
+  t.doneAt=t.done?new Date().toISOString().split('T')[0]:null;
+  // 繰り返しタスクの次回生成
+  if(t.done&&t.repeat){
+    STATE.tasks.push({
+      ...t,
+      id:STATE.nextId.task++,
+      dueDate:addDays(t.dueDate,t.repeat),
+      done:false,doneAt:null,
+    });
+    showToast(`✅ 完了！次のタスクを${t.repeat}日後に自動生成しました`);
+  } else {
+    showToast(t.done?'✅ 完了にしました':'⬜ 未完了に戻しました');
+  }
+  saveState();renderTaskList();renderHome();
+}
+
+function deleteTask(id){
+  if(!confirm('このタスクを削除しますか？'))return;
+  STATE.tasks=STATE.tasks.filter(t=>t.id!==id);
+  saveState();renderTaskList();renderHome();showToast('削除しました');
+}
+
+// HOME
+function renderHome(){
+  const now=new Date();
+  document.getElementById('home-date').textContent=`${now.getFullYear()}年${now.getMonth()+1}月${now.getDate()}日（${['日','月','火','水','木','金','土'][now.getDay()]}）`;
+  const pending=STATE.tasks.filter(t=>!t.done);
+  const overdue=pending.filter(t=>daysUntil(t.dueDate)<0);
+  const soon=pending.filter(t=>{const d=daysUntil(t.dueDate);return d>=0&&d<=30;});
+  const done=STATE.tasks.filter(t=>t.done);
+  document.getElementById('stat-staff').textContent=STATE.staff.length;
+  document.getElementById('stat-overdue').textContent=overdue.length;
+  document.getElementById('stat-soon').textContent=soon.length;
+  document.getElementById('stat-done').textContent=done.length;
+
+  const alertEl=document.getElementById('home-alerts');
+  if(overdue.length===0&&soon.length===0){
+    alertEl.innerHTML='<div class="alert alert-green"><span>✅</span><div>現在、要対応のアラートはありません</div></div>';
+  } else {
+    alertEl.innerHTML=[
+      ...overdue.slice(0,3).map(t=>`<div class="alert alert-red"><span>🚨</span><div><strong>${t.staffName}</strong> / ${t.title}（${Math.abs(daysUntil(t.dueDate))}日超過）</div></div>`),
+      ...soon.slice(0,3).map(t=>`<div class="alert alert-amber"><span>⚠️</span><div><strong>${t.staffName}</strong> / ${t.title}（残り${daysUntil(t.dueDate)}日）</div></div>`),
+    ].join('');
+  }
+
+  const upcomingEl=document.getElementById('home-upcoming');
+  const upcoming=pending.filter(t=>{const d=daysUntil(t.dueDate);return d>=0&&d<=30;}).sort((a,b)=>new Date(a.dueDate)-new Date(b.dueDate)).slice(0,5);
+  if(upcoming.length===0){upcomingEl.innerHTML='<div style="color:var(--ink3);font-size:13px">30日以内のタスクはありません</div>';}
+  else{upcomingEl.innerHTML=upcoming.map(t=>`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)"><span class="badge ${CATEGORY_COLOR[t.category]||'badge-gray'}">${t.category}</span><span style="flex:1;font-size:13px">${t.staffName} / ${t.title}</span><span style="font-size:12px;color:var(--amber);font-weight:600">残り${daysUntil(t.dueDate)}日</span></div>`).join('');}
+}
+
+// CALENDAR
+const CAL_DAYS=['日','月','火','水','木','金','土'];
+function renderCalendar(){
+  const now=new Date();
+  if(!calYear){calYear=now.getFullYear();calMonth=now.getMonth();}
+  document.getElementById('cal-month-label').textContent=`${calYear}年${calMonth+1}月`;
+  const heads=document.getElementById('cal-heads');
+  heads.innerHTML=CAL_DAYS.map(d=>`<div class="cal-head">${d}</div>`).join('');
+
+  const first=new Date(calYear,calMonth,1);
+  const last=new Date(calYear,calMonth+1,0);
+  const startDow=first.getDay();
+  const body=document.getElementById('cal-body');
+  let cells='';
+  for(let i=0;i<startDow;i++)cells+=`<div class="cal-day other"></div>`;
+  for(let d=1;d<=last.getDate();d++){
+    const dateStr=`${calYear}/${String(calMonth+1).padStart(2,'0')}/${String(d).padStart(2,'0')}`;
+    const dateStrISO=`${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const isToday=new Date(dateStrISO).toDateString()===now.toDateString();
+    const dayTasks=STATE.tasks.filter(t=>t.dueDate===dateStrISO&&!t.done);
+    cells+=`<div class="cal-day${isToday?' today':''}">
+      <div class="cal-day-num" style="${isToday?'color:var(--purple);font-weight:900':''}">${d}</div>
+      ${dayTasks.slice(0,2).map(t=>{
+        const d2=daysUntil(t.dueDate);
+        const cls=d2<0?'cal-event-red':d2<=7?'cal-event-amber':d2<=30?'cal-event-amber':'cal-event-blue';
+        return `<div class="cal-event ${cls}" title="${t.staffName}: ${t.title}">${t.staffName.split(' ')[0]}</div>`;
+      }).join('')}
+      ${dayTasks.length>2?`<div style="font-size:9px;color:var(--ink3)">+${dayTasks.length-2}件</div>`:''}
+    </div>`;
+  }
+  body.innerHTML=cells;
+
+  // 今月のタスク一覧
+  const monthTasks=STATE.tasks.filter(t=>{
+    if(!t.dueDate)return false;
+    const d=new Date(t.dueDate);
+    return d.getFullYear()===calYear&&d.getMonth()===calMonth;
+  }).sort((a,b)=>new Date(a.dueDate)-new Date(b.dueDate));
+  const calEl=document.getElementById('cal-task-list');
+  if(monthTasks.length===0){calEl.innerHTML='<div style="color:var(--ink3);font-size:13px">今月のタスクはありません</div>';}
+  else{calEl.innerHTML=monthTasks.map(t=>`
+    <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">
+      <span style="font-size:12px;color:var(--ink3);width:50px;flex-shrink:0">${formatDate(t.dueDate).slice(5)}</span>
+      <span class="badge ${CATEGORY_COLOR[t.category]||'badge-gray'}">${t.category}</span>
+      <span style="flex:1;font-size:13px">${t.staffName} / ${t.title}</span>
+      <span class="badge ${t.done?'badge-ok':'badge-gray'}">${t.done?'完了':'未完了'}</span>
+    </div>`).join('');}
+}
+
+function changeMonth(d){
+  calMonth+=d;
+  if(calMonth>11){calMonth=0;calYear++;}
+  if(calMonth<0){calMonth=11;calYear--;}
+  renderCalendar();
+}
+
+// HOURS
+const RESTRICTED_VISAS=['留学','家族滞在'];
+function openAddHours(){
+  const sel=document.getElementById('h-staff');
+  const restricted=STATE.staff.filter(s=>RESTRICTED_VISAS.includes(s.visa));
+  if(restricted.length===0){showToast('週28時間制限対象のスタッフがいません');return;}
+  sel.innerHTML=restricted.map(s=>`<option value="${s.id}">${s.name}（${s.visa}）</option>`).join('');
+  ['h-mon','h-tue','h-wed','h-thu','h-fri','h-sat','h-sun'].forEach(id=>{document.getElementById(id).value=0;});
+  document.getElementById('modal-hours').classList.add('open');
+}
+
+function saveHours(){
+  const staffId=parseInt(document.getElementById('h-staff').value);
+  const week=document.getElementById('h-week').value;
+  if(!week){showToast('週の開始日を入力してください');return;}
+  const days=['mon','tue','wed','thu','fri','sat','sun'];
+  const hours=days.map(d=>parseFloat(document.getElementById(`h-${d}`).value)||0);
+  const total=hours.reduce((a,b)=>a+b,0);
+  STATE.hours.push({id:STATE.nextId.hours++,staffId,week,hours,total});
+  saveState();closeModal('modal-hours');
+  if(total>28){
+    showToast(`🚨 警告！週${total}時間 - 28時間制限を超過しています！`);
+  } else {
+    showToast(`✅ 保存しました（週${total}時間）`);
+  }
+  renderHours();
+}
+
+function renderHours(){
+  const el=document.getElementById('hours-list');
+  const restricted=STATE.staff.filter(s=>RESTRICTED_VISAS.includes(s.visa));
+  if(restricted.length===0){el.innerHTML='<div class="card" style="text-align:center;color:var(--ink3);padding:32px">週28時間制限対象のスタッフがいません</div>';return;}
+  el.innerHTML=restricted.map(s=>{
+    const records=STATE.hours.filter(h=>h.staffId===s.id).slice(-4).reverse();
+    return `
+    <div class="card">
+      <div class="card-title">👤 ${s.name} <span class="badge badge-warn">${s.visa}</span></div>
+      ${records.length===0?'<div style="color:var(--ink3);font-size:13px">勤怠データがありません</div>':
+        records.map(r=>{
+          const pct=Math.min(r.total/28*100,100);
+          const over=r.total>28;
+          const warn=r.total>24;
+          return `
+          <div style="padding:10px 0;border-bottom:1px solid var(--border)">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+              <span style="font-size:12px;color:var(--ink3)">週：${formatDate(r.week)}〜</span>
+              <span style="font-size:14px;font-weight:700;color:${over?'var(--red)':warn?'var(--amber)':'var(--green)'}">${r.total}時間 / 28時間</span>
+              ${over?'<span class="badge badge-ng">制限超過！</span>':warn?'<span class="badge badge-warn">注意</span>':'<span class="badge badge-ok">正常</span>'}
+            </div>
+            <div class="hours-bar"><div class="hours-fill ${over?'hours-over':warn?'hours-warn':'hours-ok'}" style="width:${pct}%"></div></div>
+          </div>`;
+        }).join('')
+      }
+    </div>`;
+  }).join('');
+}
+
+// HELLOWORK
+function renderHellowork(){
+  const el=document.getElementById('hellowork-list');
+  const hwTasks=STATE.tasks.filter(t=>t.category==='ハローワーク').sort((a,b)=>new Date(a.dueDate)-new Date(b.dueDate));
+  if(hwTasks.length===0){el.innerHTML='<div class="card" style="text-align:center;color:var(--ink3);padding:32px">ハローワーク届出タスクがありません。スタッフを登録すると自動で追加されます。</div>';return;}
+  el.innerHTML=`
+    <div class="card">
+      <div class="card-title">🏛️ 届出タスク一覧</div>
+      ${hwTasks.map(t=>{
+        const days=daysUntil(t.dueDate);
+        const cls=t.done?'badge-ok':days<0?'badge-ng':days<=30?'badge-warn':'badge-info';
+        const label=t.done?'提出済':days<0?`${Math.abs(days)}日超過`:days<=30?`残り${days}日`:`残り${days}日`;
+        return `
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)">
+          <div style="flex:1">
+            <div style="font-size:13px;font-weight:600">${t.title}</div>
+            <div style="font-size:11px;color:var(--ink3)">提出期日：${formatDate(t.dueDate)}</div>
+          </div>
+          <span class="badge ${cls}">${label}</span>
+          ${!t.done?`<button class="btn btn-sm btn-green" onclick="completeHW(${t.id})">✅ 提出済</button>`:''}
+        </div>`;
+      }).join('')}
+    </div>
+    <div class="card">
+      <div class="card-title">📋 届出のポイント</div>
+      <div style="font-size:12px;line-height:1.9;color:var(--ink2)">
+        <div>✅ <strong>雇入れ時</strong>：翌月末日までにハローワークへ届出</div>
+        <div>✅ <strong>離職時</strong>：翌月末日までにハローワークへ届出</div>
+        <div>✅ <strong>対象</strong>：外国人労働者を雇用するすべての事業主（永住者含む）</div>
+        <div>✅ <strong>様式</strong>：雇用保険被保険者資格取得届または外国人雇用状況届出書</div>
+        <div style="color:var(--red);margin-top:6px">⚠️ 届出を怠った場合や虚偽の届出をした場合は30万円以下の罰金</div>
+      </div>
+    </div>`;
+}
+
+function completeHW(id){
+  const t=STATE.tasks.find(x=>x.id===id);
+  if(!t)return;
+  t.done=true;t.doneAt=new Date().toISOString().split('T')[0];
+  saveState();renderHellowork();renderHome();showToast('✅ 提出済にしました');
+}
+
+// FILTER STYLE
+document.addEventListener('DOMContentLoaded',()=>{
+  const style=document.createElement('style');
+  style.textContent=`.task-filter-btn{padding:7px 14px;border-radius:99px;font-size:12px;font-weight:600;border:1.5px solid var(--border2);background:var(--surface);color:var(--ink3);cursor:pointer;transition:all .15s;font-family:inherit;}.task-filter-btn:hover{background:var(--surface2);}.task-filter-btn.active{background:var(--purple);border-color:var(--purple);color:#fff;}`;
+  document.head.appendChild(style);
+});
+
+// INIT
+loadState();
+const initNow=new Date();
+calYear=initNow.getFullYear();calMonth=initNow.getMonth();
+document.getElementById('home-date').textContent=`${initNow.getFullYear()}年${initNow.getMonth()+1}月${initNow.getDate()}日（${['日','月','火','水','木','金','土'][initNow.getDay()]}）`;
+renderHome();
+</script>
+</body>
+</html>
