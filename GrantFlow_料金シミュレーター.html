@@ -257,7 +257,7 @@ body{
   <div class="presets">
     <button class="preset-btn" onclick="applyPreset('sharoushi')">
       <div class="preset-name">🏢 社労士フルセット</div>
-      <div class="preset-target">社労士事務所向け<br>全15アプリ</div>
+      <div class="preset-target">社労士事務所向け<br>全17アプリ</div>
     </button>
     <button class="preset-btn" onclick="applyPreset('gyosei')">
       <div class="preset-name">📝 行政書士セット</div>
@@ -274,6 +274,10 @@ body{
     <button class="preset-btn" onclick="applyPreset('inshoku')">
       <div class="preset-name">🍽️ 飲食・宿泊セット</div>
       <div class="preset-target">飲食・宿泊業向け<br>①⑥⑦⑧⑪⑫⑬⑮</div>
+    </button>
+    <button class="preset-btn" onclick="applyPreset('kaigo')">
+      <div class="preset-name">🏥 介護業セット</div>
+      <div class="preset-target">介護施設向け<br>①⑥⑦⑧⑨⑪⑫⑬⑰</div>
     </button>
     <button class="preset-btn" onclick="applyPreset('shien')">
       <div class="preset-name">🤝 登録支援機関セット</div>
@@ -429,16 +433,24 @@ const APPS = [
     desc:'現場入場書類・資格・免許の期限管理・安全書類・現場ごとの作業員配置を一元管理',
     tags:['建設業特化','現場入場書類','資格期限管理'],
     monthly:5800, buyout:29800
+  },
+  {
+    id:'a17', icon:'🏥',
+    name:'⑰ 介護業 外国人スタッフ管理',
+    desc:'資格・研修管理・OJT記録・夜勤過多アラート・多言語ケアマニュアル。介護特定技能に完全対応',
+    tags:['介護業特化','OJT記録','夜勤管理'],
+    monthly:5800, buyout:29800
   }
 ];
 
 const PRESETS = {
-  sharoushi:['a1','a2','a3','a4','a5','a6','a7','a8','a9','a10','a11','a12','a13','a14','a15','a16'],
+  sharoushi:['a1','a2','a3','a4','a5','a6','a7','a8','a9','a10','a11','a12','a13','a14','a15','a16','a17'],
   gyosei:['a1','a4','a7'],
   seizou:['a1','a6','a7','a8','a9','a12','a13','a14'],
   kensetsu:['a1','a6','a7','a8','a9','a12','a13','a16'],
-  shien:['a1','a3','a4','a6','a8','a9','a10','a11','a12','a13'],
-  inshoku:['a1','a6','a7','a8','a11','a12','a13','a15']
+  inshoku:['a1','a6','a7','a8','a11','a12','a13','a15'],
+  kaigo:['a1','a6','a7','a8','a9','a11','a12','a13','a17'],
+  shien:['a1','a3','a4','a6','a8','a9','a10','a11','a12','a13']
 };
 
 let selected = new Set();
