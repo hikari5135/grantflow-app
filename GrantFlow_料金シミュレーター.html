@@ -267,6 +267,10 @@ body{
       <div class="preset-name">🏭 製造業セット</div>
       <div class="preset-target">製造業人事向け<br>①⑥⑦⑧⑨⑫⑬⑭</div>
     </button>
+    <button class="preset-btn" onclick="applyPreset('kensetsu')">
+      <div class="preset-name">🏗️ 建設業セット</div>
+      <div class="preset-target">建設業向け<br>①⑥⑦⑧⑨⑫⑬⑯</div>
+    </button>
     <button class="preset-btn" onclick="applyPreset('inshoku')">
       <div class="preset-name">🍽️ 飲食・宿泊セット</div>
       <div class="preset-target">飲食・宿泊業向け<br>①⑥⑦⑧⑪⑫⑬⑮</div>
@@ -330,8 +334,8 @@ const APPS = [
   },
   {
     id:'a3', icon:'🎓',
-    name:'③ 人材開発支援助成金サポート',
-    desc:'外国人スタッフ雇用助成金に特化。LINE通知・期限自動計算',
+    name:'③ 人材確保等支援助成金（外国人就労環境整備）',
+    desc:'外国人スタッフ雇用助成金に特化。LINE通知・期限自動計算・AI診断付き',
     tags:['支援機関','LINE通知','期限計算'],
     monthly:12800, buyout:98000
   },
@@ -418,13 +422,21 @@ const APPS = [
     desc:'HACCP衛生管理記録・多言語シフト表示・アレルギー管理・多言語マニュアル。2021年義務化対応',
     tags:['飲食・宿泊特化','HACCP対応','多言語シフト'],
     monthly:5800, buyout:29800
+  },
+  {
+    id:'a16', icon:'🏗️',
+    name:'⑯ 建設業 外国人作業員管理',
+    desc:'現場入場書類・資格・免許の期限管理・安全書類・現場ごとの作業員配置を一元管理',
+    tags:['建設業特化','現場入場書類','資格期限管理'],
+    monthly:5800, buyout:29800
   }
 ];
 
 const PRESETS = {
-  sharoushi:['a1','a2','a3','a4','a5','a6','a7','a8','a9','a10','a11','a12','a13','a14','a15'],
+  sharoushi:['a1','a2','a3','a4','a5','a6','a7','a8','a9','a10','a11','a12','a13','a14','a15','a16'],
   gyosei:['a1','a4','a7'],
   seizou:['a1','a6','a7','a8','a9','a12','a13','a14'],
+  kensetsu:['a1','a6','a7','a8','a9','a12','a13','a16'],
   shien:['a1','a3','a4','a6','a8','a9','a10','a11','a12','a13'],
   inshoku:['a1','a6','a7','a8','a11','a12','a13','a15']
 };
