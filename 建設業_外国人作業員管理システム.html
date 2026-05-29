@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>建設業 外国人作業員管理システム｜GrantFlow</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#1a1a18;--ink2:#3a3a36;--ink3:#7a7a72;
+  --bg:#f2f1ec;--surface:#fff;--surface2:#f8f7f2;
+  --border:#e2e1d8;--border2:#c8c7be;
+  --green:#1a7a4a;--green-l:#e8f5ee;--green-m:#b8e0ca;
+  --red:#c0392b;--red-l:#fdecea;--red-m:#f5b7b1;
+  --amber:#c47a00;--amber-l:#fff8e6;--amber-m:#ffd97a;
+  --blue:#1a5fa8;--blue-l:#e8f0fb;--blue-m:#a8c4ef;
+  --brown:#7c4a03;--brown-l:#fdf3e7;--brown-m:#f0c080;
+  --r:10px;--r2:16px;
+  --shadow:0 2px 8px rgba(0,0,0,.06);
+  --shadow2:0 8px 24px rgba(0,0,0,.10);
+}
+body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;font-size:14px;line-height:1.6;}
+.layout{display:flex;min-height:100vh;}
+.sidebar{width:240px;background:var(--ink);color:#fff;position:fixed;top:0;left:0;bottom:0;display:flex;flex-direction:column;z-index:100;}
+.sidebar-logo{padding:20px 18px;border-bottom:1px solid rgba(255,255,255,.1);}
+.logo-name{font-size:13px;font-weight:700;line-height:1.4;}
+.logo-sub{font-size:10px;color:rgba(255,255,255,.45);margin-top:2px;}
+.logo-badge{display:inline-block;margin-top:6px;font-size:9px;font-weight:700;background:var(--brown);color:#fff;padding:2px 8px;border-radius:4px;font-family:'DM Mono',monospace;}
+.nav-section{padding:12px 0 4px;}
+.nav-label{font-size:9px;font-weight:700;letter-spacing:.1em;color:rgba(255,255,255,.3);padding:0 18px;margin-bottom:4px;text-transform:uppercase;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 18px;font-size:13px;font-weight:500;color:rgba(255,255,255,.6);cursor:pointer;border-left:3px solid transparent;transition:all .15s;}
+.nav-item:hover{color:#fff;background:rgba(255,255,255,.06);}
+.nav-item.active{color:#fff;border-left-color:var(--brown);background:rgba(255,255,255,.08);}
+.nav-icon{font-size:16px;width:20px;text-align:center;}
+.sidebar-footer{margin-top:auto;padding:14px 18px;border-top:1px solid rgba(255,255,255,.1);}
+.user-row{display:flex;align-items:center;gap:8px;}
+.user-av{width:28px;height:28px;border-radius:50%;background:var(--brown);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;}
+.user-name{font-size:11px;font-weight:600;}
+.user-role{font-size:10px;color:rgba(255,255,255,.4);}
+.main{margin-left:240px;flex:1;}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:12px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
+.topbar-title{font-size:16px;font-weight:700;}
+.topbar-right{display:flex;align-items:center;gap:10px;}
+.page{display:none;padding:24px;}
+.page.active{display:block;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:20px;margin-bottom:14px;box-shadow:var(--shadow);}
+.card-title{font-size:14px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.section-title{font-size:18px;font-weight:700;}
+.section-sub{font-size:13px;color:var(--ink3);margin-top:2px;}
+.badge{display:inline-flex;align-items:center;padding:2px 10px;border-radius:6px;font-size:11px;font-weight:700;}
+.badge-ok{background:var(--green-l);color:var(--green);}
+.badge-ng{background:var(--red-l);color:var(--red);}
+.badge-warn{background:var(--amber-l);color:var(--amber);}
+.badge-info{background:var(--blue-l);color:var(--blue);}
+.badge-brown{background:var(--brown-l);color:var(--brown);}
+.badge-gray{background:var(--surface2);color:var(--ink3);border:1px solid var(--border);}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:9px 18px;border:1.5px solid var(--border2);border-radius:var(--r);font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;transition:all .15s;background:var(--surface);color:var(--ink);}
+.btn:hover{background:var(--surface2);}
+.btn-brown{background:var(--brown);border-color:var(--brown);color:#fff;}
+.btn-brown:hover{background:#5c3602;}
+.btn-green{background:var(--green);border-color:var(--green);color:#fff;}
+.btn-red{background:var(--red);border-color:var(--red);color:#fff;}
+.btn-sm{padding:5px 12px;font-size:12px;}
+.btn-full{width:100%;}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;}
+.fg{display:flex;flex-direction:column;gap:4px;margin-bottom:12px;}
+.fg label{font-size:11px;font-weight:700;color:var(--ink3);}
+.fg input,.fg select,.fg textarea{width:100%;padding:9px 12px;border:1.5px solid var(--border2);border-radius:var(--r);font-size:13px;font-family:inherit;color:var(--ink);background:var(--surface);outline:none;transition:border .15s;}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--brown);}
+.fg textarea{resize:vertical;min-height:70px;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:14px 16px;box-shadow:var(--shadow);}
+.stat-label{font-size:11px;color:var(--ink3);margin-bottom:4px;}
+.stat-val{font-size:26px;font-weight:700;line-height:1.1;}
+.stat-sub{font-size:11px;color:var(--ink3);margin-top:2px;}
+.alert{display:flex;gap:10px;padding:12px 14px;border-radius:var(--r);font-size:13px;margin-bottom:8px;border:1px solid;}
+.alert-red{background:var(--red-l);border-color:var(--red-m);color:var(--red);}
+.alert-amber{background:var(--amber-l);border-color:var(--amber-m);color:var(--amber);}
+.alert-green{background:var(--green-l);border-color:var(--green-m);color:var(--green);}
+.alert-blue{background:var(--blue-l);border-color:var(--blue-m);color:var(--blue);}
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;align-items:center;justify-content:center;padding:16px;}
+.modal-bg.open{display:flex;}
+.modal-box{background:var(--surface);border-radius:var(--r2);padding:24px;width:min(680px,100%);max-height:90vh;overflow-y:auto;box-shadow:var(--shadow2);}
+.modal-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;}
+.modal-title{font-size:16px;font-weight:700;}
+.modal-close{font-size:20px;cursor:pointer;color:var(--ink3);background:none;border:none;}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 20px;border-radius:var(--r);font-size:13px;font-weight:600;opacity:0;transition:opacity .3s;pointer-events:none;z-index:999;white-space:nowrap;}
+.toast.show{opacity:1;}
+@media(max-width:768px){.sidebar{transform:translateX(-100%);}.main{margin-left:0;}.stat-grid{grid-template-columns:1fr 1fr;}.grid2{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<div class="layout">
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-name">建設業<br>外国人作業員管理</div>
+    <div class="logo-sub">GrantFlow ⑯</div>
+    <div class="logo-badge">v1.0</div>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">メニュー</div>
+    <div class="nav-item active" onclick="showPage('pg-home')"><span class="nav-icon">🏠</span>ダッシュボード</div>
+    <div class="nav-item" onclick="showPage('pg-worker')"><span class="nav-icon">👷</span>作業員管理</div>
+    <div class="nav-item" onclick="showPage('pg-docs')"><span class="nav-icon">📄</span>現場入場書類</div>
+    <div class="nav-item" onclick="showPage('pg-license')"><span class="nav-icon">🎓</span>資格・免許管理</div>
+    <div class="nav-item" onclick="showPage('pg-safety')"><span class="nav-icon">⛑️</span>安全書類管理</div>
+    <div class="nav-item" onclick="showPage('pg-site')"><span class="nav-icon">🏗️</span>現場管理</div>
+  </div>
+  <div class="sidebar-footer">
+    <div class="user-row">
+      <div class="user-av">阪</div>
+      <div><div class="user-name">阪本 光</div><div class="user-role">現場管理者</div></div>
+    </div>
+  </div>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title" id="topbar-title">ダッシュボード</div>
+    <div class="topbar-right">
+      <button class="btn btn-brown btn-sm" onclick="openAddWorker()">＋ 作業員追加</button>
+    </div>
+  </div>
+
+  <!-- HOME -->
+  <div class="page active" id="pg-home">
+    <div class="section-header">
+      <div><div class="section-title">ダッシュボード</div><div class="section-sub" id="home-date"></div></div>
+    </div>
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-label">登録作業員</div><div class="stat-val" id="stat-worker" style="color:var(--brown)">0</div><div class="stat-sub">名</div></div>
+      <div class="stat-card"><div class="stat-label">書類未提出</div><div class="stat-val" id="stat-docs" style="color:var(--red)">0</div><div class="stat-sub">名</div></div>
+      <div class="stat-card"><div class="stat-label">資格期限切れ</div><div class="stat-val" id="stat-license" style="color:var(--amber)">0</div><div class="stat-sub">件</div></div>
+      <div class="stat-card"><div class="stat-label">稼働現場数</div><div class="stat-val" id="stat-site" style="color:var(--blue)">0</div><div class="stat-sub">現場</div></div>
+    </div>
+    <div class="card"><div class="card-title">🚨 要対応アラート</div><div id="home-alerts"></div></div>
+    <div class="grid2">
+      <div class="card"><div class="card-title">👷 作業員一覧</div><div id="home-workers"></div></div>
+      <div class="card"><div class="card-title">📄 書類未提出者</div><div id="home-docs"></div></div>
+    </div>
+  </div>
+
+  <!-- WORKER -->
+  <div class="page" id="pg-worker">
+    <div class="section-header">
+      <div><div class="section-title">👷 作業員管理</div><div class="section-sub">外国人作業員の基本情報を管理します</div></div>
+      <button class="btn btn-brown" onclick="openAddWorker()">＋ 作業員追加</button>
+    </div>
+    <div id="worker-list"></div>
+  </div>
+
+  <!-- DOCS -->
+  <div class="page" id="pg-docs">
+    <div class="section-header">
+      <div><div class="section-title">📄 現場入場書類</div><div class="section-sub">現場入場に必要な書類の提出状況を管理します</div></div>
+    </div>
+    <div class="alert alert-amber" style="margin-bottom:14px">
+      <span>⚠️</span><div>建設現場への入場には各種書類の提出が必要です。書類が揃っていない作業員は現場に入場できません。</div>
+    </div>
+    <div id="docs-list"></div>
+  </div>
+
+  <!-- LICENSE -->
+  <div class="page" id="pg-license">
+    <div class="section-header">
+      <div><div class="section-title">🎓 資格・免許管理</div><div class="section-sub">建設業に必要な資格・免許を管理します</div></div>
+      <button class="btn btn-brown" onclick="openAddLicense()">＋ 資格を追加</button>
+    </div>
+    <div id="license-list"></div>
+  </div>
+
+  <!-- SAFETY -->
+  <div class="page" id="pg-safety">
+    <div class="section-header">
+      <div><div class="section-title">⛑️ 安全書類管理</div><div class="section-sub">安全管理に関する書類を管理します</div></div>
+      <button class="btn btn-brown" onclick="openAddSafety()">＋ 安全書類を追加</button>
+    </div>
+    <div id="safety-list"></div>
+  </div>
+
+  <!-- SITE -->
+  <div class="page" id="pg-site">
+    <div class="section-header">
+      <div><div class="section-title">🏗️ 現場管理</div><div class="section-sub">現場ごとの作業員配置を管理します</div></div>
+      <button class="btn btn-brown" onclick="openAddSite()">＋ 現場追加</button>
+    </div>
+    <div id="site-list"></div>
+  </div>
+</div>
+</div>
+
+<!-- MODAL: 作業員追加 -->
+<div class="modal-bg" id="modal-worker">
+  <div class="modal-box">
+    <div class="modal-top">
+      <div class="modal-title">👷 作業員追加</div>
+      <button class="modal-close" onclick="closeModal('modal-worker')">✕</button>
+    </div>
+    <div class="grid2">
+      <div class="fg"><label>氏名★</label><input type="text" id="w-name" placeholder="例：Nguyen Van A"></div>
+      <div class="fg"><label>国籍</label>
+        <select id="w-country"><option>ベトナム</option><option>中国</option><option>フィリピン</option><option>インドネシア</option><option>ミャンマー</option><option>その他</option></select>
+      </div>
+      <div class="fg"><label>在留資格</label>
+        <select id="w-visa"><option>特定技能1号（建設）</option><option>技能実習1号</option><option>技能実習2号</option><option>技能実習3号</option><option>技術・人文知識・国際業務</option><option>永住者</option><option>その他</option></select>
+      </div>
+      <div class="fg"><label>在留期限</label><input type="date" id="w-visa-exp"></div>
+      <div class="fg"><label>職種</label>
+        <select id="w-job"><option>型枠大工</option><option>鉄筋工</option><option>とび工</option><option>塗装工</option><option>溶接工</option><option>電気工事</option><option>配管工</option><option>内装工</option><option>その他</option></select>
+      </div>
+      <div class="fg"><label>雇用会社</label><input type="text" id="w-company" placeholder="例：株式会社〇〇建設"></div>
+      <div class="fg"><label>入社日</label><input type="date" id="w-hire"></div>
+      <div class="fg"><label>緊急連絡先</label><input type="text" id="w-emergency" placeholder="090-xxxx-xxxx"></div>
+      <div class="fg"><label>血液型</label>
+        <select id="w-blood"><option>A型</option><option>B型</option><option>O型</option><option>AB型</option><option>不明</option></select>
+      </div>
+      <div class="fg"><label>CCUSカードID</label><input type="text" id="w-ccus" placeholder="建設キャリアアップシステムID"></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-brown" onclick="saveWorker()">💾 保存する</button>
+      <button class="btn" onclick="closeModal('modal-worker')">キャンセル</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: 資格追加 -->
+<div class="modal-bg" id="modal-license">
+  <div class="modal-box">
+    <div class="modal-top">
+      <div class="modal-title">🎓 資格・免許追加</div>
+      <button class="modal-close" onclick="closeModal('modal-license')">✕</button>
+    </div>
+    <div class="grid2">
+      <div class="fg"><label>作業員★</label><select id="l-worker"></select></div>
+      <div class="fg"><label>資格・免許の種類★</label>
+        <select id="l-type">
+          <option>足場の組立て等作業主任者</option>
+          <option>玉掛け技能講習</option>
+          <option>フォークリフト運転技能講習</option>
+          <option>高所作業車運転技能講習</option>
+          <option>クレーン・デリック運転士</option>
+          <option>移動式クレーン運転士</option>
+          <option>建設機械施工技士</option>
+          <option>土木施工管理技士</option>
+          <option>建築施工管理技士</option>
+          <option>アーク溶接特別教育</option>
+          <option>酸素欠乏危険作業主任者</option>
+          <option>有機溶剤作業主任者</option>
+          <option>その他資格</option>
+        </select>
+      </div>
+      <div class="fg"><label>取得日</label><input type="date" id="l-get"></div>
+      <div class="fg"><label>有効期限</label><input type="date" id="l-exp"></div>
+      <div class="fg"><label>登録番号</label><input type="text" id="l-no" placeholder="例：第12345号"></div>
+      <div class="fg"><label>発行機関</label><input type="text" id="l-org" placeholder="例：労働局・各技能講習機関"></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-brown" onclick="saveLicense()">💾 保存する</button>
+      <button class="btn" onclick="closeModal('modal-license')">キャンセル</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: 安全書類 -->
+<div class="modal-bg" id="modal-safety">
+  <div class="modal-box">
+    <div class="modal-top">
+      <div class="modal-title">⛑️ 安全書類追加</div>
+      <button class="modal-close" onclick="closeModal('modal-safety')">✕</button>
+    </div>
+    <div class="grid2">
+      <div class="fg"><label>作業員★</label><select id="sa-worker"></select></div>
+      <div class="fg"><label>書類種別★</label>
+        <select id="sa-type">
+          <option>雇入れ時健康診断書</option>
+          <option>安全衛生教育修了証</option>
+          <option>作業主任者選任届</option>
+          <option>新規入場者教育実施記録</option>
+          <option>KY活動記録</option>
+          <option>ヒヤリハット報告書</option>
+          <option>その他安全書類</option>
+        </select>
+      </div>
+      <div class="fg"><label>提出日</label><input type="date" id="sa-date"></div>
+      <div class="fg"><label>有効期限</label><input type="date" id="sa-exp"></div>
+    </div>
+    <div class="fg"><label>備考</label><textarea id="sa-memo" placeholder="特記事項があれば入力"></textarea></div>
+    <div class="btn-row">
+      <button class="btn btn-brown" onclick="saveSafety()">💾 保存する</button>
+      <button class="btn" onclick="closeModal('modal-safety')">キャンセル</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: 現場追加 -->
+<div class="modal-bg" id="modal-site">
+  <div class="modal-box">
+    <div class="modal-top">
+      <div class="modal-title">🏗️ 現場追加</div>
+      <button class="modal-close" onclick="closeModal('modal-site')">✕</button>
+    </div>
+    <div class="grid2">
+      <div class="fg"><label>現場名★</label><input type="text" id="si-name" placeholder="例：〇〇マンション新築工事"></div>
+      <div class="fg"><label>発注者</label><input type="text" id="si-client" placeholder="例：株式会社〇〇不動産"></div>
+      <div class="fg"><label>現場所在地</label><input type="text" id="si-address" placeholder="例：大阪府堺市〇〇区"></div>
+      <div class="fg"><label>工期（開始）</label><input type="date" id="si-start"></div>
+      <div class="fg"><label>工期（終了予定）</label><input type="date" id="si-end"></div>
+      <div class="fg"><label>現場代理人</label><input type="text" id="si-manager" placeholder="例：阪本 光"></div>
+    </div>
+    <div class="fg"><label>配属作業員</label><div id="si-workers-check"></div></div>
+    <div class="btn-row">
+      <button class="btn btn-brown" onclick="saveSite()">💾 保存する</button>
+      <button class="btn" onclick="closeModal('modal-site')">キャンセル</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const ENTRY_DOCS = [
+  {id:'d1', name:'在留カードコピー', required:true},
+  {id:'d2', name:'パスポートコピー', required:true},
+  {id:'d3', name:'雇用契約書コピー', required:true},
+  {id:'d4', name:'健康保険証コピー', required:true},
+  {id:'d5', name:'雇用保険被保険者証コピー', required:true},
+  {id:'d6', name:'安全衛生教育修了証', required:true},
+  {id:'d7', name:'CCUSカードコピー', required:false},
+  {id:'d8', name:'資格証コピー（保有者のみ）', required:false},
+];
+
+const COUNTRY_FLAG = {ベトナム:'🇻🇳',中国:'🇨🇳',フィリピン:'🇵🇭',インドネシア:'🇮🇩',ミャンマー:'🇲🇲',その他:'🌏'};
+
+let STATE={workers:[],licenses:[],safeties:[],sites:[],docs:{},nextId:{worker:1,license:1,safety:1,site:1}};
+
+function loadState(){const s=localStorage.getItem('grantflow_const_v1');if(s)try{STATE=JSON.parse(s);}catch(e){}}
+function saveState(){localStorage.setItem('grantflow_const_v1',JSON.stringify(STATE));}
+
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelector(`[onclick="showPage('${id}')"]`).classList.add('active');
+  const titles={'pg-home':'ダッシュボード','pg-worker':'作業員管理','pg-docs':'現場入場書類','pg-license':'資格・免許管理','pg-safety':'安全書類管理','pg-site':'現場管理'};
+  document.getElementById('topbar-title').textContent=titles[id]||'';
+  if(id==='pg-home') renderHome();
+  if(id==='pg-worker') renderWorkerList();
+  if(id==='pg-docs') renderDocsList();
+  if(id==='pg-license') renderLicenseList();
+  if(id==='pg-safety') renderSafetyList();
+  if(id==='pg-site') renderSiteList();
+}
+
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+function formatDate(d){if(!d)return'—';const dt=new Date(d);return`${dt.getFullYear()}/${String(dt.getMonth()+1).padStart(2,'0')}/${String(dt.getDate()).padStart(2,'0')}`;}
+function daysUntil(d){if(!d)return null;return Math.ceil((new Date(d)-new Date())/86400000);}
+
+function updateWorkerSelects(){
+  const opts=STATE.workers.map(w=>`<option value="${w.id}">${w.name}（${w.job}）</option>`).join('');
+  ['l-worker','sa-worker'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=opts;});
+}
+
+function getDocKey(workerId,docId){return`${workerId}_${docId}`;}
+function isDocSubmitted(workerId,docId){return !!STATE.docs[getDocKey(workerId,docId)];}
+function getWorkerDocRate(workerId){
+  const req=ENTRY_DOCS.filter(d=>d.required);
+  const done=req.filter(d=>isDocSubmitted(workerId,d.id)).length;
+  return{done,total:req.length,pct:Math.round(done/req.length*100)};
+}
+
+// WORKER
+function openAddWorker(){
+  ['w-name','w-visa-exp','w-hire','w-emergency','w-ccus','w-company'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('modal-worker').classList.add('open');
+}
+
+function saveWorker(){
+  const name=document.getElementById('w-name').value.trim();
+  if(!name){showToast('氏名を入力してください');return;}
+  STATE.workers.push({
+    id:STATE.nextId.worker++,name,
+    country:document.getElementById('w-country').value,
+    visa:document.getElementById('w-visa').value,
+    visaExp:document.getElementById('w-visa-exp').value,
+    job:document.getElementById('w-job').value,
+    company:document.getElementById('w-company').value,
+    hire:document.getElementById('w-hire').value,
+    emergency:document.getElementById('w-emergency').value,
+    blood:document.getElementById('w-blood').value,
+    ccus:document.getElementById('w-ccus').value,
+  });
+  saveState();closeModal('modal-worker');showToast('✅ 作業員を追加しました');
+  renderWorkerList();renderHome();
+}
+
+function renderWorkerList(){
+  const el=document.getElementById('worker-list');
+  if(STATE.workers.length===0){el.innerHTML='<div class="card" style="text-align:center;color:var(--ink3);padding:32px">作業員が登録されていません</div>';return;}
+  el.innerHTML=STATE.workers.map(w=>{
+    const {done,total,pct}=getWorkerDocRate(w.id);
+    const licenses=STATE.licenses.filter(l=>l.workerId===w.id);
+    const expiredLic=licenses.filter(l=>l.exp&&daysUntil(l.exp)<0).length;
+    const visaDays=daysUntil(w.visaExp);
+    return `
+    <div class="card" style="padding:16px 20px">
+      <div style="display:flex;align-items:flex-start;gap:14px">
+        <div style="font-size:28px">${COUNTRY_FLAG[w.country]||'🌏'}</div>
+        <div style="flex:1">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px">
+            <span style="font-size:15px;font-weight:700">${w.name}</span>
+            <span class="badge badge-brown">${w.job}</span>
+            <span class="badge badge-gray">${w.visa}</span>
+          </div>
+          <div style="font-size:12px;color:var(--ink3);margin-bottom:8px">
+            ${w.company||'—'} | 在留期限：${formatDate(w.visaExp)}
+            ${visaDays!==null?`（${visaDays<0?`<span style="color:var(--red)">期限切れ</span>`:`残り${visaDays}日`}）`:''}
+            ${w.ccus?` | CCUS: ${w.ccus}`:''}
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+            <div style="background:var(--surface2);border-radius:99px;height:6px;overflow:hidden;flex:1">
+              <div style="height:100%;border-radius:99px;background:${pct===100?'var(--green)':pct>=50?'var(--amber)':'var(--red)'};width:${pct}%"></div>
+            </div>
+            <span style="font-size:11px;color:var(--ink3);white-space:nowrap">書類 ${done}/${total}</span>
+          </div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            ${expiredLic>0?`<span class="badge badge-ng">資格期限切れ ${expiredLic}件</span>`:''}
+            <span class="badge badge-gray">保有資格 ${licenses.length}件</span>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0">
+          <button class="btn btn-sm btn-brown" onclick="openDocDetail(${w.id})">📄 書類確認</button>
+          <button class="btn btn-sm" onclick="openAddLicense();document.getElementById('l-worker').value=${w.id}">🎓 資格追加</button>
+          <button class="btn btn-sm btn-red" onclick="deleteWorker(${w.id})">🗑️</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function deleteWorker(id){
+  if(!confirm('この作業員を削除しますか？'))return;
+  STATE.workers=STATE.workers.filter(w=>w.id!==id);
+  STATE.licenses=STATE.licenses.filter(l=>l.workerId!==id);
+  STATE.safeties=STATE.safeties.filter(s=>s.workerId!==id);
+  Object.keys(STATE.docs).filter(k=>k.startsWith(`${id}_`)).forEach(k=>delete STATE.docs[k]);
+  saveState();renderWorkerList();renderHome();showToast('削除しました');
+}
+
+// DOCS
+function renderDocsList(){
+  const el=document.getElementById('docs-list');
+  if(STATE.workers.length===0){el.innerHTML='<div class="card" style="text-align:center;color:var(--ink3);padding:32px">作業員が登録されていません</div>';return;}
+  el.innerHTML=STATE.workers.map(w=>{
+    const {done,total,pct}=getWorkerDocRate(w.id);
+    return `
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div>
+          <div style="font-size:14px;font-weight:700">${w.name} <span class="badge badge-gray">${w.job}</span></div>
+          <div style="font-size:12px;color:var(--ink3)">${w.company||'—'}</div>
+        </div>
+        <span class="badge ${pct===100?'badge-ok':pct>=50?'badge-warn':'badge-ng'}">${pct}% 提出済</span>
+      </div>
+      <div style="background:var(--surface2);border-radius:99px;height:6px;overflow:hidden;margin-bottom:10px">
+        <div style="height:100%;border-radius:99px;background:${pct===100?'var(--green)':pct>=50?'var(--amber)':'var(--red)'};width:${pct}%"></div>
+      </div>
+      ${ENTRY_DOCS.map(d=>{
+        const submitted=isDocSubmitted(w.id,d.id);
+        return `
+        <div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border)">
+          <div style="width:20px;height:20px;border-radius:5px;border:2px solid ${submitted?'var(--green)':'var(--border2)'};background:${submitted?'var(--green)':'var(--surface)'};display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0" onclick="toggleDoc(${w.id},'${d.id}')">
+            ${submitted?'<svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="2" stroke-linecap="round"/></svg>':''}
+          </div>
+          <span style="flex:1;font-size:13px">${d.name}${d.required?'<span style="color:var(--red);font-size:10px;margin-left:4px">必須</span>':''}</span>
+          <span class="badge ${submitted?'badge-ok':'badge-gray'}">${submitted?'提出済':'未提出'}</span>
+        </div>`;
+      }).join('')}
+    </div>`;
+  }).join('');
+}
+
+function toggleDoc(workerId,docId){
+  const key=getDocKey(workerId,docId);
+  if(STATE.docs[key]){delete STATE.docs[key];}
+  else{STATE.docs[key]={date:new Date().toISOString().split('T')[0]};}
+  saveState();renderDocsList();renderHome();showToast('✅ 書類状況を更新しました');
+}
+
+function openDocDetail(workerId){
+  showPage('pg-docs');
+}
+
+// LICENSE
+function openAddLicense(){
+  updateWorkerSelects();
+  if(STATE.workers.length===0){showToast('先に作業員を登録してください');return;}
+  ['l-get','l-exp','l-no','l-org'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('modal-license').classList.add('open');
+}
+
+function saveLicense(){
+  const workerId=parseInt(document.getElementById('l-worker').value);
+  if(!workerId){showToast('作業員を選択してください');return;}
+  STATE.licenses.push({
+    id:STATE.nextId.license++,workerId,
+    type:document.getElementById('l-type').value,
+    get:document.getElementById('l-get').value,
+    exp:document.getElementById('l-exp').value,
+    no:document.getElementById('l-no').value,
+    org:document.getElementById('l-org').value,
+  });
+  saveState();closeModal('modal-license');showToast('✅ 資格を追加しました');
+  renderLicenseList();renderHome();
+}
+
+function renderLicenseList(){
+  const el=document.getElementById('license-list');
+  if(STATE.licenses.length===0){el.innerHTML='<div class="card" style="text-align:center;color:var(--ink3);padding:32px">資格が登録されていません</div>';return;}
+  el.innerHTML=STATE.licenses.sort((a,b)=>{
+    const da=daysUntil(a.exp),db=daysUntil(b.exp);
+    if(da===null)return 1;if(db===null)return -1;return da-db;
+  }).map(l=>{
+    const w=STATE.workers.find(x=>x.id===l.workerId);
+    const days=daysUntil(l.exp);
+    const statusBadge=!l.exp?'<span class="badge badge-ok">永続</span>':
+      days<0?`<span class="badge badge-ng">期限切れ（${Math.abs(days)}日超過）</span>`:
+      days<=30?`<span class="badge badge-warn">残り${days}日</span>`:
+      `<span class="badge badge-ok">残り${days}日</span>`;
+    return `
+    <div class="card" style="padding:14px 18px;border-left:4px solid ${!l.exp?'var(--green)':days<0?'var(--red)':days<=30?'var(--amber)':'var(--green)'}">
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:700;margin-bottom:3px">${l.type}</div>
+          <div style="font-size:12px;color:var(--ink3)">👷 ${w?.name||'不明'} | 取得：${formatDate(l.get)} | 期限：${formatDate(l.exp)||'永続'} | ${l.no||'—'}</div>
+        </div>
+        ${statusBadge}
+        <button class="btn btn-sm btn-red" onclick="deleteLicense(${l.id})">🗑️</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function deleteLicense(id){
+  if(!confirm('この資格を削除しますか？'))return;
+  STATE.licenses=STATE.licenses.filter(l=>l.id!==id);
+  saveState();renderLicenseList();renderHome();showToast('削除しました');
+}
+
+// SAFETY
+function openAddSafety(){
+  updateWorkerSelects();
+  if(STATE.workers.length===0){showToast('先に作業員を登録してください');return;}
+  document.getElementById('sa-date').value=new Date().toISOString().split('T')[0];
+  ['sa-exp','sa-memo'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('modal-safety').classList.add('open');
+}
+
+function saveSafety(){
+  const workerId=parseInt(document.getElementById('sa-worker').value);
+  const date=document.getElementById('sa-date').value;
+  if(!date){showToast('提出日を入力してください');return;}
+  STATE.safeties.push({
+    id:STATE.nextId.safety++,workerId,
+    type:document.getElementById('sa-type').value,
+    date,exp:document.getElementById('sa-exp').value,
+    memo:document.getElementById('sa-memo').value,
+  });
+  saveState();closeModal('modal-safety');showToast('✅ 安全書類を追加しました');
+  renderSafetyList();
+}
+
+function renderSafetyList(){
+  const el=document.getElementById('safety-list');
+  if(STATE.safeties.length===0){el.innerHTML='<div class="card" style="text-align:center;color:var(--ink3);padding:32px">安全書類の記録がありません</div>';return;}
+  el.innerHTML=STATE.safeties.sort((a,b)=>new Date(b.date)-new Date(a.date)).map(sa=>{
+    const w=STATE.workers.find(x=>x.id===sa.workerId);
+    const days=daysUntil(sa.exp);
+    return `
+    <div class="card" style="padding:14px 18px">
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:700">${sa.type}</div>
+          <div style="font-size:12px;color:var(--ink3)">👷 ${w?.name||'不明'} | 提出：${formatDate(sa.date)} | 期限：${formatDate(sa.exp)||'なし'}</div>
+        </div>
+        ${sa.exp?`<span class="badge ${days<0?'badge-ng':days<=30?'badge-warn':'badge-ok'}">${days<0?'期限切れ':days<=30?`残り${days}日`:`残り${days}日`}</span>`:''}
+        <button class="btn btn-sm btn-red" onclick="deleteSafety(${sa.id})">🗑️</button>
+      </div>
+      ${sa.memo?`<div style="font-size:12px;color:var(--ink3);margin-top:6px">${sa.memo}</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+function deleteSafety(id){
+  if(!confirm('この記録を削除しますか？'))return;
+  STATE.safeties=STATE.safeties.filter(s=>s.id!==id);
+  saveState();renderSafetyList();showToast('削除しました');
+}
+
+// SITE
+function openAddSite(){
+  ['si-name','si-client','si-address','si-start','si-end','si-manager'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  const chk=document.getElementById('si-workers-check');
+  chk.innerHTML=STATE.workers.map(w=>`
+    <div style="display:flex;align-items:center;gap:8px;padding:4px 0">
+      <input type="checkbox" id="siw-${w.id}" style="width:16px;height:16px">
+      <label for="siw-${w.id}" style="font-size:13px">${w.name}（${w.job}）</label>
+    </div>`).join('');
+  document.getElementById('modal-site').classList.add('open');
+}
+
+function saveSite(){
+  const name=document.getElementById('si-name').value.trim();
+  if(!name){showToast('現場名を入力してください');return;}
+  const workers=STATE.workers.filter(w=>document.getElementById(`siw-${w.id}`)?.checked).map(w=>w.id);
+  STATE.sites.push({
+    id:STATE.nextId.site++,name,
+    client:document.getElementById('si-client').value,
+    address:document.getElementById('si-address').value,
+    start:document.getElementById('si-start').value,
+    end:document.getElementById('si-end').value,
+    manager:document.getElementById('si-manager').value,
+    workers,
+  });
+  saveState();closeModal('modal-site');showToast('✅ 現場を追加しました');
+  renderSiteList();renderHome();
+}
+
+function renderSiteList(){
+  const el=document.getElementById('site-list');
+  if(STATE.sites.length===0){el.innerHTML='<div class="card" style="text-align:center;color:var(--ink3);padding:32px">現場が登録されていません</div>';return;}
+  el.innerHTML=STATE.sites.map(s=>{
+    const workers=STATE.workers.filter(w=>s.workers?.includes(w.id));
+    const endDays=daysUntil(s.end);
+    return `
+    <div class="card">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px">
+        <div>
+          <div style="font-size:15px;font-weight:700;margin-bottom:4px">🏗️ ${s.name}</div>
+          <div style="font-size:12px;color:var(--ink3)">${s.client||'—'} | ${s.address||'—'} | 現場代理人：${s.manager||'—'}</div>
+          <div style="font-size:12px;color:var(--ink3)">工期：${formatDate(s.start)}〜${formatDate(s.end)} ${endDays!==null?`（残り${endDays}日）`:''}</div>
+        </div>
+        <div style="display:flex;gap:6px">
+          <span class="badge badge-brown">作業員 ${workers.length}名</span>
+          <button class="btn btn-sm btn-red" onclick="deleteSite(${s.id})">🗑️</button>
+        </div>
+      </div>
+      ${workers.length>0?workers.map(w=>`
+        <div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-top:1px solid var(--border)">
+          <span style="font-size:16px">${COUNTRY_FLAG[w.country]||'🌏'}</span>
+          <span style="font-size:13px;flex:1">${w.name}</span>
+          <span class="badge badge-gray">${w.job}</span>
+          ${getWorkerDocRate(w.id).pct===100?'<span class="badge badge-ok">書類完備</span>':'<span class="badge badge-ng">書類不足</span>'}
+        </div>`).join(''):'<div style="font-size:12px;color:var(--ink3);padding:6px 0;border-top:1px solid var(--border)">作業員未配属</div>'}
+    </div>`;
+  }).join('');
+}
+
+function deleteSite(id){
+  if(!confirm('この現場を削除しますか？'))return;
+  STATE.sites=STATE.sites.filter(s=>s.id!==id);
+  saveState();renderSiteList();renderHome();showToast('削除しました');
+}
+
+// HOME
+function renderHome(){
+  const now=new Date();
+  document.getElementById('home-date').textContent=`${now.getFullYear()}年${now.getMonth()+1}月${now.getDate()}日（${['日','月','火','水','木','金','土'][now.getDay()]}）`;
+
+  let docsIncomplete=0,licExpired=0;
+  const alerts=[];
+
+  STATE.workers.forEach(w=>{
+    const {pct}=getWorkerDocRate(w.id);
+    if(pct<100){docsIncomplete++;alerts.push({type:'amber',msg:`【書類未提出】${w.name}（${getWorkerDocRate(w.id).done}/${getWorkerDocRate(w.id).total}件）`});}
+    const visaDays=daysUntil(w.visaExp);
+    if(visaDays!==null&&visaDays<0)alerts.push({type:'red',msg:`【在留期限切れ】${w.name}`});
+    else if(visaDays!==null&&visaDays<=30)alerts.push({type:'amber',msg:`【在留期限間近】${w.name}（残り${visaDays}日）`});
+  });
+  STATE.licenses.forEach(l=>{
+    const days=daysUntil(l.exp);
+    const w=STATE.workers.find(x=>x.id===l.workerId);
+    if(days!==null&&days<0){licExpired++;alerts.push({type:'red',msg:`【資格期限切れ】${w?.name||'—'}／${l.type}`});}
+    else if(days!==null&&days<=30){alerts.push({type:'amber',msg:`【資格期限間近】${w?.name||'—'}／${l.type}（残り${days}日）`});}
+  });
+
+  document.getElementById('stat-worker').textContent=STATE.workers.length;
+  document.getElementById('stat-docs').textContent=docsIncomplete;
+  document.getElementById('stat-license').textContent=licExpired;
+  document.getElementById('stat-site').textContent=STATE.sites.length;
+
+  const alertEl=document.getElementById('home-alerts');
+  alertEl.innerHTML=alerts.length===0?'<div class="alert alert-green"><span>✅</span><div>要対応アラートはありません</div></div>':
+    alerts.slice(0,5).map(a=>`<div class="alert alert-${a.type==='red'?'red':'amber'}"><span>${a.type==='red'?'🚨':'⚠️'}</span><div>${a.msg}</div></div>`).join('');
+
+  document.getElementById('home-workers').innerHTML=STATE.workers.length===0?'<div style="color:var(--ink3);font-size:13px">作業員が登録されていません</div>':
+    STATE.workers.slice(0,5).map(w=>`
+    <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border)">
+      <span>${COUNTRY_FLAG[w.country]||'🌏'}</span>
+      <span style="flex:1;font-size:13px;font-weight:600">${w.name}</span>
+      <span class="badge badge-brown">${w.job}</span>
+    </div>`).join('');
+
+  const docsEl=document.getElementById('home-docs');
+  const incomplete=STATE.workers.filter(w=>getWorkerDocRate(w.id).pct<100);
+  docsEl.innerHTML=incomplete.length===0?'<div style="color:var(--green);font-size:13px">全員書類提出完了 ✅</div>':
+    incomplete.map(w=>{
+      const {done,total}=getWorkerDocRate(w.id);
+      return `<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border)">
+        <span style="flex:1;font-size:13px">${w.name}</span>
+        <span class="badge badge-ng">${done}/${total}</span>
+        <button class="btn btn-sm" onclick="showPage('pg-docs')">確認</button>
+      </div>`;
+    }).join('');
+}
+
+loadState();
+const initNow=new Date();
+document.getElementById('home-date').textContent=`${initNow.getFullYear()}年${initNow.getMonth()+1}月${initNow.getDate()}日（${['日','月','火','水','木','金','土'][initNow.getDay()]}）`;
+renderHome();
+</script>
+</body>
+</html>
