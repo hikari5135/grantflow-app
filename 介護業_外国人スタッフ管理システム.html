@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>介護業 外国人スタッフ管理システム｜GrantFlow</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#1a1a18;--ink2:#3a3a36;--ink3:#7a7a72;
+  --bg:#f2f1ec;--surface:#fff;--surface2:#f8f7f2;
+  --border:#e2e1d8;--border2:#c8c7be;
+  --green:#1a7a4a;--green-l:#e8f5ee;--green-m:#b8e0ca;
+  --red:#c0392b;--red-l:#fdecea;--red-m:#f5b7b1;
+  --amber:#c47a00;--amber-l:#fff8e6;--amber-m:#ffd97a;
+  --blue:#1a5fa8;--blue-l:#e8f0fb;--blue-m:#a8c4ef;
+  --rose:#9d174d;--rose-l:#fce7f3;--rose-m:#fbcfe8;
+  --r:10px;--r2:16px;
+  --shadow:0 2px 8px rgba(0,0,0,.06);
+  --shadow2:0 8px 24px rgba(0,0,0,.10);
+}
+body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;font-size:14px;line-height:1.6;}
+.layout{display:flex;min-height:100vh;}
+.sidebar{width:240px;background:var(--ink);color:#fff;position:fixed;top:0;left:0;bottom:0;display:flex;flex-direction:column;z-index:100;}
+.sidebar-logo{padding:20px 18px;border-bottom:1px solid rgba(255,255,255,.1);}
+.logo-name{font-size:13px;font-weight:700;line-height:1.4;}
+.logo-sub{font-size:10px;color:rgba(255,255,255,.45);margin-top:2px;}
+.logo-badge{display:inline-block;margin-top:6px;font-size:9px;font-weight:700;background:var(--rose);color:#fff;padding:2px 8px;border-radius:4px;font-family:'DM Mono',monospace;}
+.nav-section{padding:12px 0 4px;}
+.nav-label{font-size:9px;font-weight:700;letter-spacing:.1em;color:rgba(255,255,255,.3);padding:0 18px;margin-bottom:4px;text-transform:uppercase;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 18px;font-size:13px;font-weight:500;color:rgba(255,255,255,.6);cursor:pointer;border-left:3px solid transparent;transition:all .15s;}
+.nav-item:hover{color:#fff;background:rgba(255,255,255,.06);}
+.nav-item.active{color:#fff;border-left-color:var(--rose);background:rgba(255,255,255,.08);}
+.nav-icon{font-size:16px;width:20px;text-align:center;}
+.sidebar-footer{margin-top:auto;padding:14px 18px;border-top:1px solid rgba(255,255,255,.1);}
+.user-row{display:flex;align-items:center;gap:8px;}
+.user-av{width:28px;height:28px;border-radius:50%;background:var(--rose);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;}
+.user-name{font-size:11px;font-weight:600;}
+.user-role{font-size:10px;color:rgba(255,255,255,.4);}
+.main{margin-left:240px;flex:1;}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:12px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
+.topbar-title{font-size:16px;font-weight:700;}
+.topbar-right{display:flex;align-items:center;gap:10px;}
+.page{display:none;padding:24px;}
+.page.active{display:block;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:20px;margin-bottom:14px;box-shadow:var(--shadow);}
+.card-title{font-size:14px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.section-title{font-size:18px;font-weight:700;}
+.section-sub{font-size:13px;color:var(--ink3);margin-top:2px;}
+.badge{display:inline-flex;align-items:center;padding:2px 10px;border-radius:6px;font-size:11px;font-weight:700;}
+.badge-ok{background:var(--green-l);color:var(--green);}
+.badge-ng{background:var(--red-l);color:var(--red);}
+.badge-warn{background:var(--amber-l);color:var(--amber);}
+.badge-info{background:var(--blue-l);color:var(--blue);}
+.badge-rose{background:var(--rose-l);color:var(--rose);}
+.badge-gray{background:var(--surface2);color:var(--ink3);border:1px solid var(--border);}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:9px 18px;border:1.5px solid var(--border2);border-radius:var(--r);font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;transition:all .15s;background:var(--surface);color:var(--ink);}
+.btn:hover{background:var(--surface2);}
+.btn-rose{background:var(--rose);border-color:var(--rose);color:#fff;}
+.btn-rose:hover{background:#7c1240;}
+.btn-green{background:var(--green);border-color:var(--green);color:#fff;}
+.btn-red{background:var(--red);border-color:var(--red);color:#fff;}
+.btn-sm{padding:5px 12px;font-size:12px;}
+.btn-full{width:100%;}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;}
+.fg{display:flex;flex-direction:column;gap:4px;margin-bottom:12px;}
+.fg label{font-size:11px;font-weight:700;color:var(--ink3);}
+.fg input,.fg select,.fg textarea{width:100%;padding:9px 12px;border:1.5px solid var(--border2);border-radius:var(--r);font-size:13px;font-family:inherit;color:var(--ink);background:var(--surface);outline:none;transition:border .15s;}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--rose);}
+.fg textarea{resize:vertical;min-height:70px;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:14px 16px;box-shadow:var(--shadow);}
+.stat-label{font-size:11px;color:var(--ink3);margin-bottom:4px;}
+.stat-val{font-size:26px;font-weight:700;line-height:1.1;}
+.stat-sub{font-size:11px;color:var(--ink3);margin-top:2px;}
+.alert{display:flex;gap:10px;padding:12px 14px;border-radius:var(--r);font-size:13px;margin-bottom:8px;border:1px solid;}
+.alert-red{background:var(--red-l);border-color:var(--red-m);color:var(--red);}
+.alert-amber{background:var(--amber-l);border-color:var(--amber-m);color:var(--amber);}
+.alert-green{background:var(--green-l);border-color:var(--green-m);color:var(--green);}
+.alert-blue{background:var(--blue-l);border-color:var(--blue-m);color:var(--blue);}
+.progress-wrap{background:var(--surface2);border-radius:99px;height:6px;overflow:hidden;margin:4px 0;}
+.progress-fill{height:100%;border-radius:99px;background:var(--rose);transition:width .4s;}
+.progress-fill.done{background:var(--green);}
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;align-items:center;justify-content:center;padding:16px;}
+.modal-bg.open{display:flex;}
+.modal-box{background:var(--surface);border-radius:var(--r2);padding:24px;width:min(680px,100%);max-height:90vh;overflow-y:auto;box-shadow:var(--shadow2);}
+.modal-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;}
+.modal-title{font-size:16px;font-weight:700;}
+.modal-close{font-size:20px;cursor:pointer;color:var(--ink3);background:none;border:none;}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 20px;border-radius:var(--r);font-size:13px;font-weight:600;opacity:0;transition:opacity .3s;pointer-events:none;z-index:999;white-space:nowrap;}
+.toast.show{opacity:1;}
+@media(max-width:768px){.sidebar{transform:translateX(-100%);}.main{margin-left:0;}.stat-grid{grid-template-columns:1fr 1fr;}.grid2{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<div class="layout">
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-name">介護業<br>外国人スタッフ管理</div>
+    <div class="logo-sub">GrantFlow ⑰</div>
+    <div class="logo-badge">v1.0</div>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">メニュー</div>
+    <div class="nav-item active" onclick="showPage('pg-home')"><span class="nav-icon">🏠</span>ダッシュボード</div>
+    <div class="nav-item" onclick="showPage('pg-staff')"><span class="nav-icon">👩‍⚕️</span>スタッフ管理</div>
+    <div class="nav-item" onclick="showPage('pg-license')"><span class="nav-icon">🎓</span>資格・研修管理</div>
+    <div class="nav-item" onclick="showPage('pg-training')"><span class="nav-icon">📚</span>OJT記録</div>
+    <div class="nav-item" onclick="showPage('pg-shift')"><span class="nav-icon">📅</span>夜勤・シフト管理</div>
+    <div class="nav-item" onclick="showPage('pg-manual')"><span class="nav-icon">📖</span>多言語ケアマニュアル</div>
+  </div>
+  <div class="sidebar-footer">
+    <div class="user-row">
+      <div class="user-av">阪</div>
+      <div><div class="user-name">阪本 光</div><div class="user-role">施設管理者</div></div>
+    </div>
+  </div>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title" id="topbar-title">ダッシュボード</div>
+    <div class="topbar-right">
+      <button class="btn btn-rose btn-sm" onclick="openAddStaff()">＋ スタッフ追加</button>
+    </div>
+  </div>
+
+  <!-- HOME -->
+  <div class="page active" id="pg-home">
+    <div class="section-header">
+      <div><div class="section-title">ダッシュボード</div><div class="section-sub" id="home-date"></div></div>
+    </div>
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-label">スタッフ数</div><div class="stat-val" id="stat-staff" style="color:var(--rose)">0</div><div class="stat-sub">名</div></div>
+      <div class="stat-card"><div class="stat-label">資格期限切れ</div><div class="stat-val" id="stat-license" style="color:var(--red)">0</div><div class="stat-sub">件</div></div>
+      <div class="stat-card"><div class="stat-label">今月の夜勤</div><div class="stat-val" id="stat-night" style="color:var(--blue)">0</div><div class="stat-sub">回</div></div>
+      <div class="stat-card"><div class="stat-label">OJT完了率</div><div class="stat-val" id="stat-ojt" style="color:var(--green)">—</div><div class="stat-sub">%</div></div>
+    </div>
+    <div class="card"><div class="card-title">🚨 要対応アラート</div><div id="home-alerts"></div></div>
+    <div class="grid2">
+      <div class="card"><div class="card-title">👩‍⚕️ スタッフ一覧</div><div id="home-staff"></div></div>
+      <div class="card"><div class="card-title">🎓 期限が近い資格・研修</div><div id="home-licenses"></div></div>
+    </div>
+  </div>
+
+  <!-- STAFF -->
+  <div class="page" id="pg-staff">
+    <div class="section-header">
+      <div><div class="section-title">👩‍⚕️ スタッフ管理</div><div class="section-sub">外国人介護スタッフの情報を管理します</div></div>
+      <button class="btn btn-rose" onclick="openAddStaff()">＋ スタッフ追加</button>
+    </div>
+    <div id="staff-list"></div>
+  </div>
+
+  <!-- LICENSE -->
+  <div class="page" id="pg-license">
+    <div class="section-header">
+      <div><div class="section-title">🎓 資格・研修管理</div><div class="section-sub">介護関連の資格・研修の取得状況を管理します</div></div>
+      <button class="btn btn-rose" onclick="openAddLicense()">＋ 資格・研修を追加</button>
+    </div>
+    <div class="alert alert-blue" style="margin-bottom:14px">
+      <span>ℹ️</span><div>特定技能（介護）は<strong>介護福祉士実務者研修の修了</strong>が必要です。技能実習から特定技能への移行時も資格確認が必須です。</div>
+    </div>
+    <div id="license-list"></div>
+  </div>
+
+  <!-- TRAINING -->
+  <div class="page" id="pg-training">
+    <div class="section-header">
+      <div><div class="section-title">📚 OJT記録</div><div class="section-sub">職場内訓練の実施記録を管理します</div></div>
+      <button class="btn btn-rose" onclick="openAddTraining()">＋ OJT記録を追加</button>
+    </div>
+    <div id="training-list"></div>
+  </div>
+
+  <!-- SHIFT -->
+  <div class="page" id="pg-shift">
+    <div class="section-header">
+      <div><div class="section-title">📅 夜勤・シフト管理</div><div class="section-sub">夜勤・早出・遅出のシフトを管理します</div></div>
+      <button class="btn btn-rose" onclick="openAddShift()">＋ シフト追加</button>
+    </div>
+    <div class="alert alert-amber" style="margin-bottom:14px">
+      <span>⚠️</span><div>夜勤は<strong>月8回以内</strong>が目安です。外国人スタッフへの過度な夜勤集中は早期離職の原因になります。</div>
+    </div>
+    <div id="shift-list"></div>
+  </div>
+
+  <!-- MANUAL -->
+  <div class="page" id="pg-manual">
+    <div class="section-header">
+      <div><div class="section-title">📖 多言語ケアマニュアル</div><div class="section-sub">介護業務の基本手順を多言語で確認できます</div></div>
+    </div>
+    <div id="manual-list"></div>
+  </div>
+</div>
+</div>
+
+<!-- MODAL: スタッフ追加 -->
+<div class="modal-bg" id="modal-staff">
+  <div class="modal-box">
+    <div class="modal-top">
+      <div class="modal-title">👩‍⚕️ スタッフ追加</div>
+      <button class="modal-close" onclick="closeModal('modal-staff')">✕</button>
+    </div>
+    <div class="grid2">
+      <div class="fg"><label>氏名★</label><input type="text" id="s-name" placeholder="例：Nguyen Thi Lan"></div>
+      <div class="fg"><label>国籍</label>
+        <select id="s-country"><option>ベトナム</option><option>中国</option><option>フィリピン</option><option>インドネシア</option><option>ミャンマー</option><option>ネパール</option><option>その他</option></select>
+      </div>
+      <div class="fg"><label>在留資格</label>
+        <select id="s-visa"><option>特定技能1号（介護）</option><option>技能実習1号（介護）</option><option>技能実習2号（介護）</option><option>技能実習3号（介護）</option><option>介護（在留資格）</option><option>永住者</option><option>その他</option></select>
+      </div>
+      <div class="fg"><label>在留期限</label><input type="date" id="s-visa-exp"></div>
+      <div class="fg"><label>配属ユニット・フロア</label><input type="text" id="s-unit" placeholder="例：1階 認知症ユニット"></div>
+      <div class="fg"><label>雇用形態</label>
+        <select id="s-type"><option>正社員</option><option>パート</option><option>夜勤専従</option></select>
+      </div>
+      <div class="fg"><label>入社日</label><input type="date" id="s-hire"></div>
+      <div class="fg"><label>日本語レベル</label>
+        <select id="s-jlevel"><option>N4相当</option><option>N3相当</option><option>N2相当</option><option>N1相当</option><option>日常会話程度</option></select>
+      </div>
+      <div class="fg"><label>緊急連絡先</label><input type="text" id="s-emergency" placeholder="090-xxxx-xxxx"></div>
+      <div class="fg"><label>母国語</label>
+        <select id="s-lang"><option value="vi">ベトナム語</option><option value="zh">中国語</option><option value="tl">タガログ語</option><option value="id">インドネシア語</option><option value="my">ミャンマー語</option><option value="ne">ネパール語</option></select>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-rose" onclick="saveStaff()">💾 保存する</button>
+      <button class="btn" onclick="closeModal('modal-staff')">キャンセル</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: 資格・研修 -->
+<div class="modal-bg" id="modal-license">
+  <div class="modal-box">
+    <div class="modal-top">
+      <div class="modal-title">🎓 資格・研修追加</div>
+      <button class="modal-close" onclick="closeModal('modal-license')">✕</button>
+    </div>
+    <div class="grid2">
+      <div class="fg"><label>スタッフ★</label><select id="l-staff"></select></div>
+      <div class="fg"><label>資格・研修の種類★</label>
+        <select id="l-type">
+          <option>介護職員初任者研修</option>
+          <option>介護職員実務者研修</option>
+          <option>介護福祉士（国家資格）</option>
+          <option>認知症介護基礎研修</option>
+          <option>認知症介護実践者研修</option>
+          <option>喀痰吸引等研修（第3号）</option>
+          <option>感染症・食中毒予防研修</option>
+          <option>虐待防止研修</option>
+          <option>身体拘束廃止研修</option>
+          <option>救急・AED研修</option>
+          <option>日本語研修</option>
+          <option>その他研修</option>
+        </select>
+      </div>
+      <div class="fg"><label>取得・修了日</label><input type="date" id="l-get"></div>
+      <div class="fg"><label>有効期限・次回更新日</label><input type="date" id="l-exp"></div>
+      <div class="fg"><label>実施機関</label><input type="text" id="l-org" placeholder="例：〇〇介護研修センター"></div>
+      <div class="fg"><label>登録番号</label><input type="text" id="l-no" placeholder="例：第12345号"></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-rose" onclick="saveLicense()">💾 保存する</button>
+      <button class="btn" onclick="closeModal('modal-license')">キャンセル</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: OJT -->
+<div class="modal-bg" id="modal-training">
+  <div class="modal-box">
+    <div class="modal-top">
+      <div class="modal-title">📚 OJT記録追加</div>
+      <button class="modal-close" onclick="closeModal('modal-training')">✕</button>
+    </div>
+    <div class="grid2">
+      <div class="fg"><label>スタッフ★</label><select id="t-staff"></select></div>
+      <div class="fg"><label>実施日★</label><input type="date" id="t-date"></div>
+      <div class="fg"><label>訓練内容★</label>
+        <select id="t-type">
+          <option>移乗介助（ベッド↔車椅子）</option>
+          <option>移動介助・歩行訓練補助</option>
+          <option>食事介助</option>
+          <option>口腔ケア</option>
+          <option>入浴介助</option>
+          <option>排泄介助</option>
+          <option>更衣介助</option>
+          <option>認知症ケア対応</option>
+          <option>緊急時対応・急変対応</option>
+          <option>記録・申し送り</option>
+          <option>医療連携・報告</option>
+          <option>その他</option>
+        </select>
+      </div>
+      <div class="fg"><label>指導者</label><input type="text" id="t-trainer" placeholder="例：田中 花子（介護主任）"></div>
+      <div class="fg"><label>実施時間</label><input type="text" id="t-hours" placeholder="例：2時間"></div>
+      <div class="fg"><label>習熟度</label>
+        <select id="t-level"><option value="1">1：要指導（まだ一人でできない）</option><option value="2">2：見守り（確認しながらできる）</option><option value="3">3：自立（一人でできる）</option></select>
+      </div>
+    </div>
+    <div class="fg"><label>指導内容・評価コメント</label><textarea id="t-memo" placeholder="指導した内容・スタッフの理解度・次回への課題など"></textarea></div>
+    <div class="btn-row">
+      <button class="btn btn-rose" onclick="saveTraining()">💾 保存する</button>
+      <button class="btn" onclick="closeModal('modal-training')">キャンセル</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: シフト -->
+<div class="modal-bg" id="modal-shift">
+  <div class="modal-box">
+    <div class="modal-top">
+      <div class="modal-title">📅 シフト追加</div>
+      <button class="modal-close" onclick="closeModal('modal-shift')">✕</button>
+    </div>
+    <div class="grid2">
+      <div class="fg"><label>スタッフ★</label><select id="sh-staff"></select></div>
+      <div class="fg"><label>日付★</label><input type="date" id="sh-date"></div>
+      <div class="fg"><label>シフト区分★</label>
+        <select id="sh-type"><option value="day">日勤（9:00〜18:00）</option><option value="early">早出（7:00〜16:00）</option><option value="late">遅出（12:00〜21:00）</option><option value="night">夜勤（16:00〜翌9:00）</option><option value="other">その他</option></select>
+      </div>
+      <div class="fg"><label>配属ユニット</label><input type="text" id="sh-unit" placeholder="例：1階 認知症ユニット"></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-rose" onclick="saveShift()">💾 保存する</button>
+      <button class="btn" onclick="closeModal('modal-shift')">キャンセル</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const LANG_FLAG={vi:'🇻🇳',zh:'🇨🇳',tl:'🇵🇭',id:'🇮🇩',my:'🇲🇲',ne:'🇳🇵'};
+const LANG_NAME={vi:'ベトナム語',zh:'中国語',tl:'タガログ語',id:'インドネシア語',my:'ミャンマー語',ne:'ネパール語'};
+const SHIFT_LABEL={day:'日勤',early:'早出',late:'遅出',night:'夜勤',other:'その他'};
+const SHIFT_COLOR={day:'badge-info',early:'badge-ok',late:'badge-warn',night:'badge-rose',other:'badge-gray'};
+
+const MANUAL_DATA=[
+  {
+    title:'🙋 移乗介助の手順',
+    langs:{
+      ja:'①声かけ・本人の意思確認→②ブレーキをかける→③フットレストを上げる→④端座位になってもらう→⑤前傾姿勢で立ち上がりを補助→⑥車椅子へ誘導→⑦安全確認',
+      vi:'①Gọi hỏi-xác nhận ý muốn→②Khóa phanh→③Nâng chân đỡ→④Ngồi dậy→⑤Hỗ trợ đứng dậy→⑥Dẫn vào xe lăn→⑦Kiểm tra an toàn',
+      zh:'①打招呼・确认本人意愿→②刹车→③抬脚踏板→④端坐→⑤前倾辅助站立→⑥引导到轮椅→⑦安全确认',
+      id:'①Sapa-konfirmasi keinginan→②Kunci rem→③Angkat sandaran kaki→④Duduk tegak→⑤Bantu berdiri condong depan→⑥Pandu ke kursi roda→⑦Cek keamanan',
+    }
+  },
+  {
+    title:'🍽️ 食事介助の注意点',
+    langs:{
+      ja:'①食事前の手洗い・口腔ケア確認→②座位の確認（90度が基本）→③むせやすい方は頸部前屈→④一口量は少量ずつ→⑤嚥下確認してから次の一口→⑥食後は30分座位保持',
+      vi:'①Rửa tay-kiểm tra vệ sinh miệng→②Kiểm tra tư thế ngồi（90 độ）→③Cúi đầu nếu dễ sặc→④Ăn từng miếng nhỏ→⑤Xác nhận nuốt→⑥Ngồi 30 phút sau ăn',
+      zh:'①饭前洗手・口腔护理→②确认坐姿（90度）→③容易呛咳者低头→④每口少量→⑤确认吞咽后再喂→⑥饭后保持坐位30分钟',
+      id:'①Cuci tangan-cek kebersihan mulut→②Cek posisi duduk（90 derajat）→③Tekuk kepala jika mudah tersedak→④Suapan kecil per kali→⑤Konfirmasi menelan→⑥Duduk 30 menit setelah makan',
+    }
+  },
+  {
+    title:'🚨 急変時の対応',
+    langs:{
+      ja:'①意識・呼吸・脈拍の確認→②大声で応援を呼ぶ→③上長・看護師へ報告→④指示に従いAED・救急セットを準備→⑤必要なら119番通報→⑥記録を残す',
+      vi:'①Kiểm tra ý thức-hô hấp-mạch→②Gọi hỗ trợ to→③Báo cáo cấp trên・y tá→④Chuẩn bị AED theo hướng dẫn→⑤Gọi 119 nếu cần→⑥Ghi chép',
+      zh:'①确认意识・呼吸・脉搏→②大声呼叫帮助→③向上司・护士报告→④按指示准备AED→⑤必要时拨119→⑥做好记录',
+      id:'①Periksa kesadaran-napas-denyut→②Panggil bantuan keras→③Lapor atasan・perawat→④Siapkan AED sesuai instruksi→⑤Hubungi 119 jika perlu→⑥Catat kejadian',
+    }
+  },
+  {
+    title:'🚿 入浴介助の安全確認',
+    langs:{
+      ja:'①湯温確認（38〜40℃）→②転倒防止マットの設置確認→③水分補給の声かけ→④皮膚状態の確認（傷・発赤）→⑤浴室内での目を離さない→⑥入浴後の体調確認',
+      vi:'①Kiểm tra nhiệt độ nước（38〜40℃）→②Kiểm tra thảm chống trượt→③Nhắc uống nước→④Kiểm tra da（vết thương・đỏ）→⑤Không rời mắt→⑥Kiểm tra sức khỏe sau tắm',
+      zh:'①确认水温（38〜40℃）→②确认防滑垫→③提醒补水→④检查皮肤（伤口・发红）→⑤不离视线→⑥浴后确认状态',
+      id:'①Cek suhu air（38〜40℃）→②Cek matras anti selip→③Ingatkan minum air→④Periksa kulit（luka・kemerahan）→⑤Jangan lengah→⑥Cek kondisi setelah mandi',
+    }
+  },
+];
+
+const OJT_ITEMS=[
+  '移乗介助（ベッド↔車椅子）','移動介助・歩行訓練補助','食事介助','口腔ケア',
+  '入浴介助','排泄介助','更衣介助','認知症ケア対応',
+  '緊急時対応・急変対応','記録・申し送り','医療連携・報告',
+];
+
+let STATE={staff:[],licenses:[],trainings:[],shifts:[],nextId:{staff:1,license:1,training:1,shift:1}};
+
+function loadState(){const s=localStorage.getItem('grantflow_care_v1');if(s)try{STATE=JSON.parse(s);}catch(e){}}
+function saveState(){localStorage.setItem('grantflow_care_v1',JSON.stringify(STATE));}
+
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelector(`[onclick="showPage('${id}')"]`).classList.add('active');
+  const titles={'pg-home':'ダッシュボード','pg-staff':'スタッフ管理','pg-license':'資格・研修管理','pg-training':'OJT記録','pg-shift':'夜勤・シフト管理','pg-manual':'多言語ケアマニュアル'};
+  document.getElementById('topbar-title').textContent=titles[id]||'';
+  if(id==='pg-home') renderHome();
+  if(id==='pg-staff') renderStaffList();
+  if(id==='pg-license') renderLicenseList();
+  if(id==='pg-training') renderTrainingList();
+  if(id==='pg-shift') renderShiftList();
+  if(id==='pg-manual') renderManual();
+}
+
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+function formatDate(d){if(!d)return'—';const dt=new Date(d);return`${dt.getFullYear()}/${String(dt.getMonth()+1).padStart(2,'0')}/${String(dt.getDate()).padStart(2,'0')}`;}
+function daysUntil(d){if(!d)return null;return Math.ceil((new Date(d)-new Date())/86400000);}
+
+function updateStaffSelects(){
+  const opts=STATE.staff.map(s=>`<option value="${s.id}">${s.name}（${s.unit||'—'}）</option>`).join('');
+  ['l-staff','t-staff','sh-staff'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=opts;});
+}
+
+// STAFF
+function openAddStaff(){
+  ['s-name','s-visa-exp','s-unit','s-hire','s-emergency'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('modal-staff').classList.add('open');
+}
+
+function saveStaff(){
+  const name=document.getElementById('s-name').value.trim();
+  if(!name){showToast('氏名を入力してください');return;}
+  STATE.staff.push({
+    id:STATE.nextId.staff++,name,
+    country:document.getElementById('s-country').value,
+    visa:document.getElementById('s-visa').value,
+    visaExp:document.getElementById('s-visa-exp').value,
+    unit:document.getElementById('s-unit').value,
+    type:document.getElementById('s-type').value,
+    hire:document.getElementById('s-hire').value,
+    jlevel:document.getElementById('s-jlevel').value,
+    emergency:document.getElementById('s-emergency').value,
+    lang:document.getElementById('s-lang').value,
+  });
+  saveState();closeModal('modal-staff');showToast('✅ スタッフを追加しました');
+  renderStaffList();renderHome();
+}
+
+function renderStaffList(){
+  const el=document.getElementById('staff-list');
+  if(STATE.staff.length===0){el.innerHTML='<div class="card" style="text-align:center;color:var(--ink3);padding:32px">スタッフが登録されていません</div>';return;}
+  el.innerHTML=STATE.staff.map(s=>{
+    const licenses=STATE.licenses.filter(l=>l.staffId===s.id);
+    const trainings=STATE.trainings.filter(t=>t.staffId===s.id);
+    const ojtDone=[...new Set(trainings.map(t=>t.type))].length;
+    const ojtPct=Math.round(ojtDone/OJT_ITEMS.length*100);
+    const visaDays=daysUntil(s.visaExp);
+    const thisMonthNight=STATE.shifts.filter(sh=>{
+      const d=new Date(sh.date);const now=new Date();
+      return sh.staffId===s.id&&sh.type==='night'&&d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();
+    }).length;
+    return `
+    <div class="card" style="padding:16px 20px">
+      <div style="display:flex;align-items:flex-start;gap:14px">
+        <div style="font-size:28px">${LANG_FLAG[s.lang]||'🌏'}</div>
+        <div style="flex:1">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px">
+            <span style="font-size:15px;font-weight:700">${s.name}</span>
+            <span class="badge badge-rose">${s.visa}</span>
+            <span class="badge badge-gray">${s.type}</span>
+          </div>
+          <div style="font-size:12px;color:var(--ink3);margin-bottom:8px">
+            ${s.unit||'ユニット未設定'} | 日本語：${s.jlevel} | 在留期限：${formatDate(s.visaExp)}
+            ${visaDays!==null?`（${visaDays<0?`<span style="color:var(--red)">期限切れ</span>`:`残り${visaDays}日`}）`:''}
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+            <div class="progress-wrap" style="flex:1;margin:0"><div class="progress-fill ${ojtPct===100?'done':''}" style="width:${ojtPct}%"></div></div>
+            <span style="font-size:11px;color:var(--ink3)">OJT ${ojtDone}/${OJT_ITEMS.length}（${ojtPct}%）</span>
+          </div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            <span class="badge badge-gray">保有資格 ${licenses.length}件</span>
+            <span class="badge ${thisMonthNight>=8?'badge-ng':thisMonthNight>=6?'badge-warn':'badge-ok'}">今月夜勤 ${thisMonthNight}回</span>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0">
+          <button class="btn btn-sm btn-rose" onclick="openAddTraining();document.getElementById('t-staff').value=${s.id}">📚 OJT</button>
+          <button class="btn btn-sm" onclick="openAddLicense();document.getElementById('l-staff').value=${s.id}">🎓 資格</button>
+          <button class="btn btn-sm btn-red" onclick="deleteStaff(${s.id})">🗑️</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function deleteStaff(id){
+  if(!confirm('このスタッフを削除しますか？'))return;
+  STATE.staff=STATE.staff.filter(s=>s.id!==id);
+  STATE.licenses=STATE.licenses.filter(l=>l.staffId!==id);
+  STATE.trainings=STATE.trainings.filter(t=>t.staffId!==id);
+  STATE.shifts=STATE.shifts.filter(sh=>sh.staffId!==id);
+  saveState();renderStaffList();renderHome();showToast('削除しました');
+}
+
+// LICENSE
+function openAddLicense(){
+  updateStaffSelects();
+  if(STATE.staff.length===0){showToast('先にスタッフを登録してください');return;}
+  ['l-get','l-exp','l-org','l-no'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('modal-license').classList.add('open');
+}
+
+function saveLicense(){
+  const staffId=parseInt(document.getElementById('l-staff').value);
+  if(!staffId){showToast('スタッフを選択してください');return;}
+  STATE.licenses.push({
+    id:STATE.nextId.license++,staffId,
+    type:document.getElementById('l-type').value,
+    get:document.getElementById('l-get').value,
+    exp:document.getElementById('l-exp').value,
+    org:document.getElementById('l-org').value,
+    no:document.getElementById('l-no').value,
+  });
+  saveState();closeModal('modal-license');showToast('✅ 資格・研修を追加しました');
+  renderLicenseList();renderHome();
+}
+
+function renderLicenseList(){
+  const el=document.getElementById('license-list');
+  if(STATE.licenses.length===0){el.innerHTML='<div class="card" style="text-align:center;color:var(--ink3);padding:32px">資格・研修が登録されていません</div>';return;}
+  el.innerHTML=STATE.licenses.sort((a,b)=>{
+    const da=daysUntil(a.exp),db=daysUntil(b.exp);
+    if(da===null)return 1;if(db===null)return -1;return da-db;
+  }).map(l=>{
+    const s=STATE.staff.find(x=>x.id===l.staffId);
+    const days=daysUntil(l.exp);
+    const badge=!l.exp?'<span class="badge badge-ok">期限なし</span>':
+      days<0?`<span class="badge badge-ng">期限切れ（${Math.abs(days)}日）</span>`:
+      days<=30?`<span class="badge badge-warn">残り${days}日</span>`:
+      `<span class="badge badge-ok">残り${days}日</span>`;
+    return `
+    <div class="card" style="padding:14px 18px;border-left:4px solid ${!l.exp?'var(--green)':days<0?'var(--red)':days<=30?'var(--amber)':'var(--green)'}">
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:700;margin-bottom:3px">${l.type}</div>
+          <div style="font-size:12px;color:var(--ink3)">👩‍⚕️ ${s?.name||'不明'} | 取得：${formatDate(l.get)} | 期限：${formatDate(l.exp)||'なし'} | ${l.org||'—'}</div>
+        </div>
+        ${badge}
+        <button class="btn btn-sm btn-red" onclick="deleteLicense(${l.id})">🗑️</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function deleteLicense(id){
+  if(!confirm('この資格を削除しますか？'))return;
+  STATE.licenses=STATE.licenses.filter(l=>l.id!==id);
+  saveState();renderLicenseList();renderHome();showToast('削除しました');
+}
+
+// TRAINING
+function openAddTraining(){
+  updateStaffSelects();
+  if(STATE.staff.length===0){showToast('先にスタッフを登録してください');return;}
+  document.getElementById('t-date').value=new Date().toISOString().split('T')[0];
+  ['t-trainer','t-hours','t-memo'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('modal-training').classList.add('open');
+}
+
+function saveTraining(){
+  const staffId=parseInt(document.getElementById('t-staff').value);
+  const date=document.getElementById('t-date').value;
+  if(!date){showToast('実施日を入力してください');return;}
+  STATE.trainings.push({
+    id:STATE.nextId.training++,staffId,date,
+    type:document.getElementById('t-type').value,
+    trainer:document.getElementById('t-trainer').value,
+    hours:document.getElementById('t-hours').value,
+    level:document.getElementById('t-level').value,
+    memo:document.getElementById('t-memo').value,
+  });
+  saveState();closeModal('modal-training');showToast('✅ OJT記録を保存しました');
+  renderTrainingList();renderHome();
+}
+
+function renderTrainingList(){
+  const el=document.getElementById('training-list');
+  if(STATE.staff.length===0){el.innerHTML='<div class="card" style="text-align:center;color:var(--ink3);padding:32px">スタッフが登録されていません</div>';return;}
+  el.innerHTML=STATE.staff.map(s=>{
+    const trainings=STATE.trainings.filter(t=>t.staffId===s.id);
+    const done=[...new Set(trainings.map(t=>t.type))];
+    const pct=Math.round(done.length/OJT_ITEMS.length*100);
+    return `
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div>
+          <div style="font-size:14px;font-weight:700">${s.name} <span class="badge badge-gray">${s.unit||'—'}</span></div>
+        </div>
+        <span class="badge ${pct===100?'badge-ok':pct>=50?'badge-warn':'badge-ng'}">${pct}% 完了</span>
+      </div>
+      <div class="progress-wrap"><div class="progress-fill ${pct===100?'done':''}" style="width:${pct}%"></div></div>
+      <div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:6px">
+        ${OJT_ITEMS.map(item=>{
+          const rec=trainings.filter(t=>t.type===item).sort((a,b)=>new Date(b.date)-new Date(a.date))[0];
+          const levelColor=rec?rec.level==='3'?'badge-ok':rec.level==='2'?'badge-warn':'badge-ng':'badge-gray';
+          const levelLabel=rec?rec.level==='3'?'自立':rec.level==='2'?'見守り':'要指導':'未実施';
+          return `<span class="badge ${levelColor}" style="font-size:10px;cursor:pointer" title="${item}">${item.slice(0,8)}…${levelLabel}</span>`;
+        }).join('')}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// SHIFT
+function openAddShift(){
+  updateStaffSelects();
+  if(STATE.staff.length===0){showToast('先にスタッフを登録してください');return;}
+  document.getElementById('sh-date').value=new Date().toISOString().split('T')[0];
+  document.getElementById('sh-unit').value='';
+  document.getElementById('modal-shift').classList.add('open');
+}
+
+function saveShift(){
+  const staffId=parseInt(document.getElementById('sh-staff').value);
+  const date=document.getElementById('sh-date').value;
+  if(!date){showToast('日付を入力してください');return;}
+  STATE.shifts.push({
+    id:STATE.nextId.shift++,staffId,date,
+    type:document.getElementById('sh-type').value,
+    unit:document.getElementById('sh-unit').value,
+  });
+  saveState();closeModal('modal-shift');showToast('✅ シフトを追加しました');
+  renderShiftList();renderHome();
+}
+
+function renderShiftList(){
+  const el=document.getElementById('shift-list');
+  const now=new Date();
+  const thisMonth=STATE.shifts.filter(sh=>{
+    const d=new Date(sh.date);return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();
+  }).sort((a,b)=>new Date(a.date)-new Date(b.date));
+  if(thisMonth.length===0){el.innerHTML='<div class="card" style="text-align:center;color:var(--ink3);padding:32px">今月のシフトがありません</div>';return;}
+
+  // 夜勤回数集計
+  const nightCount={};
+  STATE.staff.forEach(s=>{
+    nightCount[s.id]=STATE.shifts.filter(sh=>{
+      const d=new Date(sh.date);
+      return sh.staffId===s.id&&sh.type==='night'&&d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();
+    }).length;
+  });
+
+  el.innerHTML=`
+    <div class="card">
+      <div class="card-title">🌙 今月の夜勤回数</div>
+      ${STATE.staff.map(s=>`
+        <div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border)">
+          <span style="font-size:16px">${LANG_FLAG[s.lang]||'🌏'}</span>
+          <span style="flex:1;font-size:13px">${s.name}</span>
+          <span class="badge ${nightCount[s.id]>=8?'badge-ng':nightCount[s.id]>=6?'badge-warn':'badge-ok'}">${nightCount[s.id]}回</span>
+        </div>`).join('')}
+    </div>
+    <div class="card">
+      <div class="card-title">📅 今月のシフト一覧</div>
+      ${thisMonth.map(sh=>{
+        const s=STATE.staff.find(x=>x.id===sh.staffId);
+        return `
+        <div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border)">
+          <span style="font-size:12px;color:var(--ink3);width:80px;flex-shrink:0">${formatDate(sh.date)}</span>
+          <span style="font-size:16px">${LANG_FLAG[s?.lang]||'🌏'}</span>
+          <span style="flex:1;font-size:13px;font-weight:600">${s?.name||'—'}</span>
+          <span class="badge ${SHIFT_COLOR[sh.type]||'badge-gray'}">${SHIFT_LABEL[sh.type]||sh.type}</span>
+          <button class="btn btn-sm btn-red" onclick="deleteShift(${sh.id})">🗑️</button>
+        </div>`;
+      }).join('')}
+    </div>`;
+}
+
+function deleteShift(id){
+  if(!confirm('このシフトを削除しますか？'))return;
+  STATE.shifts=STATE.shifts.filter(s=>s.id!==id);
+  saveState();renderShiftList();renderHome();showToast('削除しました');
+}
+
+// MANUAL
+function renderManual(){
+  const el=document.getElementById('manual-list');
+  const langs=[
+    {code:'ja',flag:'🇯🇵',name:'日本語'},
+    {code:'vi',flag:'🇻🇳',name:'ベトナム語'},
+    {code:'zh',flag:'🇨🇳',name:'中国語'},
+    {code:'id',flag:'🇮🇩',name:'インドネシア語'},
+  ];
+  el.innerHTML=MANUAL_DATA.map(m=>`
+    <div class="card">
+      <div class="card-title">${m.title}</div>
+      ${langs.map(l=>m.langs[l.code]?`
+        <div style="display:flex;gap:10px;margin-bottom:8px;padding:8px;background:var(--surface2);border-radius:var(--r)">
+          <span style="font-size:16px;flex-shrink:0">${l.flag}</span>
+          <div style="font-size:12px;line-height:1.7"><strong>${l.name}</strong><br>${m.langs[l.code]}</div>
+        </div>`:'').join('')}
+    </div>`).join('');
+}
+
+// HOME
+function renderHome(){
+  const now=new Date();
+  document.getElementById('home-date').textContent=`${now.getFullYear()}年${now.getMonth()+1}月${now.getDate()}日（${['日','月','火','水','木','金','土'][now.getDay()]}）`;
+
+  let licExpired=0;
+  const alerts=[];
+  const thisMonthNightAll=STATE.shifts.filter(sh=>{
+    const d=new Date(sh.date);return sh.type==='night'&&d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();
+  });
+
+  STATE.staff.forEach(s=>{
+    const visaDays=daysUntil(s.visaExp);
+    if(visaDays!==null&&visaDays<0)alerts.push({type:'red',msg:`【在留期限切れ】${s.name}`});
+    else if(visaDays!==null&&visaDays<=30)alerts.push({type:'amber',msg:`【在留期限間近】${s.name}（残り${visaDays}日）`});
+    const nightCount=STATE.shifts.filter(sh=>{
+      const d=new Date(sh.date);
+      return sh.staffId===s.id&&sh.type==='night'&&d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();
+    }).length;
+    if(nightCount>=8)alerts.push({type:'red',msg:`【夜勤過多】${s.name}（今月${nightCount}回）`});
+  });
+
+  STATE.licenses.forEach(l=>{
+    const days=daysUntil(l.exp);
+    const s=STATE.staff.find(x=>x.id===l.staffId);
+    if(days!==null&&days<0){licExpired++;alerts.push({type:'red',msg:`【資格期限切れ】${s?.name||'—'}／${l.type}`});}
+    else if(days!==null&&days<=30)alerts.push({type:'amber',msg:`【資格期限間近】${s?.name||'—'}／${l.type}（残り${days}日）`});
+  });
+
+  const totalOJT=STATE.staff.reduce((s,staff)=>{
+    return s+[...new Set(STATE.trainings.filter(t=>t.staffId===staff.id).map(t=>t.type))].length;
+  },0);
+  const maxOJT=STATE.staff.length*OJT_ITEMS.length;
+
+  document.getElementById('stat-staff').textContent=STATE.staff.length;
+  document.getElementById('stat-license').textContent=licExpired;
+  document.getElementById('stat-night').textContent=thisMonthNightAll.length;
+  document.getElementById('stat-ojt').textContent=maxOJT>0?Math.round(totalOJT/maxOJT*100):'—';
+
+  const alertEl=document.getElementById('home-alerts');
+  alertEl.innerHTML=alerts.length===0?'<div class="alert alert-green"><span>✅</span><div>要対応アラートはありません</div></div>':
+    alerts.slice(0,5).map(a=>`<div class="alert alert-${a.type==='red'?'red':'amber'}"><span>${a.type==='red'?'🚨':'⚠️'}</span><div>${a.msg}</div></div>`).join('');
+
+  document.getElementById('home-staff').innerHTML=STATE.staff.length===0?'<div style="color:var(--ink3);font-size:13px">スタッフが登録されていません</div>':
+    STATE.staff.slice(0,5).map(s=>`
+    <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border)">
+      <span>${LANG_FLAG[s.lang]||'🌏'}</span>
+      <span style="flex:1;font-size:13px;font-weight:600">${s.name}</span>
+      <span class="badge badge-rose">${s.visa.slice(0,8)}</span>
+    </div>`).join('');
+
+  const expiring=STATE.licenses.filter(l=>{const d=daysUntil(l.exp);return d!==null&&d>=0&&d<=60;}).sort((a,b)=>daysUntil(a.exp)-daysUntil(b.exp));
+  document.getElementById('home-licenses').innerHTML=expiring.length===0?'<div style="color:var(--ink3);font-size:13px">期限が近い資格・研修はありません</div>':
+    expiring.slice(0,5).map(l=>{
+      const s=STATE.staff.find(x=>x.id===l.staffId);
+      const days=daysUntil(l.exp);
+      return `<div style="font-size:12px;padding:6px 0;border-bottom:1px solid var(--border);display:flex;gap:8px;align-items:center">
+        <span style="flex:1">${s?.name||'—'} / ${l.type.slice(0,12)}</span>
+        <span class="badge ${days<=30?'badge-warn':'badge-info'}">残り${days}日</span>
+      </div>`;
+    }).join('');
+}
+
+loadState();
+const initNow=new Date();
+document.getElementById('home-date').textContent=`${initNow.getFullYear()}年${initNow.getMonth()+1}月${initNow.getDate()}日（${['日','月','火','水','木','金','土'][initNow.getDay()]}）`;
+renderHome();
+</script>
+</body>
+</html>
