@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>飲食・宿泊業 衛生管理・シフト管理システム｜GrantFlow</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#1a1a18;--ink2:#3a3a36;--ink3:#7a7a72;
+  --bg:#f2f1ec;--surface:#fff;--surface2:#f8f7f2;
+  --border:#e2e1d8;--border2:#c8c7be;
+  --green:#1a7a4a;--green-l:#e8f5ee;--green-m:#b8e0ca;
+  --red:#c0392b;--red-l:#fdecea;--red-m:#f5b7b1;
+  --amber:#c47a00;--amber-l:#fff8e6;--amber-m:#ffd97a;
+  --blue:#1a5fa8;--blue-l:#e8f0fb;--blue-m:#a8c4ef;
+  --teal:#0d7a6a;--teal-l:#e6f5f2;--teal-m:#a8ddd6;
+  --r:10px;--r2:16px;
+  --shadow:0 2px 8px rgba(0,0,0,.06);
+  --shadow2:0 8px 24px rgba(0,0,0,.10);
+}
+body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;font-size:14px;line-height:1.6;}
+.layout{display:flex;min-height:100vh;}
+.sidebar{width:240px;background:var(--ink);color:#fff;position:fixed;top:0;left:0;bottom:0;display:flex;flex-direction:column;z-index:100;}
+.sidebar-logo{padding:20px 18px;border-bottom:1px solid rgba(255,255,255,.1);}
+.logo-name{font-size:13px;font-weight:700;line-height:1.4;}
+.logo-sub{font-size:10px;color:rgba(255,255,255,.45);margin-top:2px;}
+.logo-badge{display:inline-block;margin-top:6px;font-size:9px;font-weight:700;background:var(--teal);color:#fff;padding:2px 8px;border-radius:4px;font-family:'DM Mono',monospace;}
+.nav-section{padding:12px 0 4px;}
+.nav-label{font-size:9px;font-weight:700;letter-spacing:.1em;color:rgba(255,255,255,.3);padding:0 18px;margin-bottom:4px;text-transform:uppercase;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 18px;font-size:13px;font-weight:500;color:rgba(255,255,255,.6);cursor:pointer;border-left:3px solid transparent;transition:all .15s;}
+.nav-item:hover{color:#fff;background:rgba(255,255,255,.06);}
+.nav-item.active{color:#fff;border-left-color:var(--teal);background:rgba(255,255,255,.08);}
+.nav-icon{font-size:16px;width:20px;text-align:center;}
+.sidebar-footer{margin-top:auto;padding:14px 18px;border-top:1px solid rgba(255,255,255,.1);}
+.user-row{display:flex;align-items:center;gap:8px;}
+.user-av{width:28px;height:28px;border-radius:50%;background:var(--teal);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;}
+.user-name{font-size:11px;font-weight:600;}
+.user-role{font-size:10px;color:rgba(255,255,255,.4);}
+.main{margin-left:240px;flex:1;}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:12px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
+.topbar-title{font-size:16px;font-weight:700;}
+.topbar-right{display:flex;align-items:center;gap:10px;}
+.page{display:none;padding:24px;}
+.page.active{display:block;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:20px;margin-bottom:14px;box-shadow:var(--shadow);}
+.card-title{font-size:14px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.section-title{font-size:18px;font-weight:700;}
+.section-sub{font-size:13px;color:var(--ink3);margin-top:2px;}
+.badge{display:inline-flex;align-items:center;padding:2px 10px;border-radius:6px;font-size:11px;font-weight:700;}
+.badge-ok{background:var(--green-l);color:var(--green);}
+.badge-ng{background:var(--red-l);color:var(--red);}
+.badge-warn{background:var(--amber-l);color:var(--amber);}
+.badge-info{background:var(--blue-l);color:var(--blue);}
+.badge-teal{background:var(--teal-l);color:var(--teal);}
+.badge-gray{background:var(--surface2);color:var(--ink3);border:1px solid var(--border);}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:9px 18px;border:1.5px solid var(--border2);border-radius:var(--r);font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;transition:all .15s;background:var(--surface);color:var(--ink);}
+.btn:hover{background:var(--surface2);}
+.btn-teal{background:var(--teal);border-color:var(--teal);color:#fff;}
+.btn-teal:hover{background:#0a5c4f;}
+.btn-green{background:var(--green);border-color:var(--green);color:#fff;}
+.btn-red{background:var(--red);border-color:var(--red);color:#fff;}
+.btn-sm{padding:5px 12px;font-size:12px;}
+.btn-full{width:100%;}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;}
+.fg{display:flex;flex-direction:column;gap:4px;margin-bottom:12px;}
+.fg label{font-size:11px;font-weight:700;color:var(--ink3);}
+.fg input,.fg select,.fg textarea{width:100%;padding:9px 12px;border:1.5px solid var(--border2);border-radius:var(--r);font-size:13px;font-family:inherit;color:var(--ink);background:var(--surface);outline:none;transition:border .15s;}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--teal);}
+.fg textarea{resize:vertical;min-height:70px;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:14px 16px;box-shadow:var(--shadow);}
+.stat-label{font-size:11px;color:var(--ink3);margin-bottom:4px;}
+.stat-val{font-size:26px;font-weight:700;line-height:1.1;}
+.stat-sub{font-size:11px;color:var(--ink3);margin-top:2px;}
+.alert{display:flex;gap:10px;padding:12px 14px;border-radius:var(--r);font-size:13px;margin-bottom:8px;border:1px solid;}
+.alert-red{background:var(--red-l);border-color:var(--red-m);color:var(--red);}
+.alert-amber{background:var(--amber-l);border-color:var(--amber-m);color:var(--amber);}
+.alert-green{background:var(--green-l);border-color:var(--green-m);color:var(--green);}
+.alert-blue{background:var(--blue-l);border-color:var(--blue-m);color:var(--blue);}
+.check-item{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border);}
+.check-item:last-child{border-bottom:none;}
+.check-box{width:20px;height:20px;border-radius:5px;border:2px solid var(--border2);flex-shrink:0;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;}
+.check-box.checked{background:var(--green);border-color:var(--green);}
+.shift-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:14px;}
+.shift-day{text-align:center;padding:8px 4px;border-radius:var(--r);background:var(--surface2);border:1px solid var(--border);}
+.shift-day.today{background:var(--teal-l);border-color:var(--teal-m);}
+.shift-day-label{font-size:10px;color:var(--ink3);margin-bottom:2px;}
+.shift-day-num{font-size:13px;font-weight:700;}
+.lang-row{display:flex;gap:8px;margin-bottom:8px;padding:8px;background:var(--surface2);border-radius:var(--r);}
+.lang-flag{font-size:16px;flex-shrink:0;}
+.lang-text{font-size:12px;flex:1;line-height:1.6;}
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;align-items:center;justify-content:center;padding:16px;}
+.modal-bg.open{display:flex;}
+.modal-box{background:var(--surface);border-radius:var(--r2);padding:24px;width:min(680px,100%);max-height:90vh;overflow-y:auto;box-shadow:var(--shadow2);}
+.modal-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;}
+.modal-title{font-size:16px;font-weight:700;}
+.modal-close{font-size:20px;cursor:pointer;color:var(--ink3);background:none;border:none;}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 20px;border-radius:var(--r);font-size:13px;font-weight:600;opacity:0;transition:opacity .3s;pointer-events:none;z-index:999;white-space:nowrap;}
+.toast.show{opacity:1;}
+@media(max-width:768px){.sidebar{transform:translateX(-100%);}.main{margin-left:0;}.stat-grid{grid-template-columns:1fr 1fr;}.grid2{grid-template-columns:1fr;}.shift-grid{grid-template-columns:repeat(4,1fr);}}
+</style>
+</head>
+<body>
+<div class="layout">
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-name">飲食・宿泊業<br>衛生・シフト管理</div>
+    <div class="logo-sub">GrantFlow ⑮</div>
+    <div class="logo-badge">v1.0</div>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">メニュー</div>
+    <div class="nav-item active" onclick="showPage('pg-home')"><span class="nav-icon">🏠</span>ダッシュボード</div>
+    <div class="nav-item" onclick="showPage('pg-staff')"><span class="nav-icon">👤</span>スタッフ管理</div>
+    <div class="nav-item" onclick="showPage('pg-haccp')"><span class="nav-icon">🧼</span>HACCP衛生管理</div>
+    <div class="nav-item" onclick="showPage('pg-shift')"><span class="nav-icon">📅</span>シフト管理</div>
+    <div class="nav-item" onclick="showPage('pg-allergy')"><span class="nav-icon">⚠️</span>アレルギー管理</div>
+    <div class="nav-item" onclick="showPage('pg-manual')"><span class="nav-icon">📖</span>多言語マニュアル</div>
+  </div>
+  <div class="sidebar-footer">
+    <div class="user-row">
+      <div class="user-av">阪</div>
+      <div><div class="user-name">阪本 光</div><div class="user-role">店舗管理者</div></div>
+    </div>
+  </div>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title" id="topbar-title">ダッシュボード</div>
+    <div class="topbar-right">
+      <button class="btn btn-teal btn-sm" onclick="openAddStaff()">＋ スタッフ追加</button>
+    </div>
+  </div>
+
+  <!-- HOME -->
+  <div class="page active" id="pg-home">
+    <div class="section-header">
+      <div><div class="section-title">ダッシュボード</div><div class="section-sub" id="home-date"></div></div>
+    </div>
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-label">スタッフ数</div><div class="stat-val" id="stat-staff" style="color:var(--teal)">0</div><div class="stat-sub">名</div></div>
+      <div class="stat-card"><div class="stat-label">今日の衛生チェック</div><div class="stat-val" id="stat-haccp" style="color:var(--green)">0</div><div class="stat-sub">件</div></div>
+      <div class="stat-card"><div class="stat-label">今日のシフト</div><div class="stat-val" id="stat-shift" style="color:var(--blue)">0</div><div class="stat-sub">名</div></div>
+      <div class="stat-card"><div class="stat-label">アレルギー要確認</div><div class="stat-val" id="stat-allergy" style="color:var(--amber)">0</div><div class="stat-sub">名</div></div>
+    </div>
+    <div class="card"><div class="card-title">🚨 要対応アラート</div><div id="home-alerts"></div></div>
+    <div class="grid2">
+      <div class="card"><div class="card-title">📅 今日のシフト</div><div id="home-shift"></div></div>
+      <div class="card"><div class="card-title">🧼 本日の衛生チェック状況</div><div id="home-haccp"></div></div>
+    </div>
+  </div>
+
+  <!-- STAFF -->
+  <div class="page" id="pg-staff">
+    <div class="section-header">
+      <div><div class="section-title">👤 スタッフ管理</div><div class="section-sub">外国人スタッフの情報を管理します</div></div>
+      <button class="btn btn-teal" onclick="openAddStaff()">＋ スタッフ追加</button>
+    </div>
+    <div id="staff-list"></div>
+  </div>
+
+  <!-- HACCP -->
+  <div class="page" id="pg-haccp">
+    <div class="section-header">
+      <div><div class="section-title">🧼 HACCP衛生管理記録</div><div class="section-sub">食品衛生法に基づく衛生管理を記録します</div></div>
+      <button class="btn btn-teal" onclick="openAddHaccp()">＋ 衛生チェックを記録</button>
+    </div>
+    <div class="alert alert-blue" style="margin-bottom:14px">
+      <span>ℹ️</span><div>2021年6月より<strong>すべての食品事業者にHACCPに沿った衛生管理が義務</strong>化されました。毎日の記録が必要です。</div>
+    </div>
+    <div id="haccp-list"></div>
+  </div>
+
+  <!-- SHIFT -->
+  <div class="page" id="pg-shift">
+    <div class="section-header">
+      <div><div class="section-title">📅 シフト管理</div><div class="section-sub">シフトを多言語で共有できます</div></div>
+      <button class="btn btn-teal" onclick="openAddShift()">＋ シフト追加</button>
+    </div>
+    <div id="shift-content"></div>
+  </div>
+
+  <!-- ALLERGY -->
+  <div class="page" id="pg-allergy">
+    <div class="section-header">
+      <div><div class="section-title">⚠️ アレルギー管理</div><div class="section-sub">スタッフのアレルギー情報を管理します</div></div>
+    </div>
+    <div class="alert alert-amber" style="margin-bottom:14px">
+      <span>⚠️</span><div>アレルギーのあるスタッフが食品を扱う場合、適切な配慮が必要です。特定原材料8品目を確認してください。</div>
+    </div>
+    <div id="allergy-list"></div>
+  </div>
+
+  <!-- MANUAL -->
+  <div class="page" id="pg-manual">
+    <div class="section-header">
+      <div><div class="section-title">📖 多言語マニュアル</div><div class="section-sub">業務マニュアルを多言語で確認できます</div></div>
+    </div>
+    <div id="manual-content"></div>
+  </div>
+</div>
+</div>
+
+<!-- MODAL: スタッフ追加 -->
+<div class="modal-bg" id="modal-staff">
+  <div class="modal-box">
+    <div class="modal-top">
+      <div class="modal-title">👤 スタッフ追加</div>
+      <button class="modal-close" onclick="closeModal('modal-staff')">✕</button>
+    </div>
+    <div class="grid2">
+      <div class="fg"><label>氏名★</label><input type="text" id="s-name" placeholder="例：Nguyen Thi Lan"></div>
+      <div class="fg"><label>国籍</label>
+        <select id="s-country"><option>ベトナム</option><option>中国</option><option>フィリピン</option><option>インドネシア</option><option>ミャンマー</option><option>ネパール</option><option>その他</option></select>
+      </div>
+      <div class="fg"><label>在留資格</label>
+        <select id="s-visa"><option>特定技能1号（外食業）</option><option>特定技能1号（宿泊業）</option><option>技能実習</option><option>留学</option><option>家族滞在</option><option>永住者</option><option>その他</option></select>
+      </div>
+      <div class="fg"><label>母国語</label>
+        <select id="s-lang"><option value="vi">ベトナム語</option><option value="zh">中国語</option><option value="tl">タガログ語</option><option value="id">インドネシア語</option><option value="my">ミャンマー語</option><option value="ne">ネパール語</option></select>
+      </div>
+      <div class="fg"><label>担当ポジション</label>
+        <select id="s-position"><option>ホール</option><option>キッチン</option><option>レジ</option><option>清掃</option><option>フロント（宿泊）</option><option>客室清掃（宿泊）</option><option>その他</option></select>
+      </div>
+      <div class="fg"><label>入社日</label><input type="date" id="s-hire"></div>
+      <div class="fg"><label>食品衛生責任者資格</label>
+        <select id="s-food-cert"><option value="none">なし</option><option value="yes">取得済み</option></select>
+      </div>
+      <div class="fg"><label>アレルギー</label><input type="text" id="s-allergy" placeholder="例：えび・そば・なし"></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-teal" onclick="saveStaff()">💾 保存する</button>
+      <button class="btn" onclick="closeModal('modal-staff')">キャンセル</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: HACCP -->
+<div class="modal-bg" id="modal-haccp">
+  <div class="modal-box">
+    <div class="modal-top">
+      <div class="modal-title">🧼 HACCP衛生チェック記録</div>
+      <button class="modal-close" onclick="closeModal('modal-haccp')">✕</button>
+    </div>
+    <div class="grid2">
+      <div class="fg"><label>記録日★</label><input type="date" id="h-date"></div>
+      <div class="fg"><label>チェック区分</label>
+        <select id="h-type"><option>開店前チェック</option><option>調理中チェック</option><option>閉店後チェック</option><option>冷蔵・冷凍温度記録</option><option>食材受入れチェック</option></select>
+      </div>
+      <div class="fg"><label>記録者</label><select id="h-staff"></select></div>
+      <div class="fg"><label>総合判定</label>
+        <select id="h-result"><option value="ok">問題なし</option><option value="warn">要改善</option><option value="ng">不合格・要対応</option></select>
+      </div>
+    </div>
+    <div style="margin-bottom:12px">
+      <div style="font-size:11px;font-weight:700;color:var(--ink3);margin-bottom:8px">チェック項目</div>
+      <div id="haccp-checklist"></div>
+    </div>
+    <div class="fg"><label>特記事項・改善内容</label><textarea id="h-memo" placeholder="問題点・改善した内容・次回への申し送りなど"></textarea></div>
+    <div class="btn-row">
+      <button class="btn btn-teal" onclick="saveHaccp()">💾 保存する</button>
+      <button class="btn" onclick="closeModal('modal-haccp')">キャンセル</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: シフト -->
+<div class="modal-bg" id="modal-shift">
+  <div class="modal-box">
+    <div class="modal-top">
+      <div class="modal-title">📅 シフト追加</div>
+      <button class="modal-close" onclick="closeModal('modal-shift')">✕</button>
+    </div>
+    <div class="grid2">
+      <div class="fg"><label>スタッフ★</label><select id="sh-staff"></select></div>
+      <div class="fg"><label>日付★</label><input type="date" id="sh-date"></div>
+      <div class="fg"><label>開始時間</label><input type="time" id="sh-start" value="10:00"></div>
+      <div class="fg"><label>終了時間</label><input type="time" id="sh-end" value="18:00"></div>
+      <div class="fg"><label>ポジション</label>
+        <select id="sh-pos"><option>ホール</option><option>キッチン</option><option>レジ</option><option>清掃</option><option>フロント</option><option>客室清掃</option></select>
+      </div>
+      <div class="fg"><label>備考</label><input type="text" id="sh-memo" placeholder="例：早出・遅出・研修など"></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-teal" onclick="saveShift()">💾 保存する</button>
+      <button class="btn" onclick="closeModal('modal-shift')">キャンセル</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const HACCP_ITEMS = {
+  '開店前チェック':[
+    '手洗いの実施確認','調理器具・まな板の洗浄・消毒確認',
+    '冷蔵庫・冷凍庫の温度確認（冷蔵10℃以下・冷凍-15℃以下）',
+    '食材の鮮度・異臭確認','ユニフォーム・帽子・マスクの着用確認',
+    '爪・アクセサリーの確認','体調不良者の確認',
+  ],
+  '調理中チェック':[
+    '加熱食品の中心温度確認（75℃以上・1分以上）',
+    '生食品と加熱食品の交差汚染防止',
+    '調理後の食品の適切な温度管理',
+    '使用後の器具の洗浄・消毒',
+    '食材の使用期限確認',
+  ],
+  '閉店後チェック':[
+    '調理場・厨房の清掃・消毒',
+    '冷蔵・冷凍庫への食材の適切な保管',
+    '生ごみの処理・ゴミ箱の清掃',
+    '害虫・害獣の侵入防止確認',
+    '翌日の食材準備・在庫確認',
+  ],
+  '冷蔵・冷凍温度記録':[
+    '冷蔵庫①温度記録（目標：10℃以下）',
+    '冷蔵庫②温度記録（目標：10℃以下）',
+    '冷凍庫温度記録（目標：-15℃以下）',
+    '異常温度の場合の対応確認',
+  ],
+  '食材受入れチェック':[
+    '納品書と実物の数量・品目確認',
+    '食材の温度確認（冷蔵・冷凍）',
+    '鮮度・包装状態の確認',
+    '使用期限・賞味期限の確認',
+    '仕入れ先・ロット番号の記録',
+  ],
+};
+
+const LANG_FLAG = {vi:'🇻🇳',zh:'🇨🇳',tl:'🇵🇭',id:'🇮🇩',my:'🇲🇲',ne:'🇳🇵'};
+const LANG_NAME = {vi:'ベトナム語',zh:'中国語',tl:'タガログ語',id:'インドネシア語',my:'ミャンマー語',ne:'ネパール語'};
+
+const SHIFT_TRANS = {
+  vi:{date:'Ngày',start:'Bắt đầu',end:'Kết thúc',pos:'Vị trí',note:'Ghi chú'},
+  zh:{date:'日期',start:'开始时间',end:'结束时间',pos:'岗位',note:'备注'},
+  tl:{date:'Petsa',start:'Simula',end:'Katapusan',pos:'Posisyon',note:'Tala'},
+  id:{date:'Tanggal',start:'Mulai',end:'Selesai',pos:'Posisi',note:'Catatan'},
+  my:{date:'ရက်စွဲ',start:'စတင်',end:'ပြီးဆုံး',pos:'တာဝန်',note:'မှတ်စု'},
+  ne:{date:'मिति',start:'सुरु',end:'अन्त्य',pos:'स्थिति',note:'टिप्पणी'},
+};
+
+const MANUAL_DATA = [
+  {
+    title:'🤲 手洗いの正しい方法',
+    icon:'🤲',
+    langs:{
+      ja:'①流水で手を濡らす→②石けんをつける→③手のひら・手の甲・指の間・爪の周りを20秒以上洗う→④流水で十分にすすぐ→⑤清潔なタオルまたはペーパータオルで拭く',
+      vi:'①Làm ướt tay bằng nước→②Xà phòng→③Rửa lòng bàn tay, mu bàn tay, kẽ ngón tay, móng tay trong 20 giây→④Xả sạch→⑤Lau bằng khăn sạch',
+      zh:'①用流水润湿双手→②涂抹肥皂→③搓洗手心手背指缝指甲周围20秒以上→④充分冲洗→⑤用干净毛巾擦干',
+      id:'①Basahi tangan→②Sabun→③Gosok telapak, punggung, sela jari, kuku 20 detik→④Bilas bersih→⑤Keringkan dengan handuk bersih',
+    }
+  },
+  {
+    title:'🌡️ 食品の適切な温度管理',
+    icon:'🌡️',
+    langs:{
+      ja:'冷蔵保存：10℃以下 / 冷凍保存：-15℃以下 / 加熱調理：中心温度75℃以上1分間 / 提供温度：温かい料理65℃以上・冷たい料理10℃以下',
+      vi:'Lạnh: dưới 10℃ / Đông lạnh: dưới -15℃ / Nấu chín: trung tâm 75℃ trên 1 phút / Phục vụ: nóng trên 65℃, lạnh dưới 10℃',
+      zh:'冷藏：10℃以下 / 冷冻：-15℃以下 / 加热：中心温度75℃以上1分钟 / 供餐：热菜65℃以上・冷菜10℃以下',
+      id:'Dingin: di bawah 10℃ / Beku: di bawah -15℃ / Masak: suhu tengah 75℃ lebih 1 menit / Sajikan: panas di atas 65℃, dingin di bawah 10℃',
+    }
+  },
+  {
+    title:'🚫 体調不良時の報告',
+    icon:'🚫',
+    langs:{
+      ja:'発熱・下痢・嘔吐・腹痛がある場合は必ず出勤前に店長に連絡してください。食中毒予防のため、症状がある間は食品を扱う作業を禁止します。',
+      vi:'Nếu có sốt, tiêu chảy, nôn mửa, đau bụng, hãy liên hệ quản lý trước khi đến làm. Trong thời gian có triệu chứng, không được tiếp xúc thực phẩm.',
+      zh:'如有发烧、腹泻、呕吐、腹痛，上班前必须联系店长。有症状期间禁止接触食品。',
+      id:'Jika demam, diare, muntah, sakit perut, hubungi manajer sebelum bekerja. Selama ada gejala, dilarang menangani makanan.',
+    }
+  },
+  {
+    title:'🔪 調理器具の使い分け',
+    icon:'🔪',
+    langs:{
+      ja:'生肉用・生魚用・野菜用・加熱後食品用のまな板と包丁は必ず分けて使用してください。色分けで管理しています。（赤：生肉 / 青：生魚 / 緑：野菜 / 白：加熱後）',
+      vi:'Thớt và dao cho thịt sống, cá sống, rau, thức ăn đã nấu chín phải dùng riêng biệt. Phân biệt bằng màu sắc. (Đỏ: thịt sống / Xanh dương: cá sống / Xanh lá: rau / Trắng: thức ăn chín)',
+      zh:'生肉、生鱼、蔬菜、熟食用的砧板和刀具必须分开使用。用颜色区分。（红色：生肉 / 蓝色：生鱼 / 绿色：蔬菜 / 白色：熟食）',
+      id:'Talenan dan pisau untuk daging mentah, ikan mentah, sayur, makanan matang harus digunakan terpisah. Dibedakan dengan warna. (Merah: daging mentah / Biru: ikan mentah / Hijau: sayur / Putih: matang)',
+    }
+  },
+];
+
+let STATE={staff:[],haccps:[],shifts:[],nextId:{staff:1,haccp:1,shift:1}};
+
+function loadState(){const s=localStorage.getItem('grantflow_food_v1');if(s)try{STATE=JSON.parse(s);}catch(e){}}
+function saveState(){localStorage.setItem('grantflow_food_v1',JSON.stringify(STATE));}
+
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelector(`[onclick="showPage('${id}')"]`).classList.add('active');
+  const titles={'pg-home':'ダッシュボード','pg-staff':'スタッフ管理','pg-haccp':'HACCP衛生管理','pg-shift':'シフト管理','pg-allergy':'アレルギー管理','pg-manual':'多言語マニュアル'};
+  document.getElementById('topbar-title').textContent=titles[id]||'';
+  if(id==='pg-home') renderHome();
+  if(id==='pg-staff') renderStaffList();
+  if(id==='pg-haccp') renderHaccpList();
+  if(id==='pg-shift') renderShiftContent();
+  if(id==='pg-allergy') renderAllergyList();
+  if(id==='pg-manual') renderManual();
+}
+
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+function formatDate(d){if(!d)return'—';const dt=new Date(d);return`${dt.getFullYear()}/${String(dt.getMonth()+1).padStart(2,'0')}/${String(dt.getDate()).padStart(2,'0')}`;}
+
+function updateStaffSelects(){
+  const opts=STATE.staff.map(s=>`<option value="${s.id}">${s.name}（${s.position||'—'}）</option>`).join('');
+  ['h-staff','sh-staff'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=opts;});
+}
+
+// STAFF
+function openAddStaff(){
+  ['s-name','s-hire','s-allergy'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('modal-staff').classList.add('open');
+}
+
+function saveStaff(){
+  const name=document.getElementById('s-name').value.trim();
+  if(!name){showToast('氏名を入力してください');return;}
+  STATE.staff.push({
+    id:STATE.nextId.staff++,name,
+    country:document.getElementById('s-country').value,
+    visa:document.getElementById('s-visa').value,
+    lang:document.getElementById('s-lang').value,
+    position:document.getElementById('s-position').value,
+    hire:document.getElementById('s-hire').value,
+    foodCert:document.getElementById('s-food-cert').value,
+    allergy:document.getElementById('s-allergy').value,
+  });
+  saveState();closeModal('modal-staff');showToast('✅ スタッフを追加しました');
+  renderStaffList();renderHome();
+}
+
+function renderStaffList(){
+  const el=document.getElementById('staff-list');
+  if(STATE.staff.length===0){el.innerHTML='<div class="card" style="text-align:center;color:var(--ink3);padding:32px">スタッフが登録されていません</div>';return;}
+  el.innerHTML=STATE.staff.map(s=>`
+    <div class="card" style="padding:16px 20px">
+      <div style="display:flex;align-items:center;gap:14px">
+        <div style="font-size:28px">${LANG_FLAG[s.lang]||'🌏'}</div>
+        <div style="flex:1">
+          <div style="font-size:15px;font-weight:700;margin-bottom:4px">${s.name} <span class="badge badge-teal">${s.position}</span></div>
+          <div style="font-size:12px;color:var(--ink3);margin-bottom:6px">${s.country} | ${s.visa} | ${LANG_NAME[s.lang]||s.lang} | 入社：${formatDate(s.hire)}</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <span class="badge ${s.foodCert==='yes'?'badge-ok':'badge-gray'}">食品衛生責任者：${s.foodCert==='yes'?'取得済':'なし'}</span>
+            ${s.allergy?`<span class="badge badge-warn">アレルギー：${s.allergy}</span>`:'<span class="badge badge-ok">アレルギーなし</span>'}
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <button class="btn btn-sm btn-teal" onclick="openAddShift();document.getElementById('sh-staff').value=${s.id}">📅 シフト追加</button>
+          <button class="btn btn-sm btn-red" onclick="deleteStaff(${s.id})">🗑️</button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function deleteStaff(id){
+  if(!confirm('このスタッフを削除しますか？'))return;
+  STATE.staff=STATE.staff.filter(s=>s.id!==id);
+  STATE.shifts=STATE.shifts.filter(s=>s.staffId!==id);
+  saveState();renderStaffList();renderHome();showToast('削除しました');
+}
+
+// HACCP
+function openAddHaccp(){
+  updateStaffSelects();
+  if(STATE.staff.length===0){showToast('先にスタッフを登録してください');return;}
+  document.getElementById('h-date').value=new Date().toISOString().split('T')[0];
+  document.getElementById('h-memo').value='';
+  updateHaccpChecklist();
+  document.getElementById('modal-haccp').classList.add('open');
+}
+
+function updateHaccpChecklist(){
+  const type=document.getElementById('h-type').value;
+  const items=HACCP_ITEMS[type]||[];
+  document.getElementById('haccp-checklist').innerHTML=items.map((item,i)=>`
+    <div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border)">
+      <select id="hci-${i}" style="padding:4px 8px;border:1px solid var(--border2);border-radius:6px;font-size:12px;font-family:inherit;">
+        <option value="ok">✅ 問題なし</option>
+        <option value="warn">⚠️ 要改善</option>
+        <option value="ng">🚨 不合格</option>
+      </select>
+      <label style="font-size:12px">${item}</label>
+    </div>`).join('');
+}
+
+document.addEventListener('DOMContentLoaded',()=>{
+  const sel=document.getElementById('h-type');
+  if(sel)sel.addEventListener('change',updateHaccpChecklist);
+});
+
+function saveHaccp(){
+  const date=document.getElementById('h-date').value;
+  if(!date){showToast('記録日を入力してください');return;}
+  const type=document.getElementById('h-type').value;
+  const items=(HACCP_ITEMS[type]||[]).map((item,i)=>({item,result:document.getElementById(`hci-${i}`)?.value||'ok'}));
+  STATE.haccps.push({
+    id:STATE.nextId.haccp++,
+    staffId:parseInt(document.getElementById('h-staff').value)||null,
+    date,type,
+    result:document.getElementById('h-result').value,
+    items,memo:document.getElementById('h-memo').value,
+  });
+  saveState();closeModal('modal-haccp');showToast('✅ 衛生チェックを記録しました');
+  renderHaccpList();renderHome();
+}
+
+function renderHaccpList(){
+  const el=document.getElementById('haccp-list');
+  if(STATE.haccps.length===0){el.innerHTML='<div class="card" style="text-align:center;color:var(--ink3);padding:32px">衛生管理記録がありません</div>';return;}
+  el.innerHTML=STATE.haccps.sort((a,b)=>new Date(b.date)-new Date(a.date)).map(h=>{
+    const s=STATE.staff.find(x=>x.id===h.staffId);
+    const resultBadge=h.result==='ok'?'badge-ok':h.result==='warn'?'badge-warn':'badge-ng';
+    const resultLabel=h.result==='ok'?'問題なし':h.result==='warn'?'要改善':'不合格';
+    const issues=h.items?.filter(i=>i.result!=='ok')||[];
+    return `
+    <div class="card" style="padding:14px 18px;border-left:4px solid ${h.result==='ok'?'var(--green)':h.result==='warn'?'var(--amber)':'var(--red)'}">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <div>
+          <div style="font-size:13px;font-weight:700">${h.type} <span class="badge ${resultBadge}">${resultLabel}</span></div>
+          <div style="font-size:12px;color:var(--ink3)">${formatDate(h.date)} | 記録者：${s?.name||'—'}</div>
+        </div>
+        <button class="btn btn-sm btn-red" onclick="deleteHaccp(${h.id})">🗑️</button>
+      </div>
+      ${issues.length>0?`<div style="font-size:12px;color:var(--amber);margin-bottom:6px">⚠️ 指摘：${issues.map(i=>i.item.slice(0,15)).join('・')}</div>`:''}
+      ${h.memo?`<div style="font-size:12px;background:var(--surface2);border-radius:var(--r);padding:8px">${h.memo}</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+function deleteHaccp(id){
+  if(!confirm('この記録を削除しますか？'))return;
+  STATE.haccps=STATE.haccps.filter(h=>h.id!==id);
+  saveState();renderHaccpList();renderHome();showToast('削除しました');
+}
+
+// SHIFT
+function openAddShift(){
+  updateStaffSelects();
+  if(STATE.staff.length===0){showToast('先にスタッフを登録してください');return;}
+  document.getElementById('sh-date').value=new Date().toISOString().split('T')[0];
+  document.getElementById('sh-memo').value='';
+  document.getElementById('modal-shift').classList.add('open');
+}
+
+function saveShift(){
+  const staffId=parseInt(document.getElementById('sh-staff').value);
+  const date=document.getElementById('sh-date').value;
+  if(!date){showToast('日付を入力してください');return;}
+  STATE.shifts.push({
+    id:STATE.nextId.shift++,staffId,date,
+    start:document.getElementById('sh-start').value,
+    end:document.getElementById('sh-end').value,
+    pos:document.getElementById('sh-pos').value,
+    memo:document.getElementById('sh-memo').value,
+  });
+  saveState();closeModal('modal-shift');showToast('✅ シフトを追加しました');
+  renderShiftContent();renderHome();
+}
+
+function renderShiftContent(){
+  const el=document.getElementById('shift-content');
+  const today=new Date();
+  const days=[];
+  for(let i=0;i<7;i++){const d=new Date(today);d.setDate(today.getDate()+i);days.push(d);}
+  const dayNames=['日','月','火','水','木','金','土'];
+
+  let html=`<div class="shift-grid">`;
+  days.forEach(d=>{
+    const isToday=d.toDateString()===today.toDateString();
+    const dateStr=d.toISOString().split('T')[0];
+    const dayShifts=STATE.shifts.filter(s=>s.date===dateStr);
+    html+=`<div class="shift-day${isToday?' today':''}">
+      <div class="shift-day-label">${dayNames[d.getDay()]}</div>
+      <div class="shift-day-num">${d.getDate()}</div>
+      <div style="font-size:10px;color:var(--ink3)">${dayShifts.length}名</div>
+    </div>`;
+  });
+  html+='</div>';
+
+  if(STATE.shifts.length===0){
+    html+='<div class="card" style="text-align:center;color:var(--ink3);padding:32px">シフトが登録されていません</div>';
+  } else {
+    const upcoming=STATE.shifts.filter(s=>new Date(s.date)>=new Date(today.toDateString())).sort((a,b)=>new Date(a.date)-new Date(b.date));
+    html+='<div class="card"><div class="card-title">📅 シフト一覧（多言語表示）</div>';
+    html+=upcoming.slice(0,10).map(sh=>{
+      const staff=STATE.staff.find(s=>s.id===sh.staffId);
+      if(!staff)return'';
+      const langCode=staff.lang||'vi';
+      const trans=SHIFT_TRANS[langCode]||SHIFT_TRANS.vi;
+      return `
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:12px 14px;margin-bottom:8px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+          <span style="font-size:18px">${LANG_FLAG[langCode]||'🌏'}</span>
+          <div>
+            <div style="font-size:13px;font-weight:700">${staff.name}</div>
+            <div style="font-size:11px;color:var(--ink3)">${formatDate(sh.date)} | ${sh.pos}</div>
+          </div>
+          <button class="btn btn-sm btn-red" style="margin-left:auto" onclick="deleteShift(${sh.id})">削除</button>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:12px">
+          <div style="background:var(--surface);border-radius:6px;padding:8px 10px">
+            <div style="font-size:10px;color:var(--ink3);margin-bottom:3px">🇯🇵 日本語</div>
+            <div>${formatDate(sh.date)} ${sh.start}〜${sh.end}</div>
+            <div>${sh.pos}${sh.memo?` | ${sh.memo}`:''}</div>
+          </div>
+          <div style="background:var(--surface);border-radius:6px;padding:8px 10px">
+            <div style="font-size:10px;color:var(--ink3);margin-bottom:3px">${LANG_FLAG[langCode]} ${LANG_NAME[langCode]}</div>
+            <div>${trans.date}: ${sh.date} ${trans.start}: ${sh.start} - ${trans.end}: ${sh.end}</div>
+            <div>${trans.pos}: ${sh.pos}${sh.memo?` | ${trans.note}: ${sh.memo}`:''}</div>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+    html+='</div>';
+  }
+  el.innerHTML=html;
+}
+
+function deleteShift(id){
+  if(!confirm('このシフトを削除しますか？'))return;
+  STATE.shifts=STATE.shifts.filter(s=>s.id!==id);
+  saveState();renderShiftContent();renderHome();showToast('削除しました');
+}
+
+// ALLERGY
+function renderAllergyList(){
+  const el=document.getElementById('allergy-list');
+  if(STATE.staff.length===0){el.innerHTML='<div class="card" style="text-align:center;color:var(--ink3);padding:32px">スタッフが登録されていません</div>';return;}
+  const withAllergy=STATE.staff.filter(s=>s.allergy);
+  const noAllergy=STATE.staff.filter(s=>!s.allergy);
+  el.innerHTML=`
+    <div class="card">
+      <div class="card-title">⚠️ アレルギーあり（${withAllergy.length}名）</div>
+      ${withAllergy.length===0?'<div style="color:var(--ink3);font-size:13px">アレルギーのあるスタッフはいません</div>':
+        withAllergy.map(s=>`
+        <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">
+          <span style="font-size:18px">${LANG_FLAG[s.lang]||'🌏'}</span>
+          <div style="flex:1">
+            <div style="font-size:13px;font-weight:700">${s.name} <span class="badge badge-teal">${s.position}</span></div>
+            <div style="font-size:12px;color:var(--amber);font-weight:600">アレルギー：${s.allergy}</div>
+          </div>
+        </div>`).join('')}
+    </div>
+    <div class="card">
+      <div class="card-title">✅ アレルギーなし（${noAllergy.length}名）</div>
+      ${noAllergy.length===0?'<div style="color:var(--ink3);font-size:13px">該当スタッフなし</div>':
+        noAllergy.map(s=>`<div style="font-size:13px;padding:6px 0;border-bottom:1px solid var(--border)">${s.name}（${s.position}）</div>`).join('')}
+    </div>
+    <div class="card">
+      <div class="card-title">📋 特定原材料8品目（表示義務あり）</div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px">
+        ${['えび','かに','小麦','そば','卵','乳','落花生（ピーナッツ）','くるみ'].map(a=>`<span class="badge badge-warn">${a}</span>`).join('')}
+      </div>
+    </div>`;
+}
+
+// MANUAL
+function renderManual(){
+  const el=document.getElementById('manual-content');
+  const langs=[
+    {code:'ja',flag:'🇯🇵',name:'日本語'},
+    {code:'vi',flag:'🇻🇳',name:'ベトナム語'},
+    {code:'zh',flag:'🇨🇳',name:'中国語'},
+    {code:'id',flag:'🇮🇩',name:'インドネシア語'},
+  ];
+  el.innerHTML=MANUAL_DATA.map(m=>`
+    <div class="card">
+      <div class="card-title">${m.title}</div>
+      ${langs.map(l=>m.langs[l.code]?`
+        <div class="lang-row">
+          <span class="lang-flag">${l.flag}</span>
+          <div class="lang-text"><strong>${l.name}</strong><br>${m.langs[l.code]}</div>
+        </div>`:'').join('')}
+    </div>`).join('');
+}
+
+// HOME
+function renderHome(){
+  const now=new Date();
+  document.getElementById('home-date').textContent=`${now.getFullYear()}年${now.getMonth()+1}月${now.getDate()}日（${['日','月','火','水','木','金','土'][now.getDay()]}）`;
+  const today=now.toISOString().split('T')[0];
+  const todayShifts=STATE.shifts.filter(s=>s.date===today);
+  const todayHaccp=STATE.haccps.filter(h=>h.date===today);
+  const withAllergy=STATE.staff.filter(s=>s.allergy);
+  const alerts=[];
+
+  if(todayHaccp.length===0&&STATE.staff.length>0)alerts.push({type:'amber',msg:'今日の衛生チェックがまだ記録されていません'});
+  const ngHaccp=todayHaccp.filter(h=>h.result!=='ok');
+  ngHaccp.forEach(h=>alerts.push({type:'red',msg:`【衛生チェック要対応】${h.type}（${h.result==='warn'?'要改善':'不合格'}）`}));
+
+  document.getElementById('stat-staff').textContent=STATE.staff.length;
+  document.getElementById('stat-haccp').textContent=todayHaccp.length;
+  document.getElementById('stat-shift').textContent=todayShifts.length;
+  document.getElementById('stat-allergy').textContent=withAllergy.length;
+
+  const alertEl=document.getElementById('home-alerts');
+  alertEl.innerHTML=alerts.length===0?'<div class="alert alert-green"><span>✅</span><div>要対応アラートはありません</div></div>':
+    alerts.map(a=>`<div class="alert alert-${a.type==='red'?'red':'amber'}"><span>${a.type==='red'?'🚨':'⚠️'}</span><div>${a.msg}</div></div>`).join('');
+
+  const shiftEl=document.getElementById('home-shift');
+  shiftEl.innerHTML=todayShifts.length===0?'<div style="color:var(--ink3);font-size:13px">今日のシフトはありません</div>':
+    todayShifts.map(sh=>{
+      const s=STATE.staff.find(x=>x.id===sh.staffId);
+      return `<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border)">
+        <span>${LANG_FLAG[s?.lang]||'🌏'}</span>
+        <span style="flex:1;font-size:13px;font-weight:600">${s?.name||'—'}</span>
+        <span class="badge badge-teal">${sh.pos}</span>
+        <span style="font-size:12px;color:var(--ink3)">${sh.start}〜${sh.end}</span>
+      </div>`;
+    }).join('');
+
+  const haccpEl=document.getElementById('home-haccp');
+  haccpEl.innerHTML=todayHaccp.length===0?'<div style="color:var(--ink3);font-size:13px">本日の記録はまだありません</div>':
+    todayHaccp.map(h=>`
+    <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border)">
+      <span style="flex:1;font-size:12px">${h.type}</span>
+      <span class="badge ${h.result==='ok'?'badge-ok':h.result==='warn'?'badge-warn':'badge-ng'}">${h.result==='ok'?'問題なし':h.result==='warn'?'要改善':'不合格'}</span>
+    </div>`).join('');
+}
+
+loadState();
+const initNow=new Date();
+document.getElementById('home-date').textContent=`${initNow.getFullYear()}年${initNow.getMonth()+1}月${initNow.getDate()}日（${['日','月','火','水','木','金','土'][initNow.getDay()]}）`;
+renderHome();
+</script>
+</body>
+</html>
