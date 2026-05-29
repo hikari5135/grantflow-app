@@ -257,19 +257,19 @@ body{
   <div class="presets">
     <button class="preset-btn" onclick="applyPreset('sharoushi')">
       <div class="preset-name">🏢 社労士フルセット</div>
-      <div class="preset-target">社労士事務所向け<br>全5アプリ</div>
+      <div class="preset-target">社労士事務所向け<br>全14アプリ</div>
     </button>
     <button class="preset-btn" onclick="applyPreset('gyosei')">
       <div class="preset-name">📝 行政書士セット</div>
-      <div class="preset-target">在留資格＋翻訳<br>①④の2アプリ</div>
+      <div class="preset-target">在留資格＋翻訳<br>①④⑦の3アプリ</div>
     </button>
-    <button class="preset-btn" onclick="applyPreset('jinji')">
-      <div class="preset-name">🏭 企業人事セット</div>
-      <div class="preset-target">人事部向け<br>①②④の3アプリ</div>
+    <button class="preset-btn" onclick="applyPreset('seizou')">
+      <div class="preset-name">🏭 製造業セット</div>
+      <div class="preset-target">製造業人事向け<br>①⑥⑦⑧⑨⑫⑬⑭</div>
     </button>
     <button class="preset-btn" onclick="applyPreset('shien')">
-      <div class="preset-name">🤝 支援機関セット</div>
-      <div class="preset-target">登録支援機関向け<br>①③④の3アプリ</div>
+      <div class="preset-name">🤝 登録支援機関セット</div>
+      <div class="preset-target">支援機関向け<br>①③④⑥⑧⑨⑩⑪⑫⑬</div>
     </button>
   </div>
 
@@ -400,13 +400,20 @@ const APPS = [
     desc:'入社1ヶ月・3ヶ月・6ヶ月・1年の節目アンケートで離職リスクを早期発見。フォローアップ記録・定着率レポート付き',
     tags:['定着率向上','節目アンケート','離職リスク'],
     monthly:5800, buyout:29800
+  },
+  {
+    id:'a14', icon:'🏭',
+    name:'⑭ 製造業 安全管理・資格証管理',
+    desc:'フォークリフト・クレーンなど資格の期限管理・安全教育記録・KYヒヤリハット・安全パトロールを一元管理',
+    tags:['製造業特化','資格期限管理','安全管理'],
+    monthly:5800, buyout:29800
   }
 ];
 
 const PRESETS = {
-  sharoushi:['a1','a2','a3','a4','a5','a6','a7','a8','a9','a10','a11','a12','a13'],
+  sharoushi:['a1','a2','a3','a4','a5','a6','a7','a8','a9','a10','a11','a12','a13','a14'],
   gyosei:['a1','a4','a7'],
-  jinji:['a1','a2','a4','a6','a7','a8','a9','a11','a12','a13'],
+  seizou:['a1','a6','a7','a8','a9','a12','a13','a14'],
   shien:['a1','a3','a4','a6','a8','a9','a10','a11','a12','a13']
 };
 
