@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>外国人雇用管理システム｜GrantFlow ①</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#1a1a18;--ink2:#3a3a36;--ink3:#7a7a72;
+  --bg:#f2f1ec;--surface:#fff;--surface2:#f8f7f2;
+  --border:#e2e1d8;--border2:#c8c7be;
+  --green:#1a7a4a;--green-l:#e8f5ee;--green-m:#b8e0ca;
+  --red:#c0392b;--red-l:#fdecea;--red-m:#f5b7b1;
+  --amber:#c47a00;--amber-l:#fff8e6;--amber-m:#ffd97a;
+  --blue:#1a5fa8;--blue-l:#e8f0fb;--blue-m:#a8c4ef;
+  --r:10px;--r2:16px;
+  --shadow:0 2px 8px rgba(0,0,0,.06);--shadow2:0 8px 24px rgba(0,0,0,.10);
+}
+body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;font-size:14px;line-height:1.6;}
+.layout{display:flex;min-height:100vh;}
+.sidebar{width:240px;background:var(--ink);color:#fff;position:fixed;top:0;left:0;bottom:0;display:flex;flex-direction:column;z-index:100;}
+.sidebar-logo{padding:20px 18px;border-bottom:1px solid rgba(255,255,255,.1);}
+.logo-name{font-size:13px;font-weight:700;line-height:1.4;}
+.logo-sub{font-size:10px;color:rgba(255,255,255,.45);margin-top:2px;}
+.logo-badge{display:inline-block;margin-top:6px;font-size:9px;font-weight:700;background:var(--green);color:#fff;padding:2px 8px;border-radius:4px;font-family:'DM Mono',monospace;}
+.nav-section{padding:12px 0 4px;}
+.nav-label{font-size:9px;font-weight:700;letter-spacing:.1em;color:rgba(255,255,255,.3);padding:0 18px;margin-bottom:4px;text-transform:uppercase;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 18px;font-size:13px;font-weight:500;color:rgba(255,255,255,.6);cursor:pointer;border-left:3px solid transparent;transition:all .15s;}
+.nav-item:hover{color:#fff;background:rgba(255,255,255,.06);}
+.nav-item.active{color:#fff;border-left-color:var(--green);background:rgba(255,255,255,.08);}
+.nav-icon{font-size:16px;width:20px;text-align:center;}
+.sidebar-footer{margin-top:auto;padding:14px 18px;border-top:1px solid rgba(255,255,255,.1);}
+.user-av{width:28px;height:28px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;}
+.user-name{font-size:11px;font-weight:600;}
+.user-role{font-size:10px;color:rgba(255,255,255,.4);}
+.main{margin-left:240px;flex:1;}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:12px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
+.topbar-title{font-size:16px;font-weight:700;}
+.topbar-right{display:flex;align-items:center;gap:10px;}
+.page{display:none;padding:24px;}
+.page.active{display:block;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:20px;margin-bottom:14px;box-shadow:var(--shadow);}
+.card-title{font-size:14px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.section-title{font-size:18px;font-weight:700;}
+.section-sub{font-size:13px;color:var(--ink3);margin-top:2px;}
+.badge{display:inline-flex;align-items:center;padding:2px 10px;border-radius:6px;font-size:11px;font-weight:700;}
+.badge-ok{background:var(--green-l);color:var(--green);}
+.badge-ng{background:var(--red-l);color:var(--red);}
+.badge-warn{background:var(--amber-l);color:var(--amber);}
+.badge-info{background:var(--blue-l);color:var(--blue);}
+.badge-gray{background:var(--surface2);color:var(--ink3);border:1px solid var(--border);}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:9px 18px;border:1.5px solid var(--border2);border-radius:var(--r);font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;transition:all .15s;background:var(--surface);color:var(--ink);}
+.btn:hover{background:var(--surface2);}
+.btn-green{background:var(--green);border-color:var(--green);color:#fff;}
+.btn-green:hover{background:#145e38;}
+.btn-red{background:var(--red);border-color:var(--red);color:#fff;}
+.btn-amber{background:var(--amber);border-color:var(--amber);color:#fff;}
+.btn-blue{background:var(--blue);border-color:var(--blue);color:#fff;}
+.btn-sm{padding:5px 12px;font-size:12px;}
+.btn-full{width:100%;margin-top:8px;}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;}
+.fg{display:flex;flex-direction:column;gap:4px;margin-bottom:12px;}
+.fg label{font-size:11px;font-weight:700;color:var(--ink3);}
+.fg input,.fg select,.fg textarea{width:100%;padding:9px 12px;border:1.5px solid var(--border2);border-radius:var(--r);font-size:13px;font-family:inherit;color:var(--ink);background:var(--surface);outline:none;transition:border .15s;}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--green);}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:14px 16px;box-shadow:var(--shadow);}
+.stat-label{font-size:11px;color:var(--ink3);margin-bottom:4px;}
+.stat-val{font-size:26px;font-weight:700;line-height:1.1;}
+.stat-sub{font-size:11px;color:var(--ink3);margin-top:2px;}
+.alert{display:flex;gap:10px;padding:12px 14px;border-radius:var(--r);font-size:13px;margin-bottom:8px;border:1px solid;}
+.alert-red{background:var(--red-l);border-color:var(--red-m);color:var(--red);}
+.alert-amber{background:var(--amber-l);border-color:var(--amber-m);color:var(--amber);}
+.alert-green{background:var(--green-l);border-color:var(--green-m);color:var(--green);}
+.alert-blue{background:var(--blue-l);border-color:var(--blue-m);color:var(--blue);}
+
+/* テーブル */
+.tbl{width:100%;border-collapse:collapse;font-size:13px;}
+.tbl th{background:var(--surface2);padding:9px 12px;text-align:left;font-size:11px;font-weight:700;color:var(--ink3);border-bottom:2px solid var(--border);}
+.tbl td{padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:middle;}
+.tbl tr:hover td{background:var(--surface2);}
+
+/* 検索バー */
+.search-bar{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
+.search-input{flex:1;padding:9px 12px;border:1.5px solid var(--border2);border-radius:var(--r);font-size:13px;font-family:inherit;outline:none;min-width:200px;}
+.search-input:focus{border-color:var(--green);}
+
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;align-items:center;justify-content:center;padding:16px;}
+.modal-bg.open{display:flex;}
+.modal-box{background:var(--surface);border-radius:var(--r2);padding:24px;width:min(680px,100%);max-height:90vh;overflow-y:auto;box-shadow:var(--shadow2);}
+.modal-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;}
+.modal-title{font-size:16px;font-weight:700;}
+.modal-close{font-size:20px;cursor:pointer;color:var(--ink3);background:none;border:none;}
+
+/* PDF印刷 */
+@media print{
+  .sidebar,.topbar,.btn,.modal-bg,.search-bar,.section-header button{display:none!important;}
+  .main{margin-left:0!important;}
+  .page{display:block!important;padding:10px!important;}
+  .card{box-shadow:none!important;border:1px solid #ccc!important;}
+}
+
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 20px;border-radius:var(--r);font-size:13px;font-weight:600;opacity:0;transition:opacity .3s;pointer-events:none;z-index:999;}
+.toast.show{opacity:1;}
+@media(max-width:768px){.sidebar{transform:translateX(-100%);}.main{margin-left:0;}.stat-grid{grid-template-columns:1fr 1fr;}.grid2,.grid3{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<div class="layout">
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-name">外国人雇用<br>管理システム</div>
+    <div class="logo-sub">GrantFlow ①</div>
+    <div class="logo-badge">v2.0</div>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">メニュー</div>
+    <div class="nav-item active" onclick="showPage('pg-home')"><span class="nav-icon">🏠</span>ダッシュボード</div>
+    <div class="nav-item" onclick="showPage('pg-workers')"><span class="nav-icon">👤</span>労働者管理</div>
+    <div class="nav-item" onclick="showPage('pg-alert')"><span class="nav-icon">🚨</span>期限アラート</div>
+    <div class="nav-item" onclick="showPage('pg-company')"><span class="nav-icon">🏢</span>勤務先管理</div>
+    <div class="nav-item" onclick="showPage('pg-report')"><span class="nav-icon">📊</span>レポート</div>
+  </div>
+  <div class="sidebar-footer">
+    <div style="display:flex;align-items:center;gap:8px">
+      <div class="user-av">阪</div>
+      <div><div class="user-name">阪本 光</div><div class="user-role">管理者</div></div>
+    </div>
+  </div>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title" id="topbar-title">ダッシュボード</div>
+    <div class="topbar-right">
+      <button class="btn btn-green btn-sm" onclick="openAddWorker()">＋ 労働者を登録する</button>
+    </div>
+  </div>
+
+  <!-- HOME -->
+  <div class="page active" id="pg-home">
+    <div class="section-header">
+      <div><div class="section-title">ダッシュボード</div><div class="section-sub" id="home-date"></div></div>
+    </div>
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-label">登録労働者数</div><div class="stat-val" id="stat-total" style="color:var(--green)">0</div><div class="stat-sub">名</div></div>
+      <div class="stat-card"><div class="stat-label">在留期限切れ</div><div class="stat-val" id="stat-expired" style="color:var(--red)">0</div><div class="stat-sub">名</div></div>
+      <div class="stat-card"><div class="stat-label">30日以内期限</div><div class="stat-val" id="stat-soon" style="color:var(--amber)">0</div><div class="stat-sub">名</div></div>
+      <div class="stat-card"><div class="stat-label">管理企業数</div><div class="stat-val" id="stat-companies" style="color:var(--blue)">0</div><div class="stat-sub">社</div></div>
+    </div>
+    <div class="card"><div class="card-title">🚨 要対応アラート</div><div id="home-alerts"></div></div>
+    <div class="grid2">
+      <div class="card"><div class="card-title">👤 最近登録した労働者</div><div id="home-recent"></div></div>
+      <div class="card"><div class="card-title">🏢 勤務先企業一覧</div><div id="home-companies"></div></div>
+    </div>
+  </div>
+
+  <!-- WORKERS -->
+  <div class="page" id="pg-workers">
+    <div class="section-header">
+      <div><div class="section-title">👤 労働者管理</div><div class="section-sub">外国人労働者の情報を一元管理します</div></div>
+      <button class="btn btn-green" onclick="openAddWorker()">＋ 労働者を登録する</button>
+    </div>
+    <div class="search-bar">
+      <input class="search-input" type="text" id="worker-search" placeholder="氏名・国籍・勤務先で検索..." oninput="renderWorkerTable()">
+      <select id="worker-filter-visa" onchange="renderWorkerTable()" style="padding:9px 12px;border:1.5px solid var(--border2);border-radius:var(--r);font-size:13px;font-family:inherit">
+        <option value="">全在留資格</option>
+        <option>特定技能1号</option>
+        <option>技能実習1号</option>
+        <option>技能実習2号</option>
+        <option>技能実習3号</option>
+        <option>技術・人文知識・国際業務</option>
+        <option>永住者</option>
+        <option>留学</option>
+        <option>家族滞在</option>
+        <option>その他</option>
+      </select>
+      <select id="worker-filter-status" onchange="renderWorkerTable()" style="padding:9px 12px;border:1.5px solid var(--border2);border-radius:var(--r);font-size:13px;font-family:inherit">
+        <option value="">全ステータス</option>
+        <option value="expired">期限切れ</option>
+        <option value="soon">30日以内</option>
+        <option value="ok">正常</option>
+      </select>
+    </div>
+    <div class="card" style="padding:0;overflow:hidden">
+      <table class="tbl">
+        <thead>
+          <tr>
+            <th>氏名</th>
+            <th>国籍</th>
+            <th>在留資格</th>
+            <th>勤務先</th>
+            <th>在留期限</th>
+            <th>状態</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody id="worker-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ALERT -->
+  <div class="page" id="pg-alert">
+    <div class="section-header">
+      <div><div class="section-title">🚨 期限アラート</div><div class="section-sub">在留期限が近い・過ぎている労働者を確認します</div></div>
+    </div>
+    <div id="alert-content"></div>
+  </div>
+
+  <!-- COMPANY -->
+  <div class="page" id="pg-company">
+    <div class="section-header">
+      <div><div class="section-title">🏢 勤務先管理</div><div class="section-sub">勤務先企業を管理します</div></div>
+      <button class="btn btn-green" onclick="openAddCompany()">＋ 勤務先を追加</button>
+    </div>
+    <div id="company-list"></div>
+  </div>
+
+  <!-- REPORT -->
+  <div class="page" id="pg-report">
+    <div class="section-header">
+      <div><div class="section-title">📊 レポート</div><div class="section-sub">国籍・在留資格・勤務先別の集計を確認します</div></div>
+      <button class="btn btn-green" onclick="window.print()">🖨️ 印刷する</button>
+    </div>
+    <div id="report-content"></div>
+  </div>
+</div>
+</div>
+
+<!-- MODAL: 労働者登録 -->
+<div class="modal-bg" id="modal-worker">
+  <div class="modal-box">
+    <div class="modal-top">
+      <div class="modal-title" id="modal-worker-title">👤 労働者を登録する</div>
+      <button class="modal-close" onclick="closeModal('modal-worker')">✕</button>
+    </div>
+    <div class="grid2">
+      <div class="fg"><label>氏名★</label><input type="text" id="w-name" placeholder="例：グエン・ティ・ラン"></div>
+      <div class="fg"><label>氏名（ローマ字）</label><input type="text" id="w-name-en" placeholder="例：Nguyen Thi Lan"></div>
+      <div class="fg"><label>国籍★</label>
+        <select id="w-country">
+          <option>ベトナム</option><option>中国</option><option>フィリピン</option>
+          <option>インドネシア</option><option>ミャンマー</option><option>ネパール</option>
+          <option>タイ</option><option>カンボジア</option><option>その他</option>
+        </select>
+      </div>
+      <div class="fg"><label>在留資格★</label>
+        <select id="w-visa">
+          <option>特定技能1号</option><option>技能実習1号</option><option>技能実習2号</option>
+          <option>技能実習3号</option><option>技術・人文知識・国際業務</option>
+          <option>永住者</option><option>定住者</option><option>留学</option>
+          <option>家族滞在</option><option>その他</option>
+        </select>
+      </div>
+      <div class="fg"><label>在留カード番号</label><input type="text" id="w-card" placeholder="例：AA12345678"></div>
+      <div class="fg"><label>在留期限★</label><input type="date" id="w-expire"></div>
+      <div class="fg"><label>勤務先★</label><select id="w-company"></select></div>
+      <div class="fg"><label>職種・業務内容</label><input type="text" id="w-job" placeholder="例：製造業務・組立作業"></div>
+      <div class="fg"><label>雇用開始日</label><input type="date" id="w-hire"></div>
+      <div class="fg"><label>生年月日</label><input type="date" id="w-birth"></div>
+      <div class="fg"><label>性別</label>
+        <select id="w-gender"><option>男性</option><option>女性</option><option>その他</option></select>
+      </div>
+      <div class="fg"><label>電話番号</label><input type="text" id="w-tel" placeholder="090-xxxx-xxxx"></div>
+      <div class="fg"><label>住所</label><input type="text" id="w-address" placeholder="例：大阪府堺市〇〇区"></div>
+      <div class="fg"><label>緊急連絡先</label><input type="text" id="w-emergency" placeholder="家族・保証人など"></div>
+    </div>
+    <div class="fg"><label>備考</label><textarea id="w-memo" placeholder="特記事項など"></textarea></div>
+    <div class="btn-row">
+      <button class="btn btn-green" onclick="saveWorker()">💾 保存する</button>
+      <button class="btn" onclick="closeModal('modal-worker')">キャンセル</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: 勤務先追加 -->
+<div class="modal-bg" id="modal-company">
+  <div class="modal-box">
+    <div class="modal-top">
+      <div class="modal-title">🏢 勤務先を追加</div>
+      <button class="modal-close" onclick="closeModal('modal-company')">✕</button>
+    </div>
+    <div class="grid2">
+      <div class="fg"><label>会社名★</label><input type="text" id="c-name" placeholder="例：大阪食品株式会社"></div>
+      <div class="fg"><label>業種</label>
+        <select id="c-industry"><option>製造業</option><option>建設業</option><option>飲食・宿泊業</option><option>介護・福祉</option><option>農業・漁業</option><option>その他</option></select>
+      </div>
+      <div class="fg"><label>担当者名</label><input type="text" id="c-contact" placeholder="例：田中 一郎"></div>
+      <div class="fg"><label>電話番号</label><input type="text" id="c-tel" placeholder="06-xxxx-xxxx"></div>
+      <div class="fg"><label>住所</label><input type="text" id="c-address" placeholder="例：大阪府堺市〇〇区"></div>
+      <div class="fg"><label>メールアドレス</label><input type="text" id="c-email" placeholder="example@company.co.jp"></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-green" onclick="saveCompany()">💾 保存する</button>
+      <button class="btn" onclick="closeModal('modal-company')">キャンセル</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: 労働者詳細 -->
+<div class="modal-bg" id="modal-detail">
+  <div class="modal-box">
+    <div class="modal-top">
+      <div class="modal-title">👤 労働者詳細</div>
+      <button class="modal-close" onclick="closeModal('modal-detail')">✕</button>
+    </div>
+    <div id="detail-content"></div>
+    <div class="btn-row">
+      <button class="btn btn-green" onclick="printDetail()">🖨️ PDF印刷</button>
+      <button class="btn" id="detail-edit-btn">✏️ 編集</button>
+      <button class="btn btn-red" id="detail-delete-btn">🗑️ 削除</button>
+      <button class="btn" onclick="closeModal('modal-detail')">閉じる</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const COUNTRY_FLAG={ベトナム:'🇻🇳',中国:'🇨🇳',フィリピン:'🇵🇭',インドネシア:'🇮🇩',ミャンマー:'🇲🇲',ネパール:'🇳🇵',タイ:'🇹🇭',カンボジア:'🇰🇭',その他:'🌏'};
+
+let STATE={workers:[],companies:[],nextId:{worker:1,company:1}};
+let editWorkerId=null;
+
+function loadState(){const s=localStorage.getItem('grantflow_main_v1');if(s)try{STATE=JSON.parse(s);}catch(e){}}
+function saveState(){localStorage.setItem('grantflow_main_v1',JSON.stringify(STATE));}
+
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelector(`[onclick="showPage('${id}')"]`).classList.add('active');
+  const titles={'pg-home':'ダッシュボード','pg-workers':'労働者管理','pg-alert':'期限アラート','pg-company':'勤務先管理','pg-report':'レポート'};
+  document.getElementById('topbar-title').textContent=titles[id]||'';
+  if(id==='pg-home') renderHome();
+  if(id==='pg-workers') renderWorkerTable();
+  if(id==='pg-alert') renderAlert();
+  if(id==='pg-company') renderCompanyList();
+  if(id==='pg-report') renderReport();
+}
+
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+function formatDate(d){if(!d)return'—';const dt=new Date(d);return`${dt.getFullYear()}/${String(dt.getMonth()+1).padStart(2,'0')}/${String(dt.getDate()).padStart(2,'0')}`;}
+function daysUntil(d){if(!d)return null;return Math.ceil((new Date(d)-new Date())/86400000);}
+
+function getStatus(w){
+  const days=daysUntil(w.expire);
+  if(days===null)return{label:'不明',badge:'badge-gray',days:null};
+  if(days<0)return{label:`超過 ${Math.abs(days)}日`,badge:'badge-ng',days};
+  if(days<=30)return{label:`残り${days}日`,badge:'badge-warn',days};
+  if(days<=90)return{label:`残り${days}日`,badge:'badge-info',days};
+  return{label:`残り${days}日`,badge:'badge-ok',days};
+}
+
+function updateCompanySelect(){
+  const sel=document.getElementById('w-company');
+  sel.innerHTML='<option value="">選択してください</option>'+
+    STATE.companies.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+}
+
+// WORKER
+function openAddWorker(){
+  editWorkerId=null;
+  document.getElementById('modal-worker-title').textContent='👤 労働者を登録する';
+  ['w-name','w-name-en','w-card','w-expire','w-job','w-hire','w-birth','w-tel','w-address','w-emergency','w-memo'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  updateCompanySelect();
+  document.getElementById('modal-worker').classList.add('open');
+}
+
+function openEditWorker(id){
+  editWorkerId=id;
+  const w=STATE.workers.find(x=>x.id===id);if(!w)return;
+  document.getElementById('modal-worker-title').textContent='✏️ 労働者情報を編集';
+  updateCompanySelect();
+  document.getElementById('w-name').value=w.name||'';
+  document.getElementById('w-name-en').value=w.nameEn||'';
+  document.getElementById('w-country').value=w.country||'ベトナム';
+  document.getElementById('w-visa').value=w.visa||'特定技能1号';
+  document.getElementById('w-card').value=w.card||'';
+  document.getElementById('w-expire').value=w.expire||'';
+  document.getElementById('w-company').value=w.companyId||'';
+  document.getElementById('w-job').value=w.job||'';
+  document.getElementById('w-hire').value=w.hire||'';
+  document.getElementById('w-birth').value=w.birth||'';
+  document.getElementById('w-gender').value=w.gender||'男性';
+  document.getElementById('w-tel').value=w.tel||'';
+  document.getElementById('w-address').value=w.address||'';
+  document.getElementById('w-emergency').value=w.emergency||'';
+  document.getElementById('w-memo').value=w.memo||'';
+  closeModal('modal-detail');
+  document.getElementById('modal-worker').classList.add('open');
+}
+
+function saveWorker(){
+  const name=document.getElementById('w-name').value.trim();
+  if(!name){showToast('氏名を入力してください');return;}
+  const companyId=document.getElementById('w-company').value;
+  const data={
+    name,nameEn:document.getElementById('w-name-en').value,
+    country:document.getElementById('w-country').value,
+    visa:document.getElementById('w-visa').value,
+    card:document.getElementById('w-card').value,
+    expire:document.getElementById('w-expire').value,
+    companyId:companyId?parseInt(companyId):null,
+    job:document.getElementById('w-job').value,
+    hire:document.getElementById('w-hire').value,
+    birth:document.getElementById('w-birth').value,
+    gender:document.getElementById('w-gender').value,
+    tel:document.getElementById('w-tel').value,
+    address:document.getElementById('w-address').value,
+    emergency:document.getElementById('w-emergency').value,
+    memo:document.getElementById('w-memo').value,
+    createdAt:new Date().toISOString(),
+  };
+  if(editWorkerId){
+    STATE.workers=STATE.workers.map(w=>w.id===editWorkerId?{...w,...data}:w);
+    showToast('✅ 情報を更新しました');
+  } else {
+    STATE.workers.push({id:STATE.nextId.worker++,...data});
+    showToast('✅ 労働者を登録しました');
+  }
+  saveState();closeModal('modal-worker');
+  renderHome();renderWorkerTable();
+}
+
+function renderWorkerTable(){
+  const search=document.getElementById('worker-search')?.value?.toLowerCase()||'';
+  const filterVisa=document.getElementById('worker-filter-visa')?.value||'';
+  const filterStatus=document.getElementById('worker-filter-status')?.value||'';
+  let workers=STATE.workers.filter(w=>{
+    const c=STATE.companies.find(x=>x.id===w.companyId);
+    const matchSearch=!search||(w.name||'').toLowerCase().includes(search)||(w.country||'').toLowerCase().includes(search)||(c?.name||'').toLowerCase().includes(search);
+    const matchVisa=!filterVisa||w.visa===filterVisa;
+    const days=daysUntil(w.expire);
+    const matchStatus=!filterStatus||(filterStatus==='expired'&&days!==null&&days<0)||(filterStatus==='soon'&&days!==null&&days>=0&&days<=30)||(filterStatus==='ok'&&days!==null&&days>30);
+    return matchSearch&&matchVisa&&matchStatus;
+  });
+  const tbody=document.getElementById('worker-tbody');
+  if(workers.length===0){tbody.innerHTML=`<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--ink3)">該当する労働者がいません</td></tr>`;return;}
+  tbody.innerHTML=workers.map(w=>{
+    const c=STATE.companies.find(x=>x.id===w.companyId);
+    const st=getStatus(w);
+    return `<tr>
+      <td><strong>${COUNTRY_FLAG[w.country]||'🌏'} ${w.name}</strong>${w.nameEn?`<div style="font-size:11px;color:var(--ink3)">${w.nameEn}</div>`:''}</td>
+      <td>${w.country}</td>
+      <td><span class="badge badge-gray" style="font-size:10px">${w.visa}</span></td>
+      <td>${c?.name||'—'}</td>
+      <td style="font-family:'DM Mono',monospace;font-size:12px">${formatDate(w.expire)}</td>
+      <td><span class="badge ${st.badge}">${st.label}</span></td>
+      <td>
+        <div style="display:flex;gap:4px">
+          <button class="btn btn-sm" onclick="showDetail(${w.id})">詳細</button>
+          <button class="btn btn-sm btn-green" onclick="printWorker(${w.id})">PDF</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function showDetail(id){
+  const w=STATE.workers.find(x=>x.id===id);if(!w)return;
+  const c=STATE.companies.find(x=>x.id===w.companyId);
+  const st=getStatus(w);
+  document.getElementById('detail-content').innerHTML=`
+    <div style="display:flex;gap:16px;margin-bottom:16px;align-items:center">
+      <div style="font-size:48px">${COUNTRY_FLAG[w.country]||'🌏'}</div>
+      <div>
+        <div style="font-size:18px;font-weight:700">${w.name}</div>
+        ${w.nameEn?`<div style="font-size:13px;color:var(--ink3)">${w.nameEn}</div>`:''}
+        <span class="badge ${st.badge}" style="margin-top:4px">${st.label}</span>
+      </div>
+    </div>
+    <div class="grid2">
+      ${[
+        ['国籍',w.country],['在留資格',w.visa],
+        ['在留カード番号',w.card||'—'],['在留期限',formatDate(w.expire)],
+        ['勤務先',c?.name||'—'],['職種',w.job||'—'],
+        ['雇用開始日',formatDate(w.hire)],['生年月日',formatDate(w.birth)],
+        ['性別',w.gender||'—'],['電話番号',w.tel||'—'],
+        ['住所',w.address||'—'],['緊急連絡先',w.emergency||'—'],
+      ].map(([label,val])=>`
+        <div style="padding:8px 0;border-bottom:1px solid var(--border)">
+          <div style="font-size:11px;color:var(--ink3)">${label}</div>
+          <div style="font-size:13px;font-weight:500">${val}</div>
+        </div>`).join('')}
+    </div>
+    ${w.memo?`<div style="margin-top:12px;padding:10px;background:var(--surface2);border-radius:var(--r);font-size:13px">${w.memo}</div>`:''}`;
+  document.getElementById('detail-edit-btn').onclick=()=>openEditWorker(id);
+  document.getElementById('detail-delete-btn').onclick=()=>deleteWorker(id);
+  document.getElementById('modal-detail').classList.add('open');
+}
+
+function deleteWorker(id){
+  if(!confirm('この労働者を削除しますか？'))return;
+  STATE.workers=STATE.workers.filter(w=>w.id!==id);
+  saveState();closeModal('modal-detail');renderHome();renderWorkerTable();showToast('削除しました');
+}
+
+function printWorker(id){
+  const w=STATE.workers.find(x=>x.id===id);if(!w)return;
+  const c=STATE.companies.find(x=>x.id===w.companyId);
+  const st=getStatus(w);
+  const win=window.open('','_blank');
+  win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>在留資格確認書 - ${w.name}</title>
+  <style>body{font-family:'Noto Sans JP',sans-serif;padding:32px;font-size:13px;color:#1a1a18;}
+  h1{font-size:18px;margin-bottom:4px;}h2{font-size:14px;color:#666;margin-bottom:20px;}
+  table{width:100%;border-collapse:collapse;margin-bottom:20px;}
+  th{background:#1a7a4a;color:#fff;padding:8px 12px;text-align:left;font-size:12px;}
+  td{padding:8px 12px;border-bottom:1px solid #e2e1d8;}
+  .status{display:inline-block;padding:2px 10px;border-radius:4px;font-weight:700;font-size:12px;background:${st.days===null||st.days<0?'#fdecea':st.days<=30?'#fff8e6':'#e8f5ee'};color:${st.days===null||st.days<0?'#c0392b':st.days<=30?'#c47a00':'#1a7a4a'};}
+  .footer{margin-top:40px;font-size:11px;color:#999;border-top:1px solid #e2e1d8;padding-top:12px;}
+  </style></head><body>
+  <h1>在留資格確認書</h1>
+  <h2>GrantFlow 外国人雇用管理システム</h2>
+  <table><tr><th>項目</th><th>内容</th></tr>
+  <tr><td>氏名</td><td>${w.name}${w.nameEn?` (${w.nameEn})`:''}</td></tr>
+  <tr><td>国籍</td><td>${w.country}</td></tr>
+  <tr><td>在留資格</td><td>${w.visa}</td></tr>
+  <tr><td>在留カード番号</td><td>${w.card||'—'}</td></tr>
+  <tr><td>在留期限</td><td>${formatDate(w.expire)} <span class="status">${st.label}</span></td></tr>
+  <tr><td>勤務先</td><td>${c?.name||'—'}</td></tr>
+  <tr><td>職種</td><td>${w.job||'—'}</td></tr>
+  <tr><td>雇用開始日</td><td>${formatDate(w.hire)}</td></tr>
+  <tr><td>住所</td><td>${w.address||'—'}</td></tr>
+  </table>
+  <div class="footer">出力日：${formatDate(new Date().toISOString())} | GrantFlow 外国人雇用管理システム | akira.sakamoto5135@gmail.com</div>
+  </body></html>`);
+  win.document.close();win.print();
+}
+
+// ALERT
+function renderAlert(){
+  const el=document.getElementById('alert-content');
+  const expired=STATE.workers.filter(w=>{const d=daysUntil(w.expire);return d!==null&&d<0;}).sort((a,b)=>daysUntil(a.expire)-daysUntil(b.expire));
+  const soon30=STATE.workers.filter(w=>{const d=daysUntil(w.expire);return d!==null&&d>=0&&d<=30;}).sort((a,b)=>daysUntil(a.expire)-daysUntil(b.expire));
+  const soon90=STATE.workers.filter(w=>{const d=daysUntil(w.expire);return d!==null&&d>30&&d<=90;}).sort((a,b)=>daysUntil(a.expire)-daysUntil(b.expire));
+
+  const renderList=(list,badge)=>list.map(w=>{
+    const c=STATE.companies.find(x=>x.id===w.companyId);
+    const st=getStatus(w);
+    return `<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);flex-wrap:wrap">
+      <span style="font-size:18px">${COUNTRY_FLAG[w.country]||'🌏'}</span>
+      <div style="flex:1"><div style="font-size:13px;font-weight:700">${w.name}</div><div style="font-size:11px;color:var(--ink3)">${w.visa} | ${c?.name||'—'}</div></div>
+      <span class="badge ${badge}">${st.label}</span>
+      <button class="btn btn-sm" onclick="showDetail(${w.id})">詳細</button>
+    </div>`;
+  }).join('');
+
+  el.innerHTML=`
+    ${expired.length>0?`<div class="card"><div class="card-title">🚨 期限切れ（${expired.length}名）</div>${renderList(expired,'badge-ng')}</div>`:''}
+    ${soon30.length>0?`<div class="card"><div class="card-title">⚠️ 30日以内に期限（${soon30.length}名）</div>${renderList(soon30,'badge-warn')}</div>`:''}
+    ${soon90.length>0?`<div class="card"><div class="card-title">📅 90日以内に期限（${soon90.length}名）</div>${renderList(soon90,'badge-info')}</div>`:''}
+    ${expired.length===0&&soon30.length===0&&soon90.length===0?'<div class="alert alert-green"><span>✅</span><div>期限が近い労働者はいません</div></div>':''}`;
+}
+
+// COMPANY
+function openAddCompany(){
+  ['c-name','c-contact','c-tel','c-address','c-email'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('modal-company').classList.add('open');
+}
+
+function saveCompany(){
+  const name=document.getElementById('c-name').value.trim();
+  if(!name){showToast('会社名を入力してください');return;}
+  STATE.companies.push({
+    id:STATE.nextId.company++,name,
+    industry:document.getElementById('c-industry').value,
+    contact:document.getElementById('c-contact').value,
+    tel:document.getElementById('c-tel').value,
+    address:document.getElementById('c-address').value,
+    email:document.getElementById('c-email').value,
+  });
+  saveState();closeModal('modal-company');showToast('✅ 勤務先を追加しました');
+  renderCompanyList();updateCompanySelect();
+}
+
+function renderCompanyList(){
+  const el=document.getElementById('company-list');
+  if(STATE.companies.length===0){el.innerHTML='<div class="card" style="text-align:center;color:var(--ink3);padding:32px">勤務先が登録されていません</div>';return;}
+  el.innerHTML=STATE.companies.map(c=>{
+    const workers=STATE.workers.filter(w=>w.companyId===c.id);
+    const expired=workers.filter(w=>{const d=daysUntil(w.expire);return d!==null&&d<0;}).length;
+    return `
+    <div class="card" style="padding:16px 20px">
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+        <div style="font-size:24px">🏢</div>
+        <div style="flex:1">
+          <div style="font-size:14px;font-weight:700;margin-bottom:4px">${c.name} <span class="badge badge-gray">${c.industry}</span></div>
+          <div style="font-size:12px;color:var(--ink3)">担当：${c.contact||'—'} | ${c.tel||'—'} | ${c.email||'—'}</div>
+          <div style="margin-top:6px;display:flex;gap:6px">
+            <span class="badge badge-info">在籍 ${workers.length}名</span>
+            ${expired>0?`<span class="badge badge-ng">期限切れ ${expired}名</span>`:''}
+          </div>
+        </div>
+        <button class="btn btn-sm btn-red" onclick="deleteCompany(${c.id})">🗑️</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function deleteCompany(id){
+  if(!confirm('この勤務先を削除しますか？'))return;
+  STATE.companies=STATE.companies.filter(c=>c.id!==id);
+  saveState();renderCompanyList();showToast('削除しました');
+}
+
+// REPORT
+function renderReport(){
+  const el=document.getElementById('report-content');
+  const byCountry={};
+  const byVisa={};
+  STATE.workers.forEach(w=>{
+    byCountry[w.country]=(byCountry[w.country]||0)+1;
+    byVisa[w.visa]=(byVisa[w.visa]||0)+1;
+  });
+  const expired=STATE.workers.filter(w=>{const d=daysUntil(w.expire);return d!==null&&d<0;}).length;
+  const soon=STATE.workers.filter(w=>{const d=daysUntil(w.expire);return d!==null&&d>=0&&d<=30;}).length;
+  const maxC=Math.max(...Object.values(byCountry),1);
+  const maxV=Math.max(...Object.values(byVisa),1);
+  el.innerHTML=`
+    <div class="grid2">
+      <div class="card">
+        <div class="card-title">🌏 国籍別</div>
+        ${Object.entries(byCountry).sort((a,b)=>b[1]-a[1]).map(([country,n])=>`
+        <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border)">
+          <span>${COUNTRY_FLAG[country]||'🌏'}</span>
+          <span style="flex:1;font-size:13px">${country}</span>
+          <div style="width:80px;background:var(--surface2);border-radius:99px;height:6px;overflow:hidden"><div style="height:100%;border-radius:99px;background:var(--green);width:${Math.round(n/maxC*100)}%"></div></div>
+          <span style="font-size:13px;font-weight:600">${n}名</span>
+        </div>`).join('')||'<div style="color:var(--ink3)">データなし</div>'}
+      </div>
+      <div class="card">
+        <div class="card-title">🪪 在留資格別</div>
+        ${Object.entries(byVisa).sort((a,b)=>b[1]-a[1]).map(([visa,n])=>`
+        <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border)">
+          <span style="flex:1;font-size:12px">${visa}</span>
+          <div style="width:60px;background:var(--surface2);border-radius:99px;height:6px;overflow:hidden"><div style="height:100%;border-radius:99px;background:var(--blue);width:${Math.round(n/maxV*100)}%"></div></div>
+          <span style="font-size:13px;font-weight:600">${n}名</span>
+        </div>`).join('')||'<div style="color:var(--ink3)">データなし</div>'}
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">📊 在留期限サマリー</div>
+      <div style="display:flex;gap:20px;flex-wrap:wrap">
+        <div><div style="font-size:11px;color:var(--ink3)">総登録数</div><div style="font-size:24px;font-weight:700">${STATE.workers.length}名</div></div>
+        <div><div style="font-size:11px;color:var(--ink3)">期限切れ</div><div style="font-size:24px;font-weight:700;color:var(--red)">${expired}名</div></div>
+        <div><div style="font-size:11px;color:var(--ink3)">30日以内</div><div style="font-size:24px;font-weight:700;color:var(--amber)">${soon}名</div></div>
+        <div><div style="font-size:11px;color:var(--ink3)">管理企業数</div><div style="font-size:24px;font-weight:700;color:var(--blue)">${STATE.companies.length}社</div></div>
+      </div>
+    </div>`;
+}
+
+// HOME
+function renderHome(){
+  const now=new Date();
+  document.getElementById('home-date').textContent=`${now.getFullYear()}年${now.getMonth()+1}月${now.getDate()}日（${['日','月','火','水','木','金','土'][now.getDay()]}）`;
+  const expired=STATE.workers.filter(w=>{const d=daysUntil(w.expire);return d!==null&&d<0;});
+  const soon=STATE.workers.filter(w=>{const d=daysUntil(w.expire);return d!==null&&d>=0&&d<=30;});
+  const companies=[...new Set(STATE.workers.map(w=>w.companyId).filter(Boolean))];
+  document.getElementById('stat-total').textContent=STATE.workers.length;
+  document.getElementById('stat-expired').textContent=expired.length;
+  document.getElementById('stat-soon').textContent=soon.length;
+  document.getElementById('stat-companies').textContent=STATE.companies.length;
+
+  const alerts=[...expired.slice(0,3).map(w=>{const c=STATE.companies.find(x=>x.id===w.companyId);const st=getStatus(w);return`<div class="alert alert-red"><span>🚨</span><div><strong>${w.name}</strong>（${c?.name||'—'}）在留期限切れ：${st.label}</div></div>`}),...soon.slice(0,3).map(w=>{const c=STATE.companies.find(x=>x.id===w.companyId);const st=getStatus(w);return`<div class="alert alert-amber"><span>⚠️</span><div><strong>${w.name}</strong>（${c?.name||'—'}）在留期限間近：${st.label}</div></div>`})];
+  document.getElementById('home-alerts').innerHTML=alerts.length===0?'<div class="alert alert-green"><span>✅</span><div>要対応アラートはありません</div></div>':alerts.join('');
+
+  document.getElementById('home-recent').innerHTML=STATE.workers.slice(-5).reverse().map(w=>{
+    const st=getStatus(w);
+    return`<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border)"><span>${COUNTRY_FLAG[w.country]||'🌏'}</span><span style="flex:1;font-size:13px;font-weight:600">${w.name}</span><span class="badge ${st.badge}" style="font-size:10px">${st.label}</span></div>`;
+  }).join('')||'<div style="color:var(--ink3);font-size:13px">労働者が登録されていません</div>';
+
+  document.getElementById('home-companies').innerHTML=STATE.companies.slice(0,5).map(c=>{
+    const cnt=STATE.workers.filter(w=>w.companyId===c.id).length;
+    return`<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border)"><span>🏢</span><span style="flex:1;font-size:13px">${c.name}</span><span class="badge badge-info">${cnt}名</span></div>`;
+  }).join('')||'<div style="color:var(--ink3);font-size:13px">勤務先が登録されていません</div>';
+}
+
+// 既存データ移行（Renderから手動入力用）
+function addSampleData(){
+  if(STATE.companies.length===0){
+    STATE.companies.push({id:STATE.nextId.company++,name:'大阪食品株式会社',industry:'製造業',contact:'',tel:'',address:'',email:''});
+    saveState();
+  }
+}
+
+loadState();
+addSampleData();
+updateCompanySelect();
+const initNow=new Date();
+document.getElementById('home-date').textContent=`${initNow.getFullYear()}年${initNow.getMonth()+1}月${initNow.getDate()}日（${['日','月','火','水','木','金','土'][initNow.getDay()]}）`;
+renderHome();
+</script>
+</body>
+</html>
