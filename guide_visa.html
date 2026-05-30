@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>在留資格チェックシステム 操作ガイド｜GrantFlow</title>
+<style>
+body{font-family:'Noto Sans JP',sans-serif;margin:0;background:#f2f1ec;color:#1a1a18;font-size:14px;line-height:1.8;}
+.header{background:#7c3aed;color:#fff;padding:32px 24px;text-align:center;}
+.header h1{font-size:20px;font-weight:700;margin-bottom:6px;}
+.header p{font-size:13px;opacity:.8;}
+.nav{background:#fff;border-bottom:1px solid #e2e1d8;padding:0 16px;display:flex;overflow-x:auto;position:sticky;top:0;z-index:50;}
+.nav a{padding:12px 14px;font-size:13px;font-weight:500;color:#7a7a72;text-decoration:none;border-bottom:2px solid transparent;white-space:nowrap;}
+.nav a:hover,.nav a.active{color:#7c3aed;border-bottom-color:#7c3aed;}
+.main{max-width:760px;margin:0 auto;padding:24px 16px;}
+.card{background:#fff;border:1px solid #e2e1d8;border-radius:12px;padding:20px;margin-bottom:14px;}
+.card h2{font-size:15px;font-weight:700;margin-bottom:12px;}
+.step{display:flex;gap:12px;margin-bottom:14px;}
+.num{width:28px;height:28px;border-radius:50%;background:#7c3aed;color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0;}
+.step-body h3{font-size:13px;font-weight:700;margin-bottom:4px;}
+.step-body p{font-size:13px;color:#3a3a36;margin:0;}
+.alert{padding:12px 14px;border-radius:8px;font-size:13px;margin-bottom:10px;border:1px solid;}
+.alert-red{background:#fdecea;border-color:#f5b7b1;color:#c0392b;}
+.alert-amber{background:#fff8e6;border-color:#ffd97a;color:#c47a00;}
+.alert-green{background:#e8f5ee;border-color:#b8e0ca;color:#1a7a4a;}
+.alert-blue{background:#e8f0fb;border-color:#a8c4ef;color:#1a5fa8;}
+.faq{border:1px solid #e2e1d8;border-radius:8px;margin-bottom:6px;overflow:hidden;}
+.faq-q{padding:12px 14px;font-size:13px;font-weight:500;cursor:pointer;display:flex;justify-content:space-between;background:#fff;}
+.faq-a{display:none;padding:12px 14px;font-size:13px;color:#3a3a36;background:#f8f7f2;border-top:1px solid #e2e1d8;}
+.faq-a.open{display:block;}
+table{width:100%;border-collapse:collapse;font-size:13px;margin:10px 0;}
+th{background:#7c3aed;color:#fff;padding:8px 10px;text-align:left;font-size:12px;}
+td{padding:8px 10px;border-bottom:1px solid #e2e1d8;}
+.sec{display:none;}.sec.active{display:block;}
+.contact{background:#f8f7f2;border-radius:8px;padding:14px;margin-bottom:10px;display:flex;gap:12px;}
+.contact-icon{font-size:20px;}
+.contact-body h3{font-size:13px;font-weight:700;margin-bottom:2px;}
+.contact-body p{font-size:12px;color:#7a7a72;margin:0;}
+.contact-body a{color:#1a5fa8;}
+</style>
+</head>
+<body>
+<div class="header">
+<h1>🪪 在留資格チェックシステム 操作ガイド</h1>
+<p>GrantFlow ⑦ ｜ 月額¥5,800 / 買い切り¥29,800｜14日間無料トライアルあり</p>
+</div>
+<div class="nav">
+<a href="#" class="active" onclick="return show('overview',this)">📖 概要</a>
+<a href="#" onclick="return show('setup',this)">🚀 はじめの設定</a>
+<a href="#" onclick="return show('steps',this)">📋 操作手順</a>
+<a href="#" onclick="return show('visa',this)">🪪 在留資格一覧</a>
+<a href="#" onclick="return show('faq',this)">❓ FAQ</a>
+<a href="#" onclick="return show('support',this)">📧 サポート</a>
+</div>
+<div class="main">
+
+<div class="sec active" id="sec-overview">
+<div class="card"><h2>📖 このシステムでできること</h2>
+<div class="alert alert-green">✅ 雇用前に就労可否を即座に判定。19種類の在留資格に対応。不法就労を未然に防ぎます。</div>
+<div class="step"><div class="num">1</div><div class="step-body"><h3>就労可否の即座判定</h3><p>在留資格を選択するだけで就労できるか・条件があるかを即座に表示します。</p></div></div>
+<div class="step"><div class="num">2</div><div class="step-body"><h3>在留期限の管理</h3><p>在留期限を登録するとアラートで期限切れを防ぎます。</p></div></div>
+<div class="step"><div class="num">3</div><div class="step-body"><h3>不法就労リスクの防止</h3><p>週28時間制限・活動制限など複雑なルールをシステムが自動チェックします。</p></div></div>
+</div>
+<div class="card"><h2>⚠️ 不法就労させると？</h2>
+<div class="alert alert-red">🚨 不法就労させた事業主は「不法就労助長罪」として3年以下の懲役または300万円以下の罰金が科せられます。知らなかったでは済みません。</div>
+<table>
+<tr><th>リスク</th><th>内容</th></tr>
+<tr><td>刑事罰</td><td>3年以下の懲役または300万円以下の罰金</td></tr>
+<tr><td>助成金の不支給</td><td>不法就労者がいると助成金が受給できなくなる</td></tr>
+<tr><td>行政処分</td><td>事業停止命令・許可取り消しなど</td></tr>
+</table>
+</div>
+</div>
+
+<div class="sec" id="sec-setup">
+<div class="card"><h2>🚀 はじめの設定</h2>
+<div class="alert alert-blue">ℹ️ 設定不要ですぐ使えます。</div>
+<div class="step"><div class="num">1</div><div class="step-body"><h3>システムを開く</h3><p><code style="background:#f8f7f2;padding:3px 6px;border-radius:4px;font-size:11px;word-break:break-all">https://hikari5135.github.io/grantflow-app/在留資格チェックシステム.html</code></p></div></div>
+<div class="step"><div class="num">2</div><div class="step-body"><h3>在留資格を選択する</h3><p>採用予定者・在籍者の在留資格を選択します。在留カードに記載されています。</p></div></div>
+<div class="step"><div class="num">3</div><div class="step-body"><h3>就労可否を確認する</h3><p>選択すると即座に就労可否・条件・注意事項が表示されます。</p></div></div>
+</div>
+</div>
+
+<div class="sec" id="sec-steps">
+<div class="card"><h2>📋 採用時の確認手順</h2>
+<div class="alert alert-amber">⚠️ 採用前に必ず在留資格を確認してください。採用後に発覚しても事業主の責任になります。</div>
+<div class="step"><div class="num">1</div><div class="step-body"><h3>在留カードを確認する</h3><p>応募者から在留カードを提示してもらいます。カード表面の「在留資格」欄を確認します。</p></div></div>
+<div class="step"><div class="num">2</div><div class="step-body"><h3>システムで就労可否を確認する</h3><p>在留資格をシステムに入力。就労可・就労不可・条件付き就労可が表示されます。</p></div></div>
+<div class="step"><div class="num">3</div><div class="step-body"><h3>在留期限を確認する</h3><p>在留カードの「在留期間（満了日）」を確認。期限切れの場合は就労できません。</p></div></div>
+<div class="step"><div class="num">4</div><div class="step-body"><h3>記録を保存する</h3><p>確認した内容をシステムに記録します。将来の監査・調査に備えて記録を残しましょう。</p></div></div>
+</div>
+<div class="card"><h2>📋 在職者の定期確認</h2>
+<div class="step"><div class="num">1</div><div class="step-body"><h3>在留期限のアラートを確認する</h3><p>ダッシュボードで在留期限が近い従業員を確認します。30日前にアラートが出ます。</p></div></div>
+<div class="step"><div class="num">2</div><div class="step-body"><h3>更新手続きを確認する</h3><p>本人が在留期限の更新手続きを行っているか確認します。更新中は「在留期間更新許可申請中」のシールが貼られます。</p></div></div>
+<div class="step"><div class="num">3</div><div class="step-body"><h3>更新後の情報を登録する</h3><p>更新が完了したら新しい在留期限をシステムに登録します。</p></div></div>
+</div>
+</div>
+
+<div class="sec" id="sec-visa">
+<div class="card"><h2>🪪 主な在留資格と就労可否</h2>
+<table>
+<tr><th>在留資格</th><th>就労可否</th><th>注意点</th></tr>
+<tr><td>特定技能1号・2号</td><td>✅ 就労可</td><td>特定の業種のみ</td></tr>
+<tr><td>技術・人文知識・国際業務</td><td>✅ 就労可</td><td>業務内容に制限あり</td></tr>
+<tr><td>技能実習1号〜3号</td><td>✅ 就労可</td><td>実習計画の業務のみ</td></tr>
+<tr><td>永住者・特別永住者</td><td>✅ 就労可</td><td>制限なし</td></tr>
+<tr><td>定住者・日本人の配偶者等</td><td>✅ 就労可</td><td>制限なし</td></tr>
+<tr><td>家族滞在</td><td>⚠️ 条件付き</td><td>資格外活動許可が必要・週28時間以内</td></tr>
+<tr><td>留学</td><td>⚠️ 条件付き</td><td>資格外活動許可が必要・週28時間以内</td></tr>
+<tr><td>短期滞在</td><td>❌ 就労不可</td><td>観光・商用目的のみ</td></tr>
+<tr><td>外交・公用</td><td>❌ 就労不可</td><td>外交官など</td></tr>
+</table>
+<div class="alert alert-amber">⚠️ 「家族滞在」「留学」は資格外活動許可があっても週28時間を超えて就労させると不法就労になります。</div>
+</div>
+</div>
+
+<div class="sec" id="sec-faq">
+<div class="card"><h2>❓ よくある質問</h2>
+<div class="faq"><div class="faq-q" onclick="toggleFaq(this)"><span>在留カードの偽造を見分けるには？</span><span>▼</span></div><div class="faq-a">法務省の「在留カード等番号失効情報照会」サービスで確認できます。また在留カードにはICチップが埋め込まれており、スマートフォンアプリで読み取り確認できます。</div></div>
+<div class="faq"><div class="faq-q" onclick="toggleFaq(this)"><span>週28時間の計算方法は？</span><span>▼</span></div><div class="faq-a">月〜日の1週間で合計28時間以内です。複数の会社で働いている場合は合算して28時間以内になります。学校の長期休暇中は1日8時間・週40時間まで認められます。</div></div>
+<div class="faq"><div class="faq-q" onclick="toggleFaq(this)"><span>在留期限が切れた場合はどうすればよいですか？</span><span>▼</span></div><div class="faq-a">在留期限が切れた場合は即座に就労を停止してください。本人に速やかに出入国在留管理局に相談するよう伝えてください。事業主も状況によっては責任を問われる場合があります。</div></div>
+<div class="faq"><div class="faq-q" onclick="toggleFaq(this)"><span>特定技能の業種制限とは？</span><span>▼</span></div><div class="faq-a">特定技能は介護・建設・製造など12の特定産業分野でのみ就労できます。許可された業種以外での就労は不法就労になります。</div></div>
+</div>
+</div>
+
+<div class="sec" id="sec-support">
+<div class="card"><h2>📧 サポート</h2>
+<div class="alert alert-green">✅ 通常1〜2営業日以内にご返信します。</div>
+<div class="contact"><div class="contact-icon">📧</div><div class="contact-body"><h3>メール</h3><p><a href="mailto:akira.sakamoto5135@gmail.com">akira.sakamoto5135@gmail.com</a></p></div></div>
+<div class="contact"><div class="contact-icon">📖</div><div class="contact-body"><h3>NOTE</h3><p><a href="https://note.com/grantflow2025" target="_blank">https://note.com/grantflow2025</a></p></div></div>
+<div class="contact"><div class="contact-icon">💴</div><div class="contact-body"><h3>料金シミュレーター</h3><p><a href="https://hikari5135.github.io/grantflow-app/GrantFlow_料金シミュレーター.html" target="_blank">開く</a></p></div></div>
+<p style="margin-top:14px;font-size:13px">GrantFlow 阪本 光｜大阪府堺市</p>
+</div>
+</div>
+
+</div>
+<script>
+function show(id,el){
+document.querySelectorAll('.sec').forEach(s=>s.classList.remove('active'));
+document.querySelectorAll('.nav a').forEach(a=>a.classList.remove('active'));
+document.getElementById('sec-'+id).classList.add('active');
+el.classList.add('active');
+window.scrollTo(0,0);
+return false;
+}
+function toggleFaq(el){
+const a=el.nextElementSibling;
+a.classList.toggle('open');
+el.querySelector('span:last-child').textContent=a.classList.contains('open')?'▲':'▼';
+}
+</script>
+</body>
+</html>
