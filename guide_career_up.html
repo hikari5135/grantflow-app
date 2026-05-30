@@ -1,1 +1,174 @@
 
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>キャリアアップ助成金 操作ガイド｜GrantFlow</title>
+<style>
+body{font-family:'Noto Sans JP',sans-serif;margin:0;background:#f2f1ec;color:#1a1a18;font-size:14px;line-height:1.8;}
+.header{background:#1a7a4a;color:#fff;padding:32px 24px;text-align:center;}
+.header h1{font-size:20px;font-weight:700;margin-bottom:6px;}
+.header p{font-size:13px;opacity:.8;}
+.nav{background:#fff;border-bottom:1px solid #e2e1d8;padding:0 16px;display:flex;overflow-x:auto;position:sticky;top:0;z-index:50;}
+.nav a{padding:12px 14px;font-size:13px;font-weight:500;color:#7a7a72;text-decoration:none;border-bottom:2px solid transparent;white-space:nowrap;}
+.nav a:hover,.nav a.active{color:#1a7a4a;border-bottom-color:#1a7a4a;}
+.main{max-width:760px;margin:0 auto;padding:24px 16px;}
+.card{background:#fff;border:1px solid #e2e1d8;border-radius:12px;padding:20px;margin-bottom:14px;}
+.card h2{font-size:15px;font-weight:700;margin-bottom:12px;}
+.step{display:flex;gap:12px;margin-bottom:14px;}
+.num{width:28px;height:28px;border-radius:50%;background:#1a7a4a;color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0;}
+.step-body h3{font-size:13px;font-weight:700;margin-bottom:4px;}
+.step-body p{font-size:13px;color:#3a3a36;margin:0;}
+.alert{padding:12px 14px;border-radius:8px;font-size:13px;margin-bottom:10px;border:1px solid;}
+.alert-red{background:#fdecea;border-color:#f5b7b1;color:#c0392b;}
+.alert-amber{background:#fff8e6;border-color:#ffd97a;color:#c47a00;}
+.alert-green{background:#e8f5ee;border-color:#b8e0ca;color:#1a7a4a;}
+.alert-blue{background:#e8f0fb;border-color:#a8c4ef;color:#1a5fa8;}
+.faq{border:1px solid #e2e1d8;border-radius:8px;margin-bottom:6px;overflow:hidden;}
+.faq-q{padding:12px 14px;font-size:13px;font-weight:500;cursor:pointer;display:flex;justify-content:space-between;background:#fff;}
+.faq-a{display:none;padding:12px 14px;font-size:13px;color:#3a3a36;background:#f8f7f2;border-top:1px solid #e2e1d8;}
+.faq-a.open{display:block;}
+table{width:100%;border-collapse:collapse;font-size:13px;margin:10px 0;}
+th{background:#1a7a4a;color:#fff;padding:8px 10px;text-align:left;font-size:12px;}
+td{padding:8px 10px;border-bottom:1px solid #e2e1d8;}
+.sec{display:none;} .sec.active{display:block;}
+.contact{background:#f8f7f2;border-radius:8px;padding:14px;margin-bottom:10px;display:flex;gap:12px;align-items:flex-start;}
+.contact-icon{font-size:20px;}
+.contact-body h3{font-size:13px;font-weight:700;margin-bottom:2px;}
+.contact-body p{font-size:12px;color:#7a7a72;margin:0;}
+.contact-body a{color:#1a5fa8;}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>📋 キャリアアップ助成金<br>管理システム 操作ガイド</h1>
+  <p>GrantFlow ② ｜ 月額¥12,800 / 買い切り¥98,000｜14日間無料トライアルあり</p>
+</div>
+<div class="nav">
+  <a href="#" class="active" onclick="show('overview',this)">📖 概要</a>
+  <a href="#" onclick="show('setup',this)">🚀 はじめの設定</a>
+  <a href="#" onclick="show('steps',this)">📋 STEP操作</a>
+  <a href="#" onclick="show('features',this)">⭐ 主要機能</a>
+  <a href="#" onclick="show('faq',this)">❓ FAQ</a>
+  <a href="#" onclick="show('support',this)">📧 サポート</a>
+</div>
+<div class="main">
+
+<div class="sec active" id="sec-overview">
+  <div class="card">
+    <h2>📖 このシステムでできること</h2>
+    <div class="alert alert-green">✅ キャリアアップ助成金の申請をSTEP1〜6まで一元管理。書類の準備漏れ・期限超過をゼロにします。</div>
+    <div class="step"><div class="num">1</div><div class="step-body"><h3>申請期限の見落とし防止</h3><p>期限を自動計算してアラートを出します。1日でも過ぎると申請できません。</p></div></div>
+    <div class="step"><div class="num">2</div><div class="step-body"><h3>複数案件の同時管理</h3><p>複数の企業・対象者を同時に管理。どの案件がどのSTEPにいるか一目でわかります。</p></div></div>
+    <div class="step"><div class="num">3</div><div class="step-body"><h3>書類の準備漏れ防止</h3><p>各STEPで必要な書類をチェックリストで管理します。</p></div></div>
+  </div>
+  <div class="card">
+    <h2>🗓️ 申請の流れ（STEP1〜6）</h2>
+    <table>
+      <tr><th>STEP</th><th>内容</th><th>期限</th></tr>
+      <tr><td>S1</td><td>キャリアアップ計画届の提出</td><td>雇用前に提出</td></tr>
+      <tr><td>S2</td><td>対象者の雇用・訓練開始</td><td>計画届提出後</td></tr>
+      <tr><td>S3</td><td>正社員転換・処遇改善の実施</td><td>訓練修了後</td></tr>
+      <tr><td>S4</td><td>支給申請書類の準備</td><td>転換後6ヶ月以内</td></tr>
+      <tr><td>S5</td><td>ハローワークへ支給申請</td><td>転換後6ヶ月の翌日から2ヶ月以内</td></tr>
+      <tr><td>S6</td><td>助成金の受給</td><td>審査後振込</td></tr>
+    </table>
+    <div class="alert alert-amber">⚠️ 各STEPには厳格な期限があります。このシステムが自動で期限を計算・管理します。</div>
+  </div>
+  <div class="card">
+    <h2>💴 受給できる金額の目安</h2>
+    <table>
+      <tr><th>コース</th><th>受給額目安</th></tr>
+      <tr><td>正社員化コース</td><td>月額57,000円〜</td></tr>
+      <tr><td>賃金規定等改定コース</td><td>月額47,500円〜</td></tr>
+      <tr><td>賞与・退職金制度導入コース</td><td>月額47,500円〜</td></tr>
+    </table>
+    <p style="font-size:11px;color:#7a7a72">※金額は目安です。最新情報は厚生労働省のホームページでご確認ください。</p>
+  </div>
+</div>
+
+<div class="sec" id="sec-setup">
+  <div class="card">
+    <h2>🚀 はじめの設定（5分でできます）</h2>
+    <div class="alert alert-blue">ℹ️ 初回のみ設定が必要です。一度設定すれば次回からすぐ使えます。</div>
+    <div class="step"><div class="num">1</div><div class="step-body"><h3>システムを開く</h3><p>下のURLをブラウザで開いてください。<br><code style="background:#f8f7f2;padding:3px 6px;border-radius:4px;font-size:11px;word-break:break-all">https://hikari5135.github.io/grantflow-app/キャリアアップ助成金_統合管理アプリ_修正版2.html</code></p></div></div>
+    <div class="step"><div class="num">2</div><div class="step-body"><h3>事務所・会社情報を設定する</h3><p>サイドバーの「⚙️ 設定」から事務所名・担当者名・メールアドレスを入力してください。</p></div></div>
+    <div class="step"><div class="num">3</div><div class="step-body"><h3>最初の案件を登録する</h3><p>「＋ 新規案件を追加」から顧客企業名・対象者名・計画届提出予定日・適用コースを入力します。</p></div></div>
+    <div class="step"><div class="num">4</div><div class="step-body"><h3>完了！</h3><p>ダッシュボードに案件が表示されます。</p><div class="alert alert-green" style="margin-top:8px">✅ データはブラウザに自動保存されます。次回開いたときも続きから使えます。</div></div></div>
+  </div>
+</div>
+
+<div class="sec" id="sec-steps">
+  <div class="card">
+    <h2>📋 STEP1：キャリアアップ計画届の管理</h2>
+    <div class="alert alert-red">🚨 重要：計画届は雇用日・訓練開始日の前日までに提出が必要です。事前提出が絶対条件です。</div>
+    <div class="step"><div class="num">1</div><div class="step-body"><h3>計画届の情報を入力する</h3><p>案件詳細画面でSTEP1を選択し、提出予定日・提出先ハローワークを入力します。</p></div></div>
+    <div class="step"><div class="num">2</div><div class="step-body"><h3>必要書類をチェックする</h3><p>□ キャリアアップ計画書（様式1号）<br>□ 就業規則または労働協約<br>□ 登記事項証明書（法人の場合）</p></div></div>
+    <div class="step"><div class="num">3</div><div class="step-body"><h3>提出完了を記録する</h3><p>「提出完了」ボタンをクリックすると自動的にSTEP2に進みます。</p></div></div>
+  </div>
+  <div class="card">
+    <h2>📋 STEP5：支給申請（最重要）</h2>
+    <div class="alert alert-red">🚨 期限厳守：転換後6ヶ月の翌日から2ヶ月以内に申請が必要です。この期限を過ぎると受給できません。</div>
+    <div class="step"><div class="num">1</div><div class="step-body"><h3>申請期限をダッシュボードで確認する</h3><p>30日前・14日前・7日前にアラートが出ます。</p></div></div>
+    <div class="step"><div class="num">2</div><div class="step-body"><h3>支給申請書類を準備する</h3><p>□ 支給申請書（様式3号）<br>□ 転換前後6ヶ月の賃金台帳<br>□ 転換前後6ヶ月の出勤簿<br>□ 転換を証明する労働条件通知書</p></div></div>
+    <div class="step"><div class="num">3</div><div class="step-body"><h3>申請完了を記録する</h3><p>申請後に「申請完了」を記録します。受付番号も入力しておくと後で確認できます。</p></div></div>
+  </div>
+</div>
+
+<div class="sec" id="sec-features">
+  <div class="card">
+    <h2>⭐ 主要機能一覧</h2>
+    <table>
+      <tr><th>機能</th><th>内容</th></tr>
+      <tr><td>ダッシュボード</td><td>全案件の状況・期限アラートを一目で確認</td></tr>
+      <tr><td>期限自動計算</td><td>転換日を入力するだけで申請期限を自動計算</td></tr>
+      <tr><td>書類チェックリスト</td><td>各STEPで必要な書類の準備状況を管理</td></tr>
+      <tr><td>AIレポート自動生成</td><td>お客様向け進捗報告書を自動生成・印刷</td></tr>
+      <tr><td>CSVインポート</td><td>既存のExcelデータを一括取り込み</td></tr>
+    </table>
+  </div>
+</div>
+
+<div class="sec" id="sec-faq">
+  <div class="card">
+    <h2>❓ よくある質問</h2>
+    <div class="faq"><div class="faq-q" onclick="toggleFaq(this)"><span>データはどこに保存されますか？</span><span>▼</span></div><div class="faq-a">ブラウザのローカルストレージに保存されます。外部サーバーには送信されません。定期的にCSVエクスポートで手元に保存することをおすすめします。</div></div>
+    <div class="faq"><div class="faq-q" onclick="toggleFaq(this)"><span>複数のパソコンで使えますか？</span><span>▼</span></div><div class="faq-a">ブラウザごとにデータが保存されるため、別のパソコンでは別のデータになります。CSVエクスポート→インポートでデータを移行できます。</div></div>
+    <div class="faq"><div class="faq-q" onclick="toggleFaq(this)"><span>期限のアラートはいつ出ますか？</span><span>▼</span></div><div class="faq-a">期限の30日前・14日前・7日前・当日にダッシュボードのアラート欄に表示されます。期限を過ぎると赤色の「期限超過」表示になります。</div></div>
+    <div class="faq"><div class="faq-q" onclick="toggleFaq(this)"><span>印刷できますか？</span><span>▼</span></div><div class="faq-a">ブラウザの印刷機能（Ctrl+P）でそのまま印刷できます。</div></div>
+    <div class="faq"><div class="faq-q" onclick="toggleFaq(this)"><span>スマートフォンでも使えますか？</span><span>▼</span></div><div class="faq-a">スマートフォンのブラウザでも利用できますが、入力作業はパソコンでの利用をおすすめします。</div></div>
+  </div>
+</div>
+
+<div class="sec" id="sec-support">
+  <div class="card">
+    <h2>📧 お問い合わせ・サポート</h2>
+    <div class="alert alert-green">✅ ご不明な点はお気軽にお問い合わせください。通常1〜2営業日以内にご返信します。</div>
+    <div class="contact"><div class="contact-icon">📧</div><div class="contact-body"><h3>メールサポート</h3><p><a href="mailto:akira.sakamoto5135@gmail.com">akira.sakamoto5135@gmail.com</a></p></div></div>
+    <div class="contact"><div class="contact-icon">📖</div><div class="contact-body"><h3>NOTE（情報発信）</h3><p><a href="https://note.com/grantflow2025" target="_blank">https://note.com/grantflow2025</a></p></div></div>
+    <div class="contact"><div class="contact-icon">💴</div><div class="contact-body"><h3>料金シミュレーター</h3><p><a href="https://hikari5135.github.io/grantflow-app/GrantFlow_料金シミュレーター.html" target="_blank">料金シミュレーターを開く</a></p></div></div>
+    <div style="margin-top:16px;padding-top:14px;border-top:1px solid #e2e1d8;font-size:13px;color:#3a3a36">
+      GrantFlow 阪本 光｜大阪府堺市｜外国人雇用支援システム開発
+    </div>
+  </div>
+</div>
+
+</div>
+<script>
+function show(id,el){
+  document.querySelectorAll('.sec').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav a').forEach(a=>a.classList.remove('active'));
+  document.getElementById('sec-'+id).classList.add('active');
+  el.classList.add('active');
+  window.scrollTo(0,0);
+  return false;
+}
+function toggleFaq(el){
+  const a=el.nextElementSibling;
+  a.classList.toggle('open');
+  el.querySelector('span:last-child').textContent=a.classList.contains('open')?'▲':'▼';
+}
+</script>
+</body>
+</html>
